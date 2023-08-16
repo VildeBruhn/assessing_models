@@ -1,12 +1,7 @@
-library(Matrix)
-library(ggpmisc)
 library(evoTS)
-library(paleoTS)
 library(adePEM)
 library(tidyverse)
 library(data.table)
-library(wesanderson)
-library(lme4)
 
 #------------------------
 # Data manipulation (dt)

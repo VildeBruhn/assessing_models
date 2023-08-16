@@ -7,12 +7,10 @@
 
 rm(list = ls())
 
-library(parallel)
 library(doParallel)
-library(broom.mixed)
 library(adePEM)
 #library('MuMIn')
-source("/Users/vildeki/Dropbox (UiO)/PhD/assesing_models/assessing_models_functions.R")
+source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 source("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/adeq_stasis_functions.R")
 
 # set working directory for database
