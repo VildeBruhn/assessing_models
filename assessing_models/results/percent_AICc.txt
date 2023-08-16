@@ -1,0 +1,10 @@
+                            GRW                             URW 
+                       7.878788                       25.909091 
+                         Stasis                   Strict stasis 
+                      21.060606                       19.090909 
+                          Decel                           Accel 
+                       3.333333                        3.484848 
+                             OU OU mov. optm. (ancestral state) 
+                       8.787879                        4.545455 
+                  OU mov. optm. 
+                       5.909091 
