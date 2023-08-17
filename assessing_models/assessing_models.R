@@ -7,12 +7,13 @@
 
 rm(list = ls())
 
+library(parallel)
 library(doParallel)
 library(adePEM)
 
 source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 
-# set working directory for database
+# set working directory
 setwd("/Users/vildeki/GitHub/assessing_models/")
 
 # -------------------------
@@ -27,7 +28,7 @@ my_cluster <- parallel::makeCluster(
   type = "FORK"
 )
 
-# register it to be used by %dopar%
+# register it to be used
 doParallel::registerDoParallel(cl = my_cluster)
 
 #-----------------
@@ -54,10 +55,10 @@ ln_data <- lapply(ln_data_meta, function(x) {
 ## Fit models and find best (AICc) ##
 #####################################
 
-# test all possible univariate models from evoTS on timeseries
+# test all possible univariate models from evoTS on time series
 model_test <- mclapply(ln_data, fit.all.univariate, pool = TRUE)
 
-# extract AICc values from URW on all results
+# extract AICc values on all results
 aicc <- lapply(model_test, function(x) x[(names(x) %in% c("AICc"))])
 
 # check which AICc value is the lowest
@@ -143,12 +144,12 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
 stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE)
-strict_stasis_adeq <- mclapply(strict_stasis, adeq_stasis, plot = FALSE)
+strict_stasis_adeq <- mclapply(strict_stasis, adeq_stasis, plot = FALSE) # function added manually
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
-OU_adeq <- mclapply(OU, adeq_OU, plot = FALSE)
-OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, adeq_OU, plot = FALSE)
-OU_mov_opt_adeq <- mclapply(OU_mov_opt, adeq_OU, plot = FALSE)
+OU_adeq <- mclapply(OU, adeq_OU, plot = FALSE) # function added manually
+OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, adeq_OU, plot = FALSE) # function added manually
+OU_mov_opt_adeq <- mclapply(OU_mov_opt, adeq_OU, plot = FALSE) # function added manually
 
 # Get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
