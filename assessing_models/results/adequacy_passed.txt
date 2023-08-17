@@ -1,0 +1,7 @@
+              % passed
+GRW           94.23077
+URW           90.05848
+stasis        66.18705
+strict stasis 58.73016
+decel         63.63636
+accel         52.17391
