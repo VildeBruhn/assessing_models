@@ -228,3 +228,58 @@ adeq_stasis <- function (y, nrep = 1000, conf = 0.95, plot = FALSE, omega = NULL
   out <- list(info = summary.out, summary = output)
   return(out)
 }
+
+#------------------------------------------------
+# fit3adequacy.OU (doesn't work through adePEM)
+#------------------------------------------------
+
+adeq_OU <- function (y, nrep = 1000, conf = 0.95, cutoff = 0.8, plot = FALSE) 
+{
+  x <- y$mm
+  v <- y$vv
+  n <- y$nn
+  tt <- y$tt
+  anc <- opt.joint.OU(y)$parameters[1]
+  vstep <- opt.joint.OU(y)$parameters[2]
+  theta <- opt.joint.OU(y)$parameters[3]
+  alpha <- opt.joint.OU(y)$parameters[4]
+  tmp_OU <- opt.joint.OU(y)
+  pred_OU <- est.OU(y, tmp_OU, tt = tt)
+  detrended_OU <- x - pred_OU$ee
+  lower <- (1 - conf)/2
+  upper <- (1 + conf)/2
+  obs.auto.corr <- auto.corr(detrended_OU, model = "OU", tt)
+  obs.runs.test <- runs.test(detrended_OU, model = "OU", tt)
+  obs_sum_of_residuals <- 0
+  out.auto <- auto.corr.test.OU(y, nrep, conf, plot = FALSE, 
+                                save.replicates = TRUE)
+  out.runs <- runs.test.OU(y, nrep, conf, plot = FALSE, save.replicates = TRUE)
+  out.var <- variance.test.OU(y, nrep, cutoff, plot = FALSE, 
+                              save.replicates = TRUE)
+  output <- c(as.vector(matrix(unlist(out.auto[[3]]), ncol = 5, 
+                               byrow = FALSE)), as.vector(matrix(unlist(out.runs[[3]]), 
+                                                                 ncol = 5, byrow = FALSE)), as.vector(matrix(unlist(out.var[[3]]), 
+                                                                                                             ncol = 5, byrow = FALSE)))
+  output <- as.data.frame(cbind(c(output[c(1, 6, 11)]), c(output[c(2, 
+                                                                   7, 12)]), c(output[c(3, 8, 13)]), c(output[c(4, 9, 14)]), 
+                                c(output[c(5, 10, 15)])), ncol = 5)
+  rownames(output) <- c("auto.corr", "runs.test", "slope.test")
+  colnames(output) <- c("estimate", "min.sim", "max.sim", "p-value", 
+                        "result")
+  if (plot == TRUE) {
+    par(mfrow = c(1, 3))
+    model.names <- c("auto.corr", "runs.test", "slope.test")
+    plotting.distributions(out.auto$replicates, obs.auto.corr, 
+                           model.names[1], xlab = "Simulated data", main = "Autocorrelation")
+    plotting.distributions(out.runs$replicates, obs.runs.test, 
+                           model.names[2], xlab = "Simulated data", main = "Runs")
+    plotting.distributions(out.var$replicates, obs_sum_of_residuals, 
+                           model.names[3], xlab = "Simulated data", main = "Initial rapid change")
+  }
+  summary.out <- as.data.frame(c(nrep, conf, cutoff))
+  rownames(summary.out) <- c("replications", "confidence level", 
+                             "cut-off faster evolution")
+  colnames(summary.out) <- ("Value")
+  out <- list(info = summary.out, summary = output)
+  return(out)
+}
