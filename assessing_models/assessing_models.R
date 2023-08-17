@@ -9,12 +9,12 @@ rm(list = ls())
 
 library(doParallel)
 library(adePEM)
-#library('MuMIn')
+
 source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
-source("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/adeq_stasis_functions.R")
+#source("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/adeq_stasis_functions.R")
 
 # set working directory for database
-setwd("/Users/vildeki/Dropbox (UiO)/PhD/Colab_project/")
+setwd("/Users/vildeki/GitHub/assessing_models/")
 
 # -------------------------
 # Set up for parallel runs
@@ -36,15 +36,11 @@ doParallel::registerDoParallel(cl = my_cluster)
 #-----------------
 
 # import
-timeseries <- read_delim("timeseries.txt", col_names = TRUE, delim = "\t")
-metadata <- read_delim("metadata.txt", col_names = TRUE, delim = "\t")
+timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim = "\t")
+metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
 
 # join dataframes
 df <- left_join(timeseries, metadata, by = c("tsID"))
-
-# remove modern timeseries
-#df <- subset(df, sediment!="none")
-#df <- subset(df, trait_type!="complex")
 
 # make list based on ID
 df <- lapply(split(df,df$tsID), function(x) as.list(x))
