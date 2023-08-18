@@ -147,7 +147,7 @@ stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE)
 strict_stasis_adeq <- mclapply(strict_stasis, adeq_stasis, plot = FALSE) # function added manually
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
-#OU_adeq <- lapply(OU, adeq_OU, plot = FALSE) # function added manually
+OU_adeq <- lapply(OU, adeq_OU, plot = FALSE) # function added manually
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, adeq_OU, plot = FALSE) # function added manually
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, adeq_OU, plot = FALSE) # function added manually
 
@@ -182,3 +182,5 @@ colnames(adeq_table) <- "% passed"
 sink(file = "./results/adequacy_passed.txt")
 adeq_table
 sink()
+
+OU_test <- lapply(OU, adeq_OU)
