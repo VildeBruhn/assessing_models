@@ -39,6 +39,10 @@ load(file = "OU_test.Rdata")
 load(file = "OU_mov_opt_anc_test.Rdata")
 load(file = "OU_mov_opt_test.Rdata")
 
+###################
+## Test adequacy ##
+###################
+
 OU_adeq <- lapply(OU_test, adeq_OU, plot = FALSE) # function added manually
 OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc_test, adeq_OU, plot = FALSE) # function added manually
 OU_mov_opt_adeq <- mclapply(OU_mov_opt_test, adeq_OU, plot = FALSE) # function added manually
