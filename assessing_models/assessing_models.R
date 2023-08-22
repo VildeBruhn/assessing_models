@@ -4,8 +4,13 @@
 
 #paleoTS.v.0.5.3
 #evoTS GitHub version
+# adePEM new models version
+
+.rs.restartR()
 
 rm(list = ls())
+
+devtools::install_github("klvoje/adePEM", ref = "new_models")
 
 library(parallel)
 library(doParallel)
@@ -140,6 +145,7 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
 
+
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
@@ -148,7 +154,7 @@ strict_stasis_adeq <- mclapply(strict_stasis, adeq_stasis, plot = FALSE) # funct
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 OU_adeq <- lapply(OU, adeq_OU, plot = FALSE) # function added manually
-#OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, adeq_OU, plot = FALSE) # function added manually
+OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, adeq_OU, plot = FALSE) # function added manually
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, adeq_OU, plot = FALSE) # function added manually
 
 # get only adequate time series
@@ -183,4 +189,3 @@ sink(file = "./results/adequacy_passed.txt")
 adeq_table
 sink()
 
-OU_test <- lapply(OU, adeq_OU)
