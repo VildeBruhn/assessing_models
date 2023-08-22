@@ -50,15 +50,19 @@ ln_data_meta <- dt(df, "tsID")
 ln_data <- lapply(ln_data_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
+             
+# exclude too short timeseries            
 
+
+
+
+             
 #####################################################
 ## Fit models including shift and find best (AICc) ##
 #####################################################
 
-
-#------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 # need to define the minimum of samples that can be considered to be a segment of the model
-# need to exclude time series which don't have enough points to include the shift point
 #------------------------------------------------------------------------------------------------
 
 
