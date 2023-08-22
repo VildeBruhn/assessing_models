@@ -161,19 +161,179 @@ auto_corr_test_stasis <- function (y, nrep = 1000, conf = 0.95, plot = TRUE, sav
   }
 }
 
-sim.Stasis <- function (ns = 20, theta = 0, omega = 0, vp = 1, nn = rep(20, 
+sim_Stasis <- function (ns = 20, theta = 0, omega = 0, vp = 1, nn = rep(20, 
                                                                         ns), tt = 0:(ns - 1)) 
 {
   xmu <- rnorm(ns, mean = theta, sd = sqrt(omega))
   xobs <- xmu + rnorm(ns, 0, sqrt(vp/nn))
   gp <- c(theta, omega)
   names(gp) <- c("theta", "omega")
-  x <- as.paleoTS(mm = xobs, vv = rep(vp, 1), nn = nn, tt = tt, 
+  x <- as.paleoTS(mm = xobs, vv = rep(vp, length(xobs)), nn = nn, tt = tt, 
                   MM = xmu, genpars = gp, label = "Created by sim.Stasis", 
                   reset.time = FALSE)
+  # vv = rep(vp, 1) changed to vv = rep(vp, length(xobs))
   return(x)
 }
 
+
+runs_test_stasis <- function (y, nrep = 1000, conf = 0.95, plot = TRUE, save.replicates = TRUE, 
+          omega = NULL) 
+{
+  x <- y$mm
+  v <- y$vv
+  n <- y$nn
+  tt <- y$tt
+  theta <- opt.joint.Stasis(y)$parameters[1]
+  if (is.null(omega)) 
+    omega <- opt.joint.Stasis(y)$parameters[2]
+  lower <- (1 - conf)/2
+  upper <- (1 + conf)/2
+  obs.runs.test <- runs.test(x, model = "stasis", tt, theta)
+  bootstrap.matrix <- matrix(data = NA, nrow = nrep, ncol = 1)
+  for (i in 1:nrep) {
+    x.sim <- sim_Stasis(ns = length(x), theta = theta, omega = omega, 
+                        vp = mean(v), nn = n, tt = tt)
+    bootstrap.matrix[i, 1] <- runs.test(x.sim$mm, model = "stasis", 
+                                        tt, theta = theta)
+  }
+  bootstrap.runs.test <- length(bootstrap.matrix[, 1][bootstrap.matrix[, 
+                                                                       1] > obs.runs.test])/nrep
+  if (bootstrap.runs.test > round(upper, 3) | bootstrap.runs.test < 
+      round(lower, 3)) 
+    pass.runs.test <- "FAILED"
+  else pass.runs.test <- "PASSED"
+  if (bootstrap.runs.test > 0.5) 
+    bootstrap.runs.test <- 1 - bootstrap.runs.test
+  if (plot == TRUE) {
+    par(mfrow = c(1, 1))
+    plotting.distributions(bootstrap.matrix[, 1], obs.runs.test, 
+                           test = "runs.test", xlab = "Simulated data", main = "Runs")
+  }
+  output <- as.data.frame(cbind(round(obs.runs.test, 5), round(min(bootstrap.matrix), 
+                                                               5), round(max(bootstrap.matrix), 5), bootstrap.runs.test/0.5, 
+                                pass.runs.test), nrow = 5, byrow = TRUE)
+  rownames(output) <- "runs.test"
+  colnames(output) <- c("estimate", "min.sim", "max.sim", "p-value", 
+                        "result")
+  summary.out <- as.data.frame(c(nrep, conf))
+  rownames(summary.out) <- c("replications", "confidence level")
+  colnames(summary.out) <- ("Value")
+  if (save.replicates == FALSE) {
+    out <- list(info = summary.out, summary = output)
+    return(out)
+  }
+  else {
+    out <- list(replicates = bootstrap.matrix, info = summary.out, 
+                summary = output)
+    return(out)
+  }
+}
+
+slope_test_stasis <- function (y, nrep = 1000, conf = 0.95, plot = TRUE, save.replicates = TRUE, 
+          omega = NULL) 
+{
+  x <- y$mm
+  v <- y$vv
+  n <- y$nn
+  tt <- y$tt
+  theta <- opt.joint.Stasis(y)$parameters[1]
+  if (is.null(omega)) 
+    omega <- opt.joint.Stasis(y)$parameters[2]
+  lower <- (1 - conf)/2
+  upper <- (1 + conf)/2
+  obs.slope.test <- slope.test(x, tt, model = "stasis", theta = theta)
+  bootstrap.matrix <- matrix(data = NA, nrow = nrep, ncol = 1)
+  for (i in 1:nrep) {
+    x.sim <- sim_Stasis(ns = length(x), theta = theta, omega = omega, 
+                        vp = mean(v), nn = n, tt = tt)
+    bootstrap.matrix[i, 1] <- slope.test(x.sim$mm, tt, model = "stasis", 
+                                         theta = theta)
+  }
+  bootstrap.slope.test <- length(bootstrap.matrix[, 1][bootstrap.matrix[, 
+                                                                        1] > obs.slope.test])/nrep
+  if (bootstrap.slope.test > round(upper, 3) | bootstrap.slope.test < 
+      round(lower, 3)) 
+    pass.slope.test <- "FAILED"
+  else pass.slope.test <- "PASSED"
+  if (bootstrap.slope.test > 0.5) 
+    bootstrap.slope.test <- 1 - bootstrap.slope.test
+  if (plot == TRUE) {
+    par(mfrow = c(1, 1))
+    plotting.distributions(bootstrap.matrix[, 1], obs.slope.test, 
+                           test = "slope.test", xlab = "Simulated data", main = "Fixed variance")
+  }
+  output <- as.data.frame(cbind(round(obs.slope.test, 5), round(min(bootstrap.matrix), 
+                                                                5), round(max(bootstrap.matrix), 5), bootstrap.slope.test/0.5, 
+                                pass.slope.test), nrow = 5, byrow = TRUE)
+  rownames(output) <- "slope.test"
+  colnames(output) <- c("estimate", "min.sim", "max.sim", "p-value", 
+                        "result")
+  summary.out <- as.data.frame(c(nrep, conf))
+  rownames(summary.out) <- c("replications", "confidence level")
+  colnames(summary.out) <- ("Value")
+  if (save.replicates == FALSE) {
+    out <- list(info = summary.out, summary = output)
+    return(out)
+  }
+  else {
+    out <- list(replicates = bootstrap.matrix, info = summary.out, 
+                summary = output)
+    return(out)
+  }
+}
+
+net_change_test_stasis <- function (y, nrep = 1000, conf = 0.95, plot = TRUE, save.replicates = TRUE, 
+          omega = NULL) 
+{
+  x <- y$mm
+  v <- y$vv
+  n <- y$nn
+  tt <- y$tt
+  theta <- opt.joint.Stasis(y)$parameters[1]
+  if (is.null(omega)) 
+    omega <- opt.joint.Stasis(y)$parameters[2]
+  lower <- (1 - conf)/2
+  upper <- (1 + conf)/2
+  obs.net.change.test <- net.change.test(x, model = "stasis")
+  bootstrap.matrix <- matrix(data = NA, nrow = nrep, ncol = 1)
+  for (i in 1:nrep) {
+    x.sim <- sim_Stasis(ns = length(x), theta = theta, omega = omega, 
+                        vp = mean(v), nn = n, tt = tt)
+    bootstrap.matrix[i, 1] <- net.change.test(x.sim$mm, model = "stasis")
+  }
+  bootstrap.net.test <- length(bootstrap.matrix[, 1][bootstrap.matrix[, 
+                                                                      1] > obs.net.change.test])/nrep
+  if (bootstrap.net.test < (round(lower, 3) * 2)) 
+    pass.net.change.test <- "FAILED"
+  else pass.net.change.test <- "PASSED"
+  if (plot == TRUE) {
+    par(mfrow = c(1, 1))
+    plotting.distributions(bootstrap.matrix[, 1], obs.net.change.test, 
+                           test = "net.change.test", xlab = "Simulated data", 
+                           main = "Net evolution")
+  }
+  output <- as.data.frame(cbind(round(obs.net.change.test, 
+                                      5), round(min(bootstrap.matrix), 5), round(max(bootstrap.matrix), 
+                                                                                 5), bootstrap.net.test, pass.net.change.test), nrow = 5, 
+                          byrow = TRUE)
+  rownames(output) <- "net.change.test"
+  colnames(output) <- c("estimate", "min.sim", "max.sim", "p-value", 
+                        "result")
+  summary.out <- as.data.frame(c(nrep, conf))
+  rownames(summary.out) <- c("replications", "confidence level")
+  colnames(summary.out) <- ("Value")
+  if (save.replicates == FALSE) {
+    out <- list(info = summary.out, summary = output)
+    return(out)
+  }
+  else {
+    out <- list(replicates = bootstrap.matrix, info = summary.out, 
+                summary = output)
+    return(out)
+  }
+}
+
+y <- stasis[[1]]
 adeq_stasis <- function (y, nrep = 1000, conf = 0.95, plot = FALSE, omega = NULL) 
 {
   x <- y$mm
@@ -191,11 +351,11 @@ adeq_stasis <- function (y, nrep = 1000, conf = 0.95, plot = FALSE, omega = NULL
   obs.net.change.test <- net.change.test(x, model = "stasis")
   out.auto <- auto_corr_test_stasis(y, nrep, conf, plot = FALSE, 
                                     theta, omega)
-  out.runs <- runs.test.stasis(y, nrep, conf, plot = FALSE, 
+  out.runs <- runs_test_stasis(y, nrep, conf, plot = FALSE, 
                                theta, omega)
-  out.slope <- slope.test.stasis(y, nrep, conf, plot = FALSE, 
+  out.slope <- slope_test_stasis(y, nrep, conf, plot = FALSE, 
                                  theta, omega)
-  out.net <- net.change.test.stasis(y, nrep, conf, plot = FALSE, 
+  out.net <- net_change_test_stasis(y, nrep, conf, plot = FALSE, 
                                     theta, omega)
   output <- c(as.vector(matrix(unlist(out.auto[[3]]), ncol = 5, 
                                byrow = FALSE)), as.vector(matrix(unlist(out.runs[[3]]), 

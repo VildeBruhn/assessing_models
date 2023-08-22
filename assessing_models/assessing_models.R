@@ -6,11 +6,8 @@
 #evoTS GitHub version
 # adePEM new models version
 
-.rs.restartR()
 
 rm(list = ls())
-
-devtools::install_github("klvoje/adePEM", ref = "new_models")
 
 library(parallel)
 library(doParallel)
@@ -149,8 +146,8 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
-stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE)
-strict_stasis_adeq <- mclapply(strict_stasis, adeq_stasis, plot = FALSE) # function added manually
+stasis_adeq <- lapply(stasis, adeq_stasis, plot = FALSE) # function added manually (sim.stasis changed)
+strict_stasis_adeq <- lapply(strict_stasis, adeq_stasis, plot = FALSE) # function added manually (sim.stasis changed)
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 OU_adeq <- lapply(OU, adeq_OU, plot = FALSE) # function added manually
