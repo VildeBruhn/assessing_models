@@ -10,11 +10,9 @@ rm(list = ls())
 library(parallel)
 library(doParallel)
 library(adePEM)
-<<<<<<< HEAD
 library(evoTS)
-=======
 library(paleoTS)
->>>>>>> 9825ed65a9153b586e0d0675b97d470beeff8282
+
 
 #source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 
