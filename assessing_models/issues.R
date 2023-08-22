@@ -10,12 +10,16 @@ rm(list = ls())
 library(parallel)
 library(doParallel)
 library(adePEM)
+<<<<<<< HEAD
 library(evoTS)
+=======
+library(paleoTS)
+>>>>>>> 9825ed65a9153b586e0d0675b97d470beeff8282
 
-source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
+#source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 
 # set working directory
-setwd("/Users/vildeki/GitHub/assessing_models/")
+setwd("/Users/kjetillv/GitHub/assessing_models/")
 
 # -------------------------
 # Set up for parallel runs
@@ -45,8 +49,8 @@ load(file = "OU_mov_opt_test.Rdata")
 ## Test adequacy ##
 ###################
 
+
 OU_adeq <- lapply(OU_test, fit3adequacy.OU, plot = FALSE) 
 OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc_test, fit3adequacy.OU, plot = FALSE) 
 OU_mov_opt_adeq <- mclapply(OU_mov_opt_test, fit3adequacy.OU, plot = FALSE)
-
 
