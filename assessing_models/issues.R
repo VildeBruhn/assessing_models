@@ -47,8 +47,6 @@ load(file = "OU_mov_opt_test.Rdata")
 ## Test adequacy ##
 ###################
 
-
 OU_adeq <- lapply(OU_test, fit3adequacy.OU, plot = FALSE) 
 OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc_test, fit3adequacy.OU, plot = FALSE) 
 OU_mov_opt_adeq <- mclapply(OU_mov_opt_test, fit3adequacy.OU, plot = FALSE)
-

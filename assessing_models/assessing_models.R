@@ -2,10 +2,8 @@
 ## Evolutionary rates and time scaling ##
 #########################################
 
-#paleoTS.v.0.5.3
 #evoTS GitHub version
 # adePEM new models version
-
 
 rm(list = ls())
 
@@ -146,13 +144,14 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
-stasis_adeq <- lapply(stasis, adeq_stasis, plot = FALSE) # function added manually (sim.stasis changed)
-strict_stasis_adeq <- lapply(strict_stasis, adeq_stasis, plot = FALSE) # function added manually (sim.stasis changed)
+stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE) 
+strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
-OU_adeq <- lapply(OU, adeq_OU, plot = FALSE) # function added manually
-OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, adeq_OU, plot = FALSE) # function added manually
-#OU_mov_opt_adeq <- mclapply(OU_mov_opt, adeq_OU, plot = FALSE) # function added manually
+OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
+OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
+OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -161,9 +160,9 @@ stasis_adeq_passed <- adequate4tests(stasis_adeq)
 strict_stasis_adeq_passed <- adequate4tests(strict_stasis_adeq)
 decel_adeq_passed <- adequate3tests(decel_adeq)
 accel_adeq_passed <- adequate3tests(accel_adeq)
-#OU_adeq_passed <- adequate3tests(OU_adeq)
-#OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
-#OU_mov_opt_adeq_passed <- adequate3tests(OU_mov_opt_adeq)
+OU_adeq_passed <- adequate3tests(OU_adeq)
+OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
+OU_mov_opt_adeq_passed <- adequate3tests(OU_mov_opt_adeq)
 
 # get percentage passed
 GRW_p <- (length(GRW_adeq_passed)/length(GRW_adeq))*100
@@ -172,13 +171,14 @@ stasis_p <- (length(stasis_adeq_passed)/length(stasis_adeq))*100
 strict_stasis_p <- (length(strict_stasis_adeq_passed)/length(strict_stasis_adeq))*100
 decel_p <- (length(decel_adeq_passed)/length(decel_adeq))*100
 accel_p <- (length(accel_adeq_passed)/length(accel_adeq))*100
-#OU_p <- (length(OU_adeq_passed)/length(OU_adeq))*100
-#OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_adeq))*100
-#OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
+OU_p <- (length(OU_adeq_passed)/length(OU_adeq))*100
+OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_adeq))*100
+OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
 
 # make output table
-adeq_table <- as.data.frame(c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p)) # need to add OUs
-row.names(adeq_table) <- c("GRW", "URW", "stasis", "strict stasis", "decel", "accel") # need to add OUs
+adeq_table <- as.data.frame(c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p))
+row.names(adeq_table) <- c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
+                           "OU mov. optm. (ancestral state)", "OU mov. optm.")
 colnames(adeq_table) <- "% passed"
 
 # write to file
