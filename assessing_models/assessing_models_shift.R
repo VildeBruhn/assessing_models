@@ -39,24 +39,44 @@ doParallel::registerDoParallel(cl = my_cluster)
 timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim = "\t")
 metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
 
+#---------------------------------------------------------------------------------------------
+# EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing more than 10 steps)
+#---------------------------------------------------------------------------------------------
+
+metadatalong <- matrix(nrow = 0, ncol = ncol(metadata))
+timeserieslong <- matrix(nrow = 0, ncol = ncol(timeseries))
+tsIDremoved <- c()
+
+# Filter rows of the metadata file based on steps number 
+for (i in 1:nrow(metadata)) {                          
+  if (metadata[i, "steps"] >= 10) {   
+    metadatalong <- rbind(metadatalong, metadata[i, ])  # Add the filtered row to metadatalong
+  } else {
+    tsIDremoved <- c(tsIDremoved, metadata[i, "tsID"]) # Save the ID of removed timeseries
+  }
+}
+
+# Filter rows of the timeseries file based on tsID number 
+for (j in 1:nrow(timeseries)) {
+    tsID <- timeseries[j, "tsID"]
+    matching_tsID <- tsID %in% tsIDremoved # Check if tsID exists in tsIDremoved
+    if (!matching_tsID) {
+      timeserieslong <- rbind(timeserieslong, timeseries[j, ])  # Add the filtered row to timeserieslong if tsID does not exist in tsIDremoved
+    }
+}
+
 # join dataframes
-df <- left_join(timeseries, metadata, by = c("tsID"))
+dflong <- left_join(timeserieslong, metadatalong, by = c("tsID"))
 
 # make list based on ID
-df <- lapply(split(df,df$tsID), function(x) as.list(x))
+dflong <- lapply(split(dflong,dflong$tsID), function(x) as.list(x))
 
 # process data
-ln_data_meta <- dt(df, "tsID")
-ln_data <- lapply(ln_data_meta, function(x) {
+ln_data_metalong <- dt(dflong, "tsID")
+ln_datalong <- lapply(ln_data_metalong, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
-             
-# exclude too short timeseries            
-
-
-
-
-             
+                        
 #####################################################
 ## Fit models including shift and find best (AICc) ##
 #####################################################
@@ -64,9 +84,6 @@ ln_data <- lapply(ln_data_meta, function(x) {
 #-----------------------------------------------------------------------------------------------
 # need to define the minimum of samples that can be considered to be a segment of the model
 #------------------------------------------------------------------------------------------------
-
-
-
 
 
 
