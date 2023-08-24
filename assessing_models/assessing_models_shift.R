@@ -81,11 +81,23 @@ ln_datalong <- lapply(ln_data_metalong, function(x) {
 ## Fit models including shift and find best (AICc) ##
 #####################################################
 
-#-----------------------------------------------------------------------------------------------
-# need to define the minimum of samples that can be considered to be a segment of the model
-#------------------------------------------------------------------------------------------------
+# test all possible univariate models from evoTS on time series
+model_test_noshift <- mclapply(ln_datalong, fit.all.univariate, pool = TRUE)
 
+# test all possible shift models from evoTS on time series
+fit_mode_shift <- function(ln_datalong) { # Define the function to fit mode shift
+  tryCatch({
+    fit_result <- fit.mode.shift(ln_datalong, fit.all = TRUE, minb = 5)
+    return(fit_result)
+  }, error = function(e) {
+    message("Error in fitting mode shift:", conditionMessage(e)) # Filter out the error of the first research
+    return(NULL)
+  })
+}
+fit_mode_shift_results <- mclapply(ln_datalong, fit_mode_shift) # Run fit.mode.shift using mclapply
 
+# Save the results
+save.image(file='fit_models.RData')
 
 
 
