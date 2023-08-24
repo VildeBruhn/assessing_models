@@ -10,6 +10,8 @@ rm(list = ls())
 library(parallel)
 library(doParallel)
 library(adePEM)
+library(evoTS)
+library(paleoTS)
 
 source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 
@@ -47,7 +49,7 @@ metadatalong <- matrix(nrow = 0, ncol = ncol(metadata))
 timeserieslong <- matrix(nrow = 0, ncol = ncol(timeseries))
 tsIDremoved <- c()
 
-# Filter rows of the metadata file based on steps number 
+# Filter rows of the metadata file based on step number 
 for (i in 1:nrow(metadata)) {                          
   if (metadata[i, "steps"] >= 10) {   
     metadatalong <- rbind(metadatalong, metadata[i, ])  # Add the filtered row to metadatalong
@@ -100,8 +102,9 @@ fit_mode_shift_results <- mclapply(ln_datalong, fit_mode_shift) # Run fit.mode.s
 save.image(file='fit_models.RData')
 
 
-
-
+##############################################################
+# Combining results of no shift and shift in the same file
+##############################################################
 
 
 
