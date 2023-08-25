@@ -185,4 +185,3 @@ colnames(adeq_table) <- "% passed"
 sink(file = "./results/adequacy_passed.txt")
 adeq_table
 sink()
-
