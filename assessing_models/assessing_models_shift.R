@@ -83,10 +83,10 @@ ln_datalong <- lapply(ln_data_metalong, function(x) {
 ## Fit models including shift and find best (AICc) ##
 #####################################################
 
-# test all possible univariate models from evoTS on time series
+# test all possible univariate models from evoTS on every timeseries
 model_test_noshift <- mclapply(ln_datalong, fit.all.univariate, pool = TRUE)
 
-# test all possible shift models from evoTS on time series
+# define function test the models with shift
 fit_mode_shift <- function(ln_datalong) { # Define the function to fit mode shift
   tryCatch({
     fit_result <- fit.mode.shift(ln_datalong, fit.all = TRUE, minb = 5)
@@ -96,6 +96,8 @@ fit_mode_shift <- function(ln_datalong) { # Define the function to fit mode shif
     return(NULL)
   })
 }
+
+# test all possible combinations of univariate models with shift on every timeseries
 fit_mode_shift_results <- mclapply(ln_datalong, fit_mode_shift) # Run fit.mode.shift using mclapply
 
 # Save the results
