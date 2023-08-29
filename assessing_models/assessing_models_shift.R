@@ -86,24 +86,29 @@ ln_datalong <- lapply(ln_data_metalong, function(x) {
 # test all possible univariate models from evoTS on every timeseries
 model_test_noshift <- mclapply(ln_datalong, fit.all.univariate, pool = TRUE)
 
-# define function test the models with shift
-fit_mode_shift <- function(ln_datalong) { # Define the function to fit mode shift
-  tryCatch({
-    fit_result <- fit.mode.shift(ln_datalong, fit.all = TRUE, minb = 5)
-    return(fit_result)
-  }, error = function(e) {
-    message("Error in fitting mode shift:", conditionMessage(e)) # Filter out the error of the first research
-    return(NULL)
-  })
+# test all possible shift models from evoTS on time series
+fit_mode_shift <- function(ln_datalong) {
+  models_list <- c("Stasis", "URW", "GRW", "OU")
+  store_results <- list()
+  k <- 0
+  for (i in 1:4) {
+    model1 <- models_list[i]  
+    for (j in 1:4) {
+      model2 <- models_list[j]
+        fit_result <- fit.mode.shift(ln_datalong, model1, model2, minb = 5)
+        k = k + 1
+        store_results[[k]] <- fit_result
+    } 
+  }
+  return(store_results)
 }
 
-# test all possible combinations of univariate models with shift on every timeseries
-fit_mode_shift_results <- mclapply(ln_datalong, fit_mode_shift) # Run fit.mode.shift using mclapply
-
+model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
+                 
 # Save the results
-save.image(file='fit_models.RData')
+save.image(file <- 'results_fit_models.RData')
 
-
+                 
 ##############################################################
 # Combining results of no shift and shift in the same file
 ##############################################################
