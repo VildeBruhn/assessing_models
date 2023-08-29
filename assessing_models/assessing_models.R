@@ -78,7 +78,6 @@ sink(file = "./results/percent_AICc.txt")
 percent
 sink()
 
-
 ###################
 ## Test adequacy ##
 ###################
@@ -91,6 +90,7 @@ GRW <- lapply(GRW, function(x) { x[[10]] <- NULL; x })
 GRW <- lapply(GRW, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
+
 
 URW <- Filter(function(x) x[[10]] == 2, data_aicc)
 URW <- lapply(URW, function(x) { x[[10]] <- NULL; x })
@@ -152,6 +152,11 @@ OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
 OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
 OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
 
+OU_test <- OU[32:58]
+for (i in 1:length(OU_test)){
+  print(i)
+  fit3adequacy.OU(OU_test[[i]], plot = FALSE)
+}
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)

@@ -24,4 +24,4 @@ load(file = "OU_test.Rdata")
 ## Test adequacy ##
 ###################
 
-fit3adequacy.OU(OU_test)
+OU_adeq <- lapply(OU_test, fit3adequacy.OU, plot = FALSE)
