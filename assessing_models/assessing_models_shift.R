@@ -104,6 +104,14 @@ fit_mode_shift <- function(ln_datalong) {
 }
 
 model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
+
+#rename the sublist with the names of the models
+model_shift_results_sample <- lapply(model_shift_results_sample, function(x) {
+    names(x) <- c("Stasis-Stasis","Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", 
+                  "URW-OU","GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", 
+                  "GRW-URW","GRW-Stasis", "URW-Stasis")
+    return(x)
+})
                  
 # Save the results
 save.image(file <- 'results_fit_models.RData')
