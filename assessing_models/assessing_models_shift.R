@@ -106,7 +106,7 @@ fit_mode_shift <- function(ln_datalong) {
 model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
 
 #rename the sublist with the names of the models
-model_shift_results_sample <- lapply(model_shift_results_sample, function(x) {
+model_shift_results <- lapply(model_shift_results, function(x) {
     names(x) <- c("Stasis-Stasis","Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", 
                   "URW-OU","GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", 
                   "GRW-URW","GRW-Stasis", "URW-Stasis")
@@ -116,10 +116,39 @@ model_shift_results_sample <- lapply(model_shift_results_sample, function(x) {
 # Save the results
 save.image(file <- 'results_fit_models.RData')
 
-                 
-##############################################################
-# Combining results of no shift and shift in the same file
-##############################################################
+
+###########################
+##  Extracting the AICcs ##
+###########################
+
+# extract AICc values of non shift models on all results
+aicc_noshift <- lapply(model_noshift_results, function(x) x[(names(x) %in% c("AICc"))])
+                    
+# extract AICc values of shift models on all results
+aicc_shift_extraction <- lapply(model_shift_results, function(x) {
+  sapply(x, function(result) result$AICc)
+})
+  
+model_names <- lapply(aicc_shift, function(x) {
+  names(x)
+})
+  
+model_aiccs <- lapply(aicc_shift, function(x) {
+  unname(x)
+})
+  
+aicc_shift <- Map(function(x, y) {
+  data.frame(AICc = unlist(y), row.names = unlist(x))
+}, model_names, model_aiccs)
+
+
+###########################
+##  Combining the AICcs  ##
+###########################
+  
+for (i in 1:length(aicc_noshift)) {
+  aicc[[i]] <- rbind(aicc_noshift[[i]], aicc_shift[[i]])
+}
 
 
 
