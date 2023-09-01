@@ -56,7 +56,8 @@ ln_data <- lapply(ln_data_meta, function(x) {
 #####################################
 
 # test all possible univariate models from evoTS on time series
-model_test <- mclapply(ln_data, fit.all.univariate, pool = TRUE)
+#model_test <- mclapply(ln_data, fit.all.univariate, pool = TRUE)
+load("model_test.Rdata")
 
 # extract AICc values on all results
 aicc <- lapply(model_test, function(x) x[(names(x) %in% c("AICc"))])
@@ -140,7 +141,6 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
 
-
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
@@ -151,12 +151,6 @@ accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
 OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
 OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
-
-OU_test <- OU[32:58]
-for (i in 1:length(OU_test)){
-  print(i)
-  fit3adequacy.OU(OU_test[[i]], plot = FALSE)
-}
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
