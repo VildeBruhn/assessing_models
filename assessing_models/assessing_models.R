@@ -7,6 +7,8 @@
 
 rm(list = ls())
 
+library(foreach)
+library(iterators)
 library(parallel)
 library(doParallel)
 library(adePEM)
@@ -140,6 +142,10 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) { x[[10]] <- NULL; x })
 OU_mov_opt <- lapply(OU_mov_opt, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
+
+# remove problem time series
+OU <- OU[names(OU) != 427]
+OU <- OU[names(OU) != 428]
 
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
