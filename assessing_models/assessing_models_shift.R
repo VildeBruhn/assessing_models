@@ -208,7 +208,55 @@ sink()
 ## Test adequacy ##
 ###################
 
+# Remove problematic timeseries from ln_datalong 
+keep_TS3 <- !names(ln_datalong) %in% pblm_TS
+data_aicc = ln_datalong[keep_TS3]
 
+# Add a column with lowest AIC for each time series
+for (i in 1:length(data_aicc)) {
+  data_aicc[[i]]$Lowest_AICc <- aicc_min[i]
+}
+
+
+#----------------------------------------------------
+# Filter the time series according to the best model
+#----------------------------------------------------
+
+categories <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
+                "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis-Stasis", 
+                "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+                "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+                "GRW-Stasis", "URW-Stasis")
+
+# Store the timeseries in different lists according to the best model fitted
+result_list <- list()
+for (i in 1:length(categories)) {
+  category <- categories[i]
+  # Filter data for the current category
+  filtered_data <- Filter(function(x) x[[10]] == i, data_aicc)
+  filtered_data <- lapply(filtered_data, function(x) { x[[10]] <- NULL; x })
+  filtered_data <- lapply(filtered_data, function(x) {
+    as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
+  })
+  
+  # Store the result in the result_list and in the different best-model lists
+  result_list[[category]] <- filtered_data
+  assign(paste(category, sep = ""), filtered_data)
+}
+
+# remove problem time series
+OU <- OU[names(OU) != 427]
+OU <- OU[names(OU) != 428]
+
+#------------------------------------
+# Splitting the shift models
+#------------------------------------
+
+
+
+#------------------------------------
+# Testing the adequacy of the models
+#------------------------------------
 
 
 
