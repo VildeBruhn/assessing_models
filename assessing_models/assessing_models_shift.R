@@ -105,50 +105,108 @@ fit_mode_shift <- function(ln_datalong) {
 
 model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
 
-#rename the sublist with the names of the models
-model_shift_results <- lapply(model_shift_results, function(x) {
-    names(x) <- c("Stasis-Stasis","Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", 
-                  "URW-OU","GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", 
-                  "GRW-URW","GRW-Stasis", "URW-Stasis")
-    return(x)
-})
-                 
-# Save the results
-save.image(file <- 'results_fit_models.RData')
+########################
+##  Extract the AICcs ##
+########################
 
+### Remove problematic timeseries ###
+pblm_TS = c("567","575","576")
+keep_TS <- !names(model_shift_results) %in% pblm_TS
+model_shift_results_clean = model_shift_results[keep_TS]
+keep_TS2 <- !names(model_noshift_results) %in% pblm_TS
+model_noshift_results_clean = model_noshift_results[keep_TS2]
 
-###########################
-##  Extracting the AICcs ##
-###########################
+#------------------------------------------
+# Extract AICcs for the no shift models
+#------------------------------------------
 
-# extract AICc values of non shift models on all results
-aicc_noshift <- lapply(model_noshift_results, function(x) x[(names(x) %in% c("AICc"))])
-                    
+aicc_noshift <- lapply(model_noshift_results_clean, function(x) x[(names(x) %in% c("AICc"))])
+
+#------------------------------------------
+# Extract AICcs for the shift models
+#------------------------------------------
+
 # extract AICc values of shift models on all results
-aicc_shift_extraction <- lapply(model_shift_results, function(x) {
+aicc_shift_extraction <- lapply(model_shift_results_clean, function(x) { ### remettre model_shift_result when problem will be solved
   sapply(x, function(result) result$AICc)
 })
-  
-model_names <- lapply(aicc_shift, function(x) {
+
+model_names <- c(
+  "Stasis-Stasis","Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW",
+  "URW-OU","GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis",
+  "GRW-URW","GRW-Stasis", "URW-Stasis"
+)
+
+aicc_shift_extraction <- lapply(aicc_shift_extraction, function(x) {
+  names(x) <- model_names
+  return(x)
+})
+
+# create a dataframe with the results
+model_names <- lapply(aicc_shift_extraction, function(x) {
   names(x)
 })
-  
-model_aiccs <- lapply(aicc_shift, function(x) {
+
+model_aiccs <- lapply(aicc_shift_extraction, function(x) {
   unname(x)
 })
-  
+
 aicc_shift <- Map(function(x, y) {
   data.frame(AICc = unlist(y), row.names = unlist(x))
 }, model_names, model_aiccs)
 
-
-###########################
-##  Combining the AICcs  ##
-###########################
   
+###################################
+## Get percent of the best AICcs ##
+###################################
+
+# combine the AICcs of no shift and shift models
+aicc <- list()
+
 for (i in 1:length(aicc_noshift)) {
   aicc[[i]] <- rbind(aicc_noshift[[i]], aicc_shift[[i]])
 }
+
+#------------------------------------------
+# Find the best AICs for each timeseries
+#------------------------------------------
+
+# check which AICc value is the lowest
+aicc_min <- lapply(aicc, function(x) {
+  which.min(as.numeric(unlist(x)))
+})
+
+# get percentage
+aicc_unlist <- unlist(aicc_min)
+counts <- table(aicc_unlist)
+
+# Create the outcomes for models with 0 iterations (model OU with moving optimum in this case)
+modified_counts <- numeric(25)
+
+for (i in 1:25) {
+  if (i %in% names(counts)) {
+    modified_counts[i] <- counts[[as.character(i)]]
+  } else {
+    modified_counts[i] <- 0
+  }
+}
+
+percent <- (modified_counts/sum(modified_counts))*100
+names(percent) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
+                    "OU mov. optm. (ancestral state)", "OU mov. optm.","Stasis-Stasis", 
+                    "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+                    "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+                    "GRW-Stasis", "URW-Stasis")
+
+# write to file
+sink(file = "./results/percent_AICc_with_shift.txt")
+percent
+sink()
+
+  
+###################
+## Test adequacy ##
+###################
 
 
 
