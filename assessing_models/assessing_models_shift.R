@@ -223,10 +223,10 @@ for (i in 1:length(data_aicc)) {
 #----------------------------------------------------
 
 categories <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
-                "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis-Stasis", 
-                "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
-                "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
-                "GRW-Stasis", "URW-Stasis")
+                "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis_Stasis", 
+                "Stasis_URW", "Stasis_GRW", "Stasis_OU", "URW_URW", "URW_GRW", "URW_OU",
+                "GRW_GRW", "GRW_OU", "OU_OU", "OU_GRW", "OU_URW", "OU_Stasis", "GRW_URW",
+                "GRW_Stasis", "URW_Stasis")
 
 # Store the timeseries in different lists according to the best model fitted
 result_list <- list()
