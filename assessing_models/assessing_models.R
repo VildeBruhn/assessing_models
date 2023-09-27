@@ -131,6 +131,12 @@ OU <- lapply(OU, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
 
+# remove problem time series
+OU <- OU[names(OU) != 427]
+OU <- OU[names(OU) != 428]
+OU <- OU[names(OU) != 584]
+OU <- OU[names(OU) != 585]
+
 OU_mov_opt_anc <- Filter(function(x) x[[10]] == 8, data_aicc)
 OU_mov_opt_anc <- lapply(OU_mov_opt_anc, function(x) { x[[10]] <- NULL; x })
 OU_mov_opt_anc<- lapply(OU_mov_opt_anc, function(x) {
@@ -143,9 +149,6 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
 
-# remove problem time series
-OU <- OU[names(OU) != 427]
-OU <- OU[names(OU) != 428]
 
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
@@ -154,9 +157,12 @@ stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE)
 strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
-OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
-OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
-OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+#OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
+load("OU_adeq.Rdata")
+#OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
+load("OU_mov_opt_anc_adeq.Rdata")
+#OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+load("OU_mov_opt_adeq.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)

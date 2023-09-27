@@ -1,7 +1,10 @@
-              % passed
-GRW           94.23077
-URW           90.05848
-stasis        66.18705
-strict stasis 58.73016
-decel         63.63636
-accel         52.17391
+                                % passed
+GRW                             92.30769
+URW                             89.47368
+stasis                          65.46763
+strict stasis                   78.57143
+decel                           54.54545
+accel                           52.17391
+OU                              42.59259
+OU mov. optm. (ancestral state) 34.48276
+OU mov. optm.                    0.00000
