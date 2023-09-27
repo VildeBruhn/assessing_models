@@ -659,8 +659,87 @@ URW_Stasis_subset2_adeq <- mclapply(URW_Stasis_subset2, fit4adequacy.stasis, plo
 names(URW_Stasis_subset1_adeq) = tsID_URW_Stasis
 names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 
+                          
+# get only adequate time series
+GRW_adeq_passed <- adequate3tests(GRW_adeq)
+URW_adeq_passed <- adequate3tests(URW_adeq)
+stasis_adeq_passed <- adequate4tests(stasis_adeq)
+strict_stasis_adeq_passed <- adequate4tests(strict_stasis_adeq)
+decel_adeq_passed <- adequate3tests(decel_adeq)
+accel_adeq_passed <- adequate3tests(accel_adeq)
+OU_adeq_passed <- adequate3tests(OU_adeq)
+OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
+OU_mov_opt_adeq_passed <- adequate3tests(OU_mov_opt_adeq)
+
+Stasis_Stasis_subset1_adeq_passed <- adequate4tests(Stasis_Stasis_subset1_adeq)
+Stasis_Stasis_subset2_adeq_passed <- adequate4tests(Stasis_Stasis_subset2_adeq)
+
+Stasis_URW_subset1_adeq_passed <- adequate4tests(Stasis_URW_subset1_adeq)
+Stasis_URW_subset2_adeq_passed <- adequate3tests(Stasis_URW_subset2_adeq)
+
+Stasis_GRW_subset1_adeq_passed <- adequate4tests(Stasis_GRW_subset1_adeq)
+Stasis_GRW_subset2_adeq_passed <- adequate3tests(Stasis_GRW_subset2_adeq)
+
+Stasis_OU_subset1_adeq_passed <- adequate4tests(Stasis_OU_subset1_adeq)
+Stasis_OU_subset2_adeq_passed <- adequate3tests(Stasis_OU_subset2_adeq)
+
+URW_URW_subset1_adeq_passed <- adequate3tests(URW_URW_subset1_adeq)
+URW_URW_subset2_adeq_passed <- adequate3tests(URW_URW_subset2_adeq)
+
+URW_GRW_subset1_adeq_passed <- adequate3tests(URW_GRW_subset1_adeq)
+URW_GRW_subset2_adeq_passed <- adequate3tests(URW_GRW_subset2_adeq)
+
+URW_OU_subset1_adeq_passed <- adequate3tests(URW_OU_subset1_adeq)
+URW_OU_subset2_adeq_passed <- adequate3tests(URW_OU_subset2_adeq)
+
+GRW_GRW_subset1_adeq_passed <- adequate3tests(GRW_GRW_subset1_adeq)
+GRW_GRW_subset2_adeq_passed <- adequate3tests(GRW_GRW_subset2_adeq)
+
+GRW_OU_subset1_adeq_passed <- adequate3tests(GRW_OU_subset1_adeq)
+GRW_OU_subset2_adeq_passed <- adequate3tests(GRW_OU_subset2_adeq)
+
+OU_OU_subset1_adeq_passed <- adequate3tests(OU_OU_subset1_adeq)
+OU_OU_subset2_adeq_passed <- adequate3tests(OU_OU_subset2_adeq)
+
+OU_GRW_subset1_adeq_passed <- adequate3tests(OU_GRW_subset1_adeq)
+OU_GRW_subset2_adeq_passed <- adequate3tests(OU_GRW_subset2_adeq)
+
+OU_URW_subset1_adeq_passed <- adequate3tests(OU_URW_subset1_adeq)
+OU_URW_subset2_adeq_passed <- adequate3tests(OU_URW_subset2_adeq)
+
+OU_Stasis_subset1_adeq_passed <- adequate3tests(OU_Stasis_subset1_adeq)
+OU_Stasis_subset2_adeq_passed <- adequate4tests(OU_Stasis_subset2_adeq)
+
+GRW_URW_subset1_adeq_passed <- adequate3tests(GRW_URW_subset1_adeq)
+GRW_URW_subset2_adeq_passed <- adequate3tests(GRW_URW_subset2_adeq)
+
+GRW_Stasis_subset1_adeq_passed <- adequate3tests(GRW_Stasis_subset1_adeq)
+GRW_Stasis_subset2_adeq_passed <- adequate4tests(GRW_Stasis_subset2_adeq)
+
+URW_Stasis_subset1_adeq_passed <- adequate3tests(URW_Stasis_subset1_adeq)
+URW_Stasis_subset2_adeq_passed <- adequate4tests(URW_Stasis_subset2_adeq)
+
+                          
+# merge split timeseries if the two subsets passed the adequacy tests
+
+Stasis_Stasis_adeq_passed <- Stasis_Stasis_subset1_adeq_passed[intersect(names(Stasis_Stasis_subset1_adeq_passed), names(Stasis_Stasis_subset2_adeq_passed))]
+Stasis_URW_adeq_passed <- Stasis_URW_subset1_adeq_passed[intersect(names(Stasis_URW_subset1_adeq_passed), names(Stasis_URW_subset2_adeq_passed))]
+Stasis_GRW_adeq_passed <- Stasis_GRW_subset1_adeq_passed[intersect(names(Stasis_GRW_subset1_adeq_passed), names(Stasis_GRW_subset2_adeq_passed))]
+Stasis_OU_adeq_passed <- Stasis_OU_subset1_adeq_passed[intersect(names(Stasis_OU_subset1_adeq_passed), names(Stasis_OU_subset2_adeq_passed))]
+URW_URW_adeq_passed <- URW_URW_subset1_adeq_passed[intersect(names(URW_URW_subset1_adeq_passed), names(URW_URW_subset2_adeq_passed))]
+URW_GRW_adeq_passed <- URW_GRW_subset1_adeq_passed[intersect(names(URW_GRW_subset1_adeq_passed), names(URW_GRW_subset2_adeq_passed))]
+URW_OU_adeq_passed <- URW_OU_subset1_adeq_passed[intersect(names(URW_OU_subset1_adeq_passed), names(URW_OU_subset2_adeq_passed))]
+GRW_GRW_adeq_passed <- GRW_GRW_subset1_adeq_passed[intersect(names(GRW_GRW_subset1_adeq_passed), names(GRW_GRW_subset2_adeq_passed))]
+GRW_OU_adeq_passed <- GRW_OU_subset1_adeq_passed[intersect(names(GRW_OU_subset1_adeq_passed), names(GRW_OU_subset2_adeq_passed))]
+OU_OU_adeq_passed <- OU_OU_subset1_adeq_passed[intersect(names(OU_OU_subset1_adeq_passed), names(OU_OU_subset2_adeq_passed))]
+OU_GRW_adeq_passed <- OU_GRW_subset1_adeq_passed[intersect(names(OU_GRW_subset1_adeq_passed), names(OU_GRW_subset2_adeq_passed))]
+OU_URW_adeq_passed <- OU_URW_subset1_adeq_passed[intersect(names(OU_URW_subset1_adeq_passed), names(OU_URW_subset2_adeq_passed))]
+OU_Stasis_adeq_passed <- OU_Stasis_subset1_adeq_passed[intersect(names(OU_Stasis_subset1_adeq_passed), names(OU_Stasis_subset2_adeq_passed))]
+GRW_URW_adeq_passed <- GRW_URW_subset1_adeq_passed[intersect(names(GRW_URW_subset1_adeq_passed), names(GRW_URW_subset2_adeq_passed))]
+GRW_Stasis_adeq_passed <- GRW_Stasis_subset1_adeq_passed[intersect(names(GRW_Stasis_subset1_adeq_passed), names(GRW_Stasis_subset2_adeq_passed))]
+URW_Stasis_adeq_passed <- URW_Stasis_subset1_adeq_passed[intersect(names(URW_Stasis_subset1_adeq_passed), names(URW_Stasis_subset2_adeq_passed))]            
+
+# get percentage passed
 
 
-
-
-             
+                          
