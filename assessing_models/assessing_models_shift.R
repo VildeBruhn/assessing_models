@@ -252,7 +252,6 @@ OU <- OU[names(OU) != 428]
 #------------------------------------
 # Splitting the shift models
 #------------------------------------
-
                           
 #Load previous version of paleoTS containing function to split PaleoTS objects
 install.packages("remotes")
@@ -569,7 +568,96 @@ for (i in 1:length(URW_Stasis)) {
 # Testing the adequacy of the models
 #------------------------------------
 
+# test adequacy
+GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
+URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
+stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE) 
+strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
+decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
+accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
+OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
+OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
+OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
 
+Stasis_Stasis_subset1_adeq <- mclapply(Stasis_Stasis_subset1, fit4adequacy.stasis, plot = FALSE)
+Stasis_Stasis_subset2_adeq <- mclapply(Stasis_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
+names(Stasis_Stasis_subset1_adeq) = tsID_Stasis_Stasis
+names(Stasis_Stasis_subset2_adeq) = tsID_Stasis_Stasis
+
+Stasis_URW_subset1_adeq <- mclapply(Stasis_URW_subset1, fit4adequacy.stasis, plot = FALSE)
+Stasis_URW_subset2_adeq <- mclapply(Stasis_URW_subset2, fit3adequacy.RW, plot = FALSE)
+names(Stasis_URW_subset1_adeq) = tsID_Stasis_URW
+names(Stasis_URW_subset2_adeq) = tsID_Stasis_URW
+
+Stasis_GRW_subset1_adeq <- mclapply(Stasis_GRW_subset1, fit4adequacy.stasis, plot = FALSE)
+Stasis_GRW_subset2_adeq <- mclapply(Stasis_GRW_subset2, fit3adequacy.trend, plot = FALSE)
+names(Stasis_GRW_subset1_adeq) = tsID_Stasis_GRW
+names(Stasis_GRW_subset2_adeq) = tsID_Stasis_GRW
+
+Stasis_OU_subset1_adeq <- mclapply(Stasis_OU_subset1, fit4adequacy.stasis, plot = FALSE)
+Stasis_OU_subset2_adeq <- mclapply(Stasis_OU_subset2, fit3adequacy.OU, plot = FALSE)
+names(Stasis_OU_subset1_adeq) = tsID_Stasis_OU
+names(Stasis_OU_subset2_adeq) = tsID_Stasis_OU
+
+URW_URW_subset1_adeq <- mclapply(URW_URW_subset1, fit3adequacy.RW, plot = FALSE)
+URW_URW_subset2_adeq <- mclapply(URW_URW_subset2, fit3adequacy.RW, plot = FALSE)
+names(URW_URW_subset1_adeq) = tsID_URW_URW
+names(URW_URW_subset2_adeq) = tsID_URW_URW
+
+URW_GRW_subset1_adeq <- mclapply(URW_GRW_subset1, fit3adequacy.RW, plot = FALSE)
+URW_GRW_subset2_adeq <- mclapply(URW_GRW_subset2, fit3adequacy.trend, plot = FALSE)
+names(URW_GRW_subset1_adeq) = tsID_URW_GRW
+names(URW_GRW_subset2_adeq) = tsID_URW_GRW
+
+URW_OU_subset1_adeq <- mclapply(URW_OU_subset1, fit3adequacy.RW, plot = FALSE)
+URW_OU_subset2_adeq <- mclapply(URW_OU_subset2, fit3adequacy.OU, plot = FALSE)
+names(URW_OU_subset1_adeq) = tsID_URW_OU
+names(URW_OU_subset2_adeq) = tsID_URW_OU
+
+GRW_GRW_subset1_adeq <- mclapply(GRW_GRW_subset1, fit3adequacy.trend, plot = FALSE)
+GRW_GRW_subset2_adeq <- mclapply(GRW_GRW_subset2, fit3adequacy.trend, plot = FALSE)
+names(GRW_GRW_subset1_adeq) = tsID_GRW_GRW
+names(GRW_GRW_subset2_adeq) = tsID_GRW_GRW
+
+GRW_OU_subset1_adeq <- mclapply(GRW_OU_subset1, fit3adequacy.trend, plot = FALSE)
+GRW_OU_subset2_adeq <- mclapply(GRW_OU_subset2, fit3adequacy.OU, plot = FALSE)
+names(GRW_OU_subset1_adeq) = tsID_GRW_OU
+names(GRW_OU_subset2_adeq) = tsID_GRW_OU
+
+OU_OU_subset1_adeq <- mclapply(OU_OU_subset1, fit3adequacy.OU, plot = FALSE)
+OU_OU_subset2_adeq <- mclapply(OU_OU_subset2, fit3adequacy.OU, plot = FALSE)
+names(OU_OU_subset1_adeq) = tsID_OU_OU
+names(OU_OU_subset2_adeq) = tsID_OU_OU
+
+OU_GRW_subset1_adeq <- mclapply(OU_GRW_subset1, fit3adequacy.OU, plot = FALSE)
+OU_GRW_subset2_adeq <- mclapply(OU_GRW_subset2, fit3adequacy.trend, plot = FALSE)
+names(OU_GRW_subset1_adeq) = tsID_OU_GRW
+names(OU_GRW_subset2_adeq) = tsID_OU_GRW
+
+OU_URW_subset1_adeq <- mclapply(OU_URW_subset1, fit3adequacy.OU, plot = FALSE)
+OU_URW_subset2_adeq <- mclapply(OU_URW_subset2, fit3adequacy.RW, plot = FALSE)
+names(OU_URW_subset1_adeq) = tsID_OU_URW
+names(OU_URW_subset2_adeq) = tsID_OU_URW
+
+OU_Stasis_subset1_adeq <- mclapply(OU_Stasis_subset1, fit3adequacy.OU, plot = FALSE)
+OU_Stasis_subset2_adeq <- mclapply(OU_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
+names(OU_Stasis_subset1_adeq) = tsID_OU_Stasis
+names(OU_Stasis_subset2_adeq) = tsID_OU_Stasis
+
+GRW_URW_subset1_adeq <- mclapply(GRW_URW_subset1, fit3adequacy.trend, plot = FALSE)
+GRW_URW_subset2_adeq <- mclapply(GRW_URW_subset2, fit3adequacy.RW, plot = FALSE)
+names(GRW_URW_subset1_adeq) = tsID_GRW_URW
+names(GRW_URW_subset2_adeq) = tsID_GRW_URW
+
+GRW_Stasis_subset1_adeq <- mclapply(GRW_Stasis_subset1, fit3adequacy.trend, plot = FALSE)
+GRW_Stasis_subset2_adeq <- mclapply(GRW_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
+names(GRW_Stasis_subset1_adeq) = tsID_GRW_Stasis
+names(GRW_Stasis_subset2_adeq) = tsID_GRW_Stasis
+
+URW_Stasis_subset1_adeq <- mclapply(URW_Stasis_subset1, fit3adequacy.RW, plot = FALSE)
+URW_Stasis_subset2_adeq <- mclapply(URW_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
+names(URW_Stasis_subset1_adeq) = tsID_URW_Stasis
+names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 
 
 
