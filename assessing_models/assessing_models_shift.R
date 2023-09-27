@@ -248,10 +248,321 @@ for (i in 1:length(categories)) {
 OU <- OU[names(OU) != 427]
 OU <- OU[names(OU) != 428]
 
+                          
 #------------------------------------
 # Splitting the shift models
 #------------------------------------
 
+                          
+#Load previous version of paleoTS containing function to split PaleoTS objects
+install.packages("remotes")
+library(remotes)
+install_version("paleoTS", version = "0.5-1")
+library(paleoTS)
+
+                          
+### Stasis-Stasis ###
+# Add a column with the best shift point to each timeseries
+tsID_Stasis_Stasis = names(Stasis_Stasis)
+model_results_Stasis_Stasis <- model_shift_results_clean[tsID_Stasis_Stasis]
+for (i in tsID_Stasis_Stasis) {
+  Stasis_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[1]]$parameters[["shift1"]]  #1 is for the model Stasis_Stasis, need to be change for the other models
+}
+
+#Splitting the model
+Stasis_Stasis_subset1 = list()
+Stasis_Stasis_subset2 = list()
+for (i in 1:length(Stasis_Stasis)) {
+  gg <- rep(1:2, c(Stasis_Stasis[[i]]$Shift_point, length(Stasis_Stasis[[i]]$mm) - Stasis_Stasis[[i]]$Shift_point))
+  Stasis_Stasis_split = split4punc(Stasis_Stasis[[i]],gg, overlap=TRUE)
+  Stasis_Stasis_subset1[[i]] = Stasis_Stasis_split[[1]]
+  Stasis_Stasis_subset2[[i]] = Stasis_Stasis_split[[2]]
+}
+
+
+### Stasis-URW ###
+# Add a column with the best shift point to each timeseries
+tsID_Stasis_URW = names(Stasis_URW)
+model_results_Stasis_URW <- model_shift_results_clean[tsID_Stasis_URW]
+for (i in tsID_Stasis_URW) {
+  Stasis_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[2]]$parameters[["shift1"]]
+}
+                          
+#Splitting the model
+Stasis_URW_subset1 = list()
+Stasis_URW_subset2 = list()
+for (i in 1:length(Stasis_URW)) {
+  gg <- rep(1:2, c(Stasis_URW[[i]]$Shift_point, length(Stasis_URW[[i]]$mm) - Stasis_URW[[i]]$Shift_point))
+  Stasis_URW_split = split4punc(Stasis_URW[[i]],gg, overlap=TRUE)
+  Stasis_URW_subset1[[i]] = Stasis_URW_split[[1]]
+  Stasis_URW_subset2[[i]] = Stasis_URW_split[[2]]
+}
+
+
+### Stasis-GRW ###
+# Add a column with the best shift point to each timeseries
+tsID_Stasis_GRW = names(Stasis_GRW)
+model_results_Stasis_GRW <- model_shift_results_clean[tsID_Stasis_GRW]
+for (i in tsID_Stasis_GRW) {
+  Stasis_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[3]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+Stasis_GRW_subset1 = list()
+Stasis_GRW_subset2 = list()
+for (i in 1:length(Stasis_GRW)) {
+  gg <- rep(1:2, c(Stasis_GRW[[i]]$Shift_point, length(Stasis_GRW[[i]]$mm) - Stasis_GRW[[i]]$Shift_point))
+  Stasis_GRW_split = split4punc(Stasis_GRW[[i]],gg, overlap=TRUE)
+  Stasis_GRW_subset1[[i]] = Stasis_GRW_split[[1]]
+  Stasis_GRW_subset2[[i]] = Stasis_GRW_split[[2]]
+}
+
+
+### URW-OU ###
+# Add a column with the best shift point to each timeseries
+tsID_Stasis_OU = names(Stasis_OU)
+model_results_Stasis_OU <- model_shift_results_clean[tsID_Stasis_OU]
+for (i in tsID_Stasis_OU) {
+  Stasis_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[4]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+Stasis_OU_subset1 = list()
+Stasis_OU_subset2 = list()
+for (i in 1:length(Stasis_OU)) {
+  gg <- rep(1:2, c(Stasis_OU[[i]]$Shift_point, length(Stasis_OU[[i]]$mm) - Stasis_OU[[i]]$Shift_point))
+  Stasis_OU_split = split4punc(Stasis_OU[[i]],gg, overlap=TRUE)
+  Stasis_OU_subset1[[i]] = Stasis_OU_split[[1]]
+  Stasis_OU_subset2[[i]] = Stasis_OU_split[[2]]
+}
+
+
+### URW-URW ###
+# Add a column with the best shift point to each timeseries
+tsID_URW_URW = names(URW_URW)
+model_results_URW_URW <- model_shift_results_clean[tsID_URW_URW]
+for (i in tsID_URW_URW) {
+  URW_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[5]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+URW_URW_subset1 = list()
+URW_URW_subset2 = list()
+for (i in 1:length(URW_URW)) {
+  gg <- rep(1:2, c(URW_URW[[i]]$Shift_point, length(URW_URW[[i]]$mm) - URW_URW[[i]]$Shift_point))
+  URW_URW_split = split4punc(URW_URW[[i]],gg, overlap=TRUE)
+  URW_URW_subset1[[i]] = URW_URW_split[[1]]
+  URW_URW_subset2[[i]] = URW_URW_split[[2]]
+}
+
+
+### URW-GRW ###
+# Add a column with the best shift point to each timeseries
+tsID_URW_GRW = names(URW_GRW)
+model_results_URW_GRW <- model_shift_results_clean[tsID_URW_GRW]
+for (i in tsID_URW_GRW) {
+  URW_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[6]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+URW_GRW_subset1 = list()
+URW_GRW_subset2 = list()
+for (i in 1:length(URW_GRW)) {
+  gg <- rep(1:2, c(URW_GRW[[i]]$Shift_point, length(URW_GRW[[i]]$mm) - URW_GRW[[i]]$Shift_point))
+  URW_GRW_split = split4punc(URW_GRW[[i]],gg, overlap=TRUE)
+  URW_GRW_subset1[[i]] = URW_GRW_split[[1]]
+  URW_GRW_subset2[[i]] = URW_GRW_split[[2]]
+}
+
+
+### URW-OU ###
+# Add a column with the best shift point to each timeseries
+tsID_URW_OU = names(URW_OU)
+model_results_URW_OU <- model_shift_results_clean[tsID_URW_OU]
+for (i in tsID_URW_OU) {
+  URW_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[7]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+URW_OU_subset1 = list()
+URW_OU_subset2 = list()
+for (i in 1:length(URW_OU)) {
+  gg <- rep(1:2, c(URW_OU[[i]]$Shift_point, length(URW_OU[[i]]$mm) - URW_OU[[i]]$Shift_point))
+  URW_OU_split = split4punc(URW_OU[[i]],gg, overlap=TRUE)
+  URW_OU_subset1[[i]] = URW_OU_split[[1]]
+  URW_OU_subset2[[i]] = URW_OU_split[[2]]
+}
+
+
+### GRW-GRW ###
+# Add a column with the best shift point to each timeseries
+tsID_GRW_GRW = names(GRW_GRW)
+model_results_GRW_GRW <- model_shift_results_clean[tsID_GRW_GRW]
+for (i in tsID_GRW_GRW) {
+  GRW_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[8]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+GRW_GRW_subset1 = list()
+GRW_GRW_subset2 = list()
+for (i in 1:length(GRW_GRW)) {
+  gg <- rep(1:2, c(GRW_GRW[[i]]$Shift_point, length(GRW_GRW[[i]]$mm) - GRW_GRW[[i]]$Shift_point))
+  GRW_GRW_split = split4punc(GRW_GRW[[i]],gg, overlap=TRUE)
+  GRW_GRW_subset1[[i]] = GRW_GRW_split[[1]]
+  GRW_GRW_subset2[[i]] = GRW_GRW_split[[2]]
+}
+
+
+### GRW-OU ###
+# Add a column with the best shift point to each timeseries
+tsID_GRW_OU = names(GRW_OU)
+model_results_GRW_OU <- model_shift_results_clean[tsID_GRW_OU]
+for (i in tsID_GRW_OU) {
+  GRW_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[9]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+GRW_OU_subset1 = list()
+GRW_OU_subset2 = list()
+for (i in 1:length(GRW_OU)) {
+  gg <- rep(1:2, c(GRW_OU[[i]]$Shift_point, length(GRW_OU[[i]]$mm) - GRW_OU[[i]]$Shift_point))
+  GRW_OU_split = split4punc(GRW_OU[[i]],gg, overlap=TRUE)
+  GRW_OU_subset1[[i]] = GRW_OU_split[[1]]
+  GRW_OU_subset2[[i]] = GRW_OU_split[[2]]
+}
+
+
+### OU-OU ###
+# Add a column with the best shift point to each timeseries
+tsID_OU_OU = names(OU_OU)
+model_results_OU_OU <- model_shift_results_clean[tsID_OU_OU]
+for (i in tsID_OU_OU) {
+  OU_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[10]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+OU_OU_subset1 = list()
+OU_OU_subset2 = list()
+for (i in 1:length(OU_OU)) {
+  gg <- rep(1:2, c(OU_OU[[i]]$Shift_point, length(OU_OU[[i]]$mm) - OU_OU[[i]]$Shift_point))
+  OU_OU_split = split4punc(OU_OU[[i]],gg, overlap=TRUE)
+  OU_OU_subset1[[i]] = OU_OU_split[[1]]
+  OU_OU_subset2[[i]] = OU_OU_split[[2]]
+}
+
+
+### OU-GRW ###
+# Add a column with the best shift point to each timeseries
+tsID_OU_GRW = names(OU_GRW)
+model_results_OU_GRW <- model_shift_results_clean[tsID_OU_GRW]
+for (i in tsID_OU_GRW) {
+  OU_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[11]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+OU_GRW_subset1 = list()
+OU_GRW_subset2 = list()
+for (i in 1:length(OU_GRW)) {
+  gg <- rep(1:2, c(OU_GRW[[i]]$Shift_point, length(OU_GRW[[i]]$mm) - OU_GRW[[i]]$Shift_point))
+  OU_GRW_split = split4punc(OU_GRW[[i]],gg, overlap=TRUE)
+  OU_GRW_subset1[[i]] = OU_GRW_split[[1]]
+  OU_GRW_subset2[[i]] = OU_GRW_split[[2]]
+}
+
+
+### OU-URW ###
+# Add a column with the best shift point to each timeseries
+tsID_OU_URW = names(OU_URW)
+model_results_OU_URW <- model_shift_results_clean[tsID_OU_URW]
+for (i in tsID_OU_URW) {
+  OU_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[12]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+OU_URW_subset1 = list()
+OU_URW_subset2 = list()
+for (i in 1:length(OU_URW)) {
+  gg <- rep(1:2, c(OU_URW[[i]]$Shift_point, length(OU_URW[[i]]$mm) - OU_URW[[i]]$Shift_point))
+  OU_URW_split = split4punc(OU_URW[[i]],gg, overlap=TRUE)
+  OU_URW_subset1[[i]] = OU_URW_split[[1]]
+  OU_URW_subset2[[i]] = OU_URW_split[[2]]
+}
+
+
+### OU-Stasis ###
+# Add a column with the best shift point to each timeseries
+tsID_OU_Stasis = names(OU_Stasis)
+model_results_OU_Stasis <- model_shift_results_clean[tsID_OU_Stasis]
+for (i in tsID_OU_Stasis) {
+  OU_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[13]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+OU_Stasis_subset1 = list()
+OU_Stasis_subset2 = list()
+for (i in 1:length(OU_Stasis)) {
+  gg <- rep(1:2, c(OU_Stasis[[i]]$Shift_point, length(OU_Stasis[[i]]$mm) - OU_Stasis[[i]]$Shift_point))
+  OU_Stasis_split = split4punc(OU_Stasis[[i]],gg, overlap=TRUE)
+  OU_Stasis_subset1[[i]] = OU_Stasis_split[[1]]
+  OU_Stasis_subset2[[i]] = OU_Stasis_split[[2]]
+}
+
+
+### GRW-URW ###
+# Add a column with the best shift point to each timeseries
+tsID_GRW_URW = names(GRW_URW)
+model_results_GRW_URW <- model_shift_results_clean[tsID_GRW_URW]
+for (i in tsID_GRW_URW) {
+  GRW_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[14]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+GRW_URW_subset1 = list()
+GRW_URW_subset2 = list()
+for (i in 1:length(GRW_URW)) {
+  gg <- rep(1:2, c(GRW_URW[[i]]$Shift_point, length(GRW_URW[[i]]$mm) - GRW_URW[[i]]$Shift_point))
+  GRW_URW_split = split4punc(GRW_URW[[i]],gg, overlap=TRUE)
+  GRW_URW_subset1[[i]] = GRW_URW_split[[1]]
+  GRW_URW_subset2[[i]] = GRW_URW_split[[2]]
+}
+
+
+### GRW-Stasis ###
+# Add a column with the best shift point to each timeseries
+tsID_GRW_Stasis = names(GRW_Stasis)
+model_results_GRW_Stasis <- model_shift_results_clean[tsID_GRW_Stasis]
+for (i in tsID_GRW_Stasis) {
+  GRW_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[15]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+GRW_Stasis_subset1 = list()
+GRW_Stasis_subset2 = list()
+for (i in 1:length(GRW_Stasis)) {
+  gg <- rep(1:2, c(GRW_Stasis[[i]]$Shift_point, length(GRW_Stasis[[i]]$mm) - GRW_Stasis[[i]]$Shift_point))
+  GRW_Stasis_split = split4punc(GRW_Stasis[[i]],gg, overlap=TRUE)
+  GRW_Stasis_subset1[[i]] = GRW_Stasis_split[[1]]
+  GRW_Stasis_subset2[[i]] = GRW_Stasis_split[[2]]
+}
+
+
+### URW-Stasis ###
+# Add a column with the best shift point to each timeseries
+tsID_URW_Stasis = names(URW_Stasis)
+model_results_URW_Stasis <- model_shift_results_clean[tsID_URW_Stasis]
+for (i in tsID_URW_Stasis) {
+  URW_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[16]]$parameters[["shift1"]]
+}
+
+#Splitting the model
+URW_Stasis_subset1 = list()
+URW_Stasis_subset2 = list()
+for (i in 1:length(URW_Stasis)) {
+  gg <- rep(1:2, c(URW_Stasis[[i]]$Shift_point, length(URW_Stasis[[i]]$mm) - URW_Stasis[[i]]$Shift_point))
+  URW_Stasis_split = split4punc(URW_Stasis[[i]],gg, overlap=TRUE)
+  URW_Stasis_subset1[[i]] = URW_Stasis_split[[1]]
+  URW_Stasis_subset2[[i]] = URW_Stasis_split[[2]]
+}
 
 
 #------------------------------------
