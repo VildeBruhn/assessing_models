@@ -84,8 +84,8 @@ ln_datalong <- lapply(ln_data_metalong, function(x) {
 #####################################################
 
 # test all possible univariate models from evoTS on every timeseries
-model_test_noshift <- mclapply(ln_datalong, fit.all.univariate, pool = TRUE)
-
+#model_noshift_results <- mclapply(ln_datalong, fit.all.univariate, pool = TRUE)
+                 
 # test all possible shift models from evoTS on time series
 fit_mode_shift <- function(ln_datalong) {
   models_list <- c("Stasis", "URW", "GRW", "OU")
@@ -103,18 +103,20 @@ fit_mode_shift <- function(ln_datalong) {
   return(store_results)
 }
 
-model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
+#model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
+
+load("model_test_shift.Rdata")
 
 ########################
 ##  Extract the AICcs ##
 ########################
 
 ### Remove problematic timeseries ###
-pblm_TS = c("567","575","576")
+pblm_TS <- c("567","575","576")
 keep_TS <- !names(model_shift_results) %in% pblm_TS
-model_shift_results_clean = model_shift_results[keep_TS]
+model_shift_results_clean <- model_shift_results[keep_TS]
 keep_TS2 <- !names(model_noshift_results) %in% pblm_TS
-model_noshift_results_clean = model_noshift_results[keep_TS2]
+model_noshift_results_clean <- model_noshift_results[keep_TS2]
 
 #------------------------------------------
 # Extract AICcs for the no shift models
@@ -210,7 +212,7 @@ sink()
 
 # Remove problematic timeseries from ln_datalong 
 keep_TS3 <- !names(ln_datalong) %in% pblm_TS
-data_aicc = ln_datalong[keep_TS3]
+data_aicc <- ln_datalong[keep_TS3]
 
 # Add a column with lowest AIC for each time series
 for (i in 1:length(data_aicc)) {
@@ -247,7 +249,8 @@ for (i in 1:length(categories)) {
 # remove problem time series
 OU <- OU[names(OU) != 427]
 OU <- OU[names(OU) != 428]
-
+OU <- OU[names(OU) != 584]
+OU <- OU[names(OU) != 585]
                           
 #------------------------------------
 # Splitting the shift models
@@ -721,7 +724,6 @@ URW_Stasis_subset2_adeq_passed <- adequate4tests(URW_Stasis_subset2_adeq)
 
                           
 # merge split timeseries if the two subsets passed the adequacy tests
-
 Stasis_Stasis_adeq_passed <- Stasis_Stasis_subset1_adeq_passed[intersect(names(Stasis_Stasis_subset1_adeq_passed), names(Stasis_Stasis_subset2_adeq_passed))]
 Stasis_URW_adeq_passed <- Stasis_URW_subset1_adeq_passed[intersect(names(Stasis_URW_subset1_adeq_passed), names(Stasis_URW_subset2_adeq_passed))]
 Stasis_GRW_adeq_passed <- Stasis_GRW_subset1_adeq_passed[intersect(names(Stasis_GRW_subset1_adeq_passed), names(Stasis_GRW_subset2_adeq_passed))]
@@ -740,6 +742,49 @@ GRW_Stasis_adeq_passed <- GRW_Stasis_subset1_adeq_passed[intersect(names(GRW_Sta
 URW_Stasis_adeq_passed <- URW_Stasis_subset1_adeq_passed[intersect(names(URW_Stasis_subset1_adeq_passed), names(URW_Stasis_subset2_adeq_passed))]            
 
 # get percentage passed
+GRW_p <- (length(GRW_adeq_passed)/length(GRW_adeq))*100
+URW_p <- (length(URW_adeq_passed)/length(URW_adeq))*100
+stasis_p <- (length(stasis_adeq_passed)/length(stasis_adeq))*100
+strict_stasis_p <- (length(strict_stasis_adeq_passed)/length(strict_stasis_adeq))*100
+decel_p <- (length(decel_adeq_passed)/length(decel_adeq))*100
+accel_p <- (length(accel_adeq_passed)/length(accel_adeq))*100
+OU_p <- (length(OU_adeq_passed)/length(OU_adeq))*100
+OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_adeq))*100
+OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
+Stasis_Stasis_p <- (length(Stasis_Stasis_adeq_passed)/length(Stasis_Stasis_subset1_adeq))*100
+Stasis_URW_p <- (length(Stasis_URW_adeq_passed)/length(Stasis_URW_subset1_adeq))*100
+Stasis_GRW_p <- (length(Stasis_GRW_adeq_passed)/length(Stasis_GRW_subset1_adeq))*100
+Stasis_OU_p <- (length(Stasis_OU_adeq_passed)/length(Stasis_OU_subset1_adeq))*100
+URW_URW_p <- (length(URW_URW_adeq_passed)/length(URW_URW_subset1_adeq))*100
+URW_GRW_p <- (length(URW_GRW_adeq_passed)/length(URW_GRW_subset1_adeq))*100
+URW_OU_p <- (length(URW_OU_adeq_passed)/length(URW_OU_subset1_adeq))*100
+GRW_GRW_p <- (length(GRW_GRW_adeq_passed)/length(GRW_GRW_subset1_adeq))*100
+GRW_OU_p <- (length(GRW_OU_adeq_passed)/length(GRW_OU_subset1_adeq))*100
+OU_OU_p <- (length(OU_OU_adeq_passed)/length(OU_OU_subset1_adeq))*100
+OU_GRW_p <- (length(OU_GRW_adeq_passed)/length(OU_GRW_subset1_adeq))*100
+OU_URW_p <- (length(OU_URW_adeq_passed)/length(OU_URW_subset1_adeq))*100
+OU_Stasis_p <- (length(OU_Stasis_adeq_passed)/length(OU_Stasis_subset1_adeq))*100
+GRW_URW_p <- (length(GRW_URW_adeq_passed)/length(GRW_URW_subset1_adeq))*100
+GRW_Stasis_p <- (length(GRW_Stasis_adeq_passed)/length(GRW_Stasis_subset1_adeq))*100
+URW_Stasis_p <- (length(URW_Stasis_adeq_passed)/length(URW_Stasis_subset1_adeq))*100
 
+# make output table
+adeq_table <- as.data.frame(c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p, 
+                              Stasis_Stasis_p, Stasis_URW_p, Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p,
+                              GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, GRW_Stasis_p, URW_Stasis_p))
+row.names(adeq_table) <- c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
+                           "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis-Stasis", 
+                           "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+                           "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+                           "GRW-Stasis", "URW-Stasis")
+colnames(adeq_table) <- "% passed"
+
+# write to file
+sink(file = "./results/adequacy_passed.txt")
+adeq_table
+sink()
+
+# Save the results
+save.image(file= "results_adequacy_models_shift.RData")
 
                           
