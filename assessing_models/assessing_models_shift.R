@@ -571,19 +571,19 @@ for (i in 1:length(URW_Stasis)) {
 # Testing the adequacy of the models
 #------------------------------------
 
+# For loop for the OU models which are not working in parallel
+load("OU_subset_adeq.Rdata")
+
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
-stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE) 
-strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
-decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
-accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
+stasis_adeq <- mclapply(Stasis, fit4adequacy.stasis, plot = FALSE) 
+strict_stasis_adeq <- mclapply(Strict_stasis, fit4adequacy.stasis, plot = FALSE)
+decel_adeq <- mclapply(Decel, fit3adequacy.decel, plot = FALSE)
+accel_adeq <- mclapply(Accel, fit3adequacy.RW, plot = FALSE)
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
-load("OU_adeq.Rdata")
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
-load("OU_mov_opt_anc_adeq.Rdata")
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
-load("OU_mov_opt_adeq.Rdata")
 
 Stasis_Stasis_subset1_adeq <- mclapply(Stasis_Stasis_subset1, fit4adequacy.stasis, plot = FALSE)
 Stasis_Stasis_subset2_adeq <- mclapply(Stasis_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
@@ -603,7 +603,6 @@ names(Stasis_GRW_subset2_adeq) = tsID_Stasis_GRW
 Stasis_OU_subset1_adeq <- mclapply(Stasis_OU_subset1, fit4adequacy.stasis, plot = FALSE)
 #Stasis_OU_subset2_adeq <- mclapply(Stasis_OU_subset2, fit3adequacy.OU, plot = FALSE)
 names(Stasis_OU_subset1_adeq) = tsID_Stasis_OU
-load("OU_subset_adeq.Rdata")
 names(Stasis_OU_subset2_adeq) = tsID_Stasis_OU
 
 URW_URW_subset1_adeq <- mclapply(URW_URW_subset1, fit3adequacy.RW, plot = FALSE)
@@ -784,7 +783,7 @@ row.names(adeq_table) <- c("GRW", "URW", "stasis", "strict stasis", "decel", "ac
 colnames(adeq_table) <- "% passed"
 
 # write to file
-sink(file = "./results/adequacy_passed.txt")
+sink(file = "./results/adequacy_passed_with_shift.txt")
 adeq_table
 sink()
 
