@@ -112,7 +112,7 @@ load("model_test_shift.Rdata")
 ########################
 
 ### Remove problematic timeseries ###
-pblm_TS <- c("567","575","576")
+pblm_TS <- c("567","575","576","427","428","584","585","75") #the first three because there is a bug in fit.all.shift. Last one because bug with OU adequacy test.
 keep_TS <- !names(model_shift_results) %in% pblm_TS
 model_shift_results_clean <- model_shift_results[keep_TS]
 keep_TS2 <- !names(model_noshift_results) %in% pblm_TS
