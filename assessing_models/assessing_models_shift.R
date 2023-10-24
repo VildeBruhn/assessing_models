@@ -224,8 +224,8 @@ for (i in 1:length(data_aicc)) {
 # Filter the time series according to the best model
 #----------------------------------------------------
 
-categories <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
-                "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis_Stasis", 
+categories <- c("GRW", "URW", "Stasis", "Strict_stasis", "Decel", "Accel", "OU",
+                "OU_mov_opt_anc", "OU_mov_opt", "Stasis_Stasis", 
                 "Stasis_URW", "Stasis_GRW", "Stasis_OU", "URW_URW", "URW_GRW", "URW_OU",
                 "GRW_GRW", "GRW_OU", "OU_OU", "OU_GRW", "OU_URW", "OU_Stasis", "GRW_URW",
                 "GRW_Stasis", "URW_Stasis")
@@ -246,11 +246,6 @@ for (i in 1:length(categories)) {
   assign(paste(category, sep = ""), filtered_data)
 }
 
-# remove problem time series
-OU <- OU[names(OU) != 427]
-OU <- OU[names(OU) != 428]
-OU <- OU[names(OU) != 584]
-OU <- OU[names(OU) != 585]
                           
 #------------------------------------
 # Splitting the shift models
