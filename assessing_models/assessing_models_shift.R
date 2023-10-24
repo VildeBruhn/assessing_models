@@ -105,7 +105,7 @@ fit_mode_shift <- function(ln_datalong) {
 
 #model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
 
-load("model_test_shift.Rdata")
+load("results_fit_models.Rdata")
 
 ########################
 ##  Extract the AICcs ##
