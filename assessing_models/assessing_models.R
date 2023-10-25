@@ -3,7 +3,7 @@
 #########################################
 
 #evoTS GitHub version
-# adePEM new models version
+#adePEM new models version
 
 rm(list = ls())
 
@@ -71,14 +71,19 @@ aicc <- lapply(aicc, function(x) {
 
 # get percentage
 aicc_unlist <- unlist(aicc)
-counts <- table(aicc_unlist)
-percent <- (counts/sum(counts))*100
-names(percent) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
-                "OU mov. optm. (ancestral state)", "OU mov. optm.")
+aicc_results <- table(aicc_unlist)
+names(aicc_results) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
+                   "OU mov. optm. (ancestral state)", "OU mov. optm.")
+aicc_results <- as.data.frame(counts)
+colnames(aicc_results) <- c("model", "count")
+aicc_results$percentage <- (aicc_results$count/sum(aicc_results$count))*100
+percent2 <- sum(aicc_results$percentage[4:9])
+percent3 <- sum(aicc_results$percentage[5:9])
 
-# write to file
-sink(file = "./results/percent_AICc.txt")
-percent
+sink(file = "./results/AICc_results.txt")
+aicc_results
+paste("Percentage not URW, GRW or stasis:", percent2)
+paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
 
 ###################
@@ -175,6 +180,17 @@ OU_adeq_passed <- adequate3tests(OU_adeq)
 OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
 OU_mov_opt_adeq_passed <- adequate3tests(OU_mov_opt_adeq)
 
+# get counts passed
+GRW_c <- length(GRW_adeq_passed)
+URW_c <- length(URW_adeq_passed)
+stasis_c <- length(stasis_adeq_passed)
+strict_stasis_c <- length(strict_stasis_adeq_passed)
+decel_c <- length(decel_adeq_passed)
+accel_c <- length(accel_adeq_passed)
+OU_c <- length(OU_adeq_passed)
+OU_mov_opt_anc_c <- length(OU_mov_opt_anc_adeq_passed)
+OU_mov_opt_c <- length(OU_mov_opt_adeq_passed)
+
 # get percentage passed
 GRW_p <- (length(GRW_adeq_passed)/length(GRW_adeq))*100
 URW_p <- (length(URW_adeq_passed)/length(URW_adeq))*100
@@ -187,10 +203,12 @@ OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_ad
 OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
 
 # make output table
-adeq_table <- as.data.frame(c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p))
-row.names(adeq_table) <- c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
-                           "OU mov. optm. (ancestral state)", "OU mov. optm.")
-colnames(adeq_table) <- "% passed"
+adeq_table <- as.data.frame(c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
+                "OU mov. optm. (ancestral state)", "OU mov. optm."))
+colnames(adeq_table) <- "model"
+adeq_table$count_passed <- c(GRW_c,URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c)
+adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p)
+
 
 # write to file
 sink(file = "./results/adequacy_passed.txt")
