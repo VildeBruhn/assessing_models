@@ -70,7 +70,7 @@ aicc <- lapply(model_test, function(x) x[(names(x) %in% c("AICc"))])
 # get best AICc values within range
 aicc_count <- lapply(aicc, function(x) {
   min_aicc <- min(x$AICc)
-  within_range <- between(x$AICc, min_aicc - 2, min_aicc + 2)
+  within_range <- between(x$AICc, min_aicc, min_aicc + 2)
   sum(within_range)
 })
 
