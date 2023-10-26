@@ -167,22 +167,13 @@ strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
-
-OU_adeq <- list()
-for (i in 1:length(OU)){
-  print(i)
-  OU_adeq[[i]] <- fit3adequacy.OU(OU[[i]], plot = FALSE)
-}
-
-OU[[7]]
-
-save(file = "OU_adeq.Rdata", OU_adeq)
+#save(file = "OU_adeq.Rdata", OU_adeq)
 load("OU_adeq.Rdata")
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
-save(file = "OU_mov_opt_anc_adeq.Rdata", OU_adeq_mov_opt_anc_adeq)
+#save(file = "OU_mov_opt_anc_adeq.Rdata", OU_adeq_mov_opt_anc_adeq)
 load("OU_mov_opt_anc_adeq.Rdata")
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
-save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
+#save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
 load("OU_mov_opt_adeq.Rdata")
 
 # get only adequate time series
