@@ -1,5 +1,5 @@
 #########################################
-## Evolutionary rates and time scaling ##
+## Adequacy of models of evolution     ##
 #########################################
 
 #evoTS GitHub version
