@@ -1,10 +1,3 @@
-#########################################
-## Evolutionary rates and time scaling ##
-#########################################
-
-#evoTS GitHub version
-#adePEM new models version
-
 rm(list = ls())
 
 library(data.table)
