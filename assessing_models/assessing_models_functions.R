@@ -103,3 +103,21 @@ adequate4tests <- function(data){
   return(data_adeq_passed)
   
 }
+
+# this one does not include the last adequacy test in adePEM::fit3adequacy
+adequate2tests <- function(data){
+  
+  # get only passed or failed adequacy test into list
+  data_adeq <- lapply(data, function(x) {
+    x$results = toString(x$summary[5])
+    return(x)
+  })
+  
+  # filter out those that did not pass the adequacy test
+  data_adeq_passed1 <- Filter(function(x) x$results ==  "c(\"PASSED\", \"PASSED\", \"PASSED\")", data_adeq)
+  data_adeq_passed2 <- Filter(function(x) x$results ==  "c(\"PASSED\", \"PASSED\", \"FAILED\")", data_adeq)
+  data_adeq_passed <- c(data_adeq_passed1, data_adeq_passed2)
+  
+  return(data_adeq_passed)
+  
+}

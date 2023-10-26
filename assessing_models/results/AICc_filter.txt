@@ -1,0 +1,3 @@
+[1] "Count time series before filtering: 447"
+[1] "Count time series after filtering: 223"
+[1] "Percentage time series after filtering: 49.8881431767338"
