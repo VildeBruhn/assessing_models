@@ -24,4 +24,4 @@ load(file = "OU_issue.Rdata")
 ## Test adequacy ##
 ###################
 
-OU_mov_opt_anc_adeq <- lapply(OU_issue, fit3adequacy.OU, plot = FALSE)
+OU_adeq <- lapply(issue, fit3adequacy.OU, plot = FALSE)
