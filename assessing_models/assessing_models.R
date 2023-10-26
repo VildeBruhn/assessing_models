@@ -44,6 +44,9 @@ metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\
 # join dataframes
 df <- left_join(timeseries, metadata, by = c("tsID"))
 
+# remove time series with less than 10 steps
+df <- subset(df, steps >= 10)
+
 # make list based on ID
 df <- lapply(split(df,df$tsID), function(x) as.list(x))
 
@@ -82,6 +85,7 @@ percent3 <- sum(aicc_results$percentage[5:9])
 
 sink(file = "./results/AICc_results.txt")
 aicc_results
+paste("Total count:", length(ln_data))
 paste("Percentage not URW, GRW or stasis:", percent2)
 paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
@@ -163,10 +167,22 @@ strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
+
+OU_adeq <- list()
+for (i in 1:length(OU)){
+  print(i)
+  OU_adeq[[i]] <- fit3adequacy.OU(OU[[i]], plot = FALSE)
+}
+
+OU[[7]]
+
+save(file = "OU_adeq.Rdata", OU_adeq)
 load("OU_adeq.Rdata")
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
+save(file = "OU_mov_opt_anc_adeq.Rdata", OU_adeq_mov_opt_anc_adeq)
 load("OU_mov_opt_anc_adeq.Rdata")
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
 load("OU_mov_opt_adeq.Rdata")
 
 # get only adequate time series
@@ -178,7 +194,7 @@ decel_adeq_passed <- adequate3tests(decel_adeq)
 accel_adeq_passed <- adequate3tests(accel_adeq)
 OU_adeq_passed <- adequate3tests(OU_adeq)
 OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
-OU_mov_opt_adeq_passed <- adequate3tests(OU_mov_opt_adeq)
+OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
