@@ -180,29 +180,38 @@ aicc_min <- lapply(aicc, function(x) {
 
 # get percentage
 aicc_unlist <- unlist(aicc_min)
-counts <- table(aicc_unlist)
+aicc_results <- table(aicc_unlist)
 
-# Create the outcomes for models with 0 iterations (model OU with moving optimum in this case)
-modified_counts <- numeric(25)
+# Create the outcomes of models with 0 time series 
+aicc_results_complete <- numeric(25)
 
 for (i in 1:25) {
-  if (i %in% names(counts)) {
-    modified_counts[i] <- counts[[as.character(i)]]
+  if (i %in% names(aicc_results)) {
+    aicc_results_complete[i] <- aicc_results[[as.character(i)]]
   } else {
-    modified_counts[i] <- 0
+    aicc_results_complete[i] <- 0
   }
 }
 
-percent <- (modified_counts/sum(modified_counts))*100
-names(percent) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
-                    "OU mov. optm. (ancestral state)", "OU mov. optm.","Stasis-Stasis", 
-                    "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
-                    "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
-                    "GRW-Stasis", "URW-Stasis")
+names(aicc_results_complete) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
+                         "OU mov. optm. (ancestral state)", "OU mov. optm.","Stasis-Stasis", 
+                         "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+                         "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+                         "GRW-Stasis", "URW-Stasis")
+
+aicc_results_complete <- data.frame(model = names(aicc_results_complete), count = unname(aicc_results_complete))
+aicc_results_complete$percentage <- (aicc_results_complete$count/sum(aicc_results_complete$count))*100
+
+percent2 <- sum(aicc_results_complete$percent[4:25])
+percent3 <- sum(aicc_results_complete$percent[5:25])
+percent4 <- sum(aicc_results_complete$percent[10:25])
 
 # write to file
-sink(file = "./results/percent_AICc_with_shift.txt")
-percent
+sink(file = "./results/percent_bestmodel_with_shift.txt")
+aicc_results_complete
+paste("Percentage not URW, GRW or stasis:", percent2)
+paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
+paste("Percentage of shift:", percent4)
 sink()
 
   
