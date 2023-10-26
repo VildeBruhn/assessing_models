@@ -74,7 +74,7 @@ aicc_unlist <- unlist(aicc)
 aicc_results <- table(aicc_unlist)
 names(aicc_results) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
                    "OU mov. optm. (ancestral state)", "OU mov. optm.")
-aicc_results <- as.data.frame(counts)
+aicc_results <- as.data.frame(aicc_results)
 colnames(aicc_results) <- c("model", "count")
 aicc_results$percentage <- (aicc_results$count/sum(aicc_results$count))*100
 percent2 <- sum(aicc_results$percentage[4:9])
