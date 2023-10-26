@@ -2,7 +2,6 @@
 ## Evolutionary rates and time scaling ##
 #########################################
 
-#paleoTS.v.0.5.3
 #evoTS GitHub version
 
 rm(list = ls())
