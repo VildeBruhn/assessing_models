@@ -778,6 +778,33 @@ GRW_URW_adeq_passed <- GRW_URW_subset1_adeq_passed[intersect(names(GRW_URW_subse
 GRW_Stasis_adeq_passed <- GRW_Stasis_subset1_adeq_passed[intersect(names(GRW_Stasis_subset1_adeq_passed), names(GRW_Stasis_subset2_adeq_passed))]
 URW_Stasis_adeq_passed <- URW_Stasis_subset1_adeq_passed[intersect(names(URW_Stasis_subset1_adeq_passed), names(URW_Stasis_subset2_adeq_passed))]            
 
+# get counts passed
+GRW_c <- length(GRW_adeq_passed)
+URW_c <- length(URW_adeq_passed)
+stasis_c <- length(stasis_adeq_passed)
+strict_stasis_c <- length(strict_stasis_adeq_passed)
+decel_c <- length(decel_adeq_passed)
+accel_c <- length(accel_adeq_passed)
+OU_c <- length(OU_adeq_passed)
+OU_mov_opt_anc_c <- length(OU_mov_opt_anc_adeq_passed)
+OU_mov_opt_c <- length(OU_mov_opt_adeq_passed)
+Stasis_Stasis_c <- length(Stasis_Stasis_adeq_passed)
+Stasis_URW_c <- length(Stasis_URW_adeq_passed)
+Stasis_GRW_c <- length(Stasis_GRW_adeq_passed)
+Stasis_OU_c <- length(Stasis_OU_adeq_passed)
+URW_URW_c <- length(URW_URW_adeq_passed)
+URW_GRW_c <- length(URW_GRW_adeq_passed)
+URW_OU_c <- length(URW_OU_adeq_passed)
+GRW_GRW_c <- length(GRW_GRW_adeq_passed)
+GRW_OU_c <- length(GRW_OU_adeq_passed)
+OU_OU_c <- length(OU_OU_adeq_passed)
+OU_GRW_c <- length(OU_GRW_adeq_passed)
+OU_URW_c <- length(OU_URW_adeq_passed)
+OU_Stasis_c <- length(OU_Stasis_adeq_passed)
+GRW_URW_c <- length(GRW_URW_adeq_passed)
+GRW_Stasis_c <- length(GRW_Stasis_adeq_passed)
+URW_Stasis_c <- length(URW_Stasis_adeq_passed)
+
 # get percentage passed
 GRW_p <- (length(GRW_adeq_passed)/length(GRW_adeq))*100
 URW_p <- (length(URW_adeq_passed)/length(URW_adeq))*100
@@ -806,15 +833,19 @@ GRW_Stasis_p <- (length(GRW_Stasis_adeq_passed)/length(GRW_Stasis_subset1_adeq))
 URW_Stasis_p <- (length(URW_Stasis_adeq_passed)/length(URW_Stasis_subset1_adeq))*100
 
 # make output table
-adeq_table <- as.data.frame(c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p, 
-                              Stasis_Stasis_p, Stasis_URW_p, Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p,
-                              GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, GRW_Stasis_p, URW_Stasis_p))
-row.names(adeq_table) <- c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
-                           "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis-Stasis", 
-                           "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
-                           "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
-                           "GRW-Stasis", "URW-Stasis")
-colnames(adeq_table) <- "% passed"
+adeq_table <- as.data.frame(c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
+                              "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis-Stasis", 
+                              "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+                              "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+                              "GRW-Stasis", "URW-Stasis"))
+
+adeq_table$count_passed <- c(GRW_c,URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c,
+                             Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c,
+                             GRW_OU_c, OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, URW_Stasis_c)
+
+adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p,
+                                  Stasis_Stasis_p, Stasis_URW_p, Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p,
+                                  GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, GRW_Stasis_p, URW_Stasis_p)
 
 # write to file
 sink(file = "./results/adequacy_passed_with_shift.txt")
@@ -822,6 +853,4 @@ adeq_table
 sink()
 
 # Save the results
-save.image(file= "results_adequacy_models_shift.RData")
-
-                          
+save.image(file='results_adequacy_models.RData')
