@@ -207,12 +207,42 @@ percent3 <- sum(aicc_results_complete$percent[5:25])
 percent4 <- sum(aicc_results_complete$percent[10:25])
 
 # write to file
-sink(file = "./results/percent_bestmodel_with_shift.txt")
+sink(file = "./results/AICc_results_with_shift.txt")
 aicc_results_complete
-paste("Percentage not URW, GRW or stasis:", percent2)
-paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
-paste("Percentage of shift:", percent4)
+paste("Total number of time series investigated:", length(aicc))
+paste("Percentage of time series not described by URW, GRW or stasis:", percent2)
+paste("Percentage of time series not described by URW, GRW, stasis or strict stasis:", percent3)
+paste("Percentage of time series described by models with shift:", percent4)
 sink()
+
+
+#--------------------------------------------------------------------------------------------------
+# Time series described by more than one model (AICcs with a difference inferior to 2 units)
+#--------------------------------------------------------------------------------------------------
+
+aicc_filtered = list()
+threshold = 2
+
+for (i in 1:length(aicc)) {
+  for (j in 1:nrow(aicc[[1]][])) {
+    if (aicc[[i]][j,] != aicc[[i]][aicc_min[[i]],]) {
+    if (any(abs(aicc[[i]][j,] - aicc[[i]][aicc_min[[i]],]) <= threshold)) {
+     aicc_filtered = c(aicc_filtered, list(aicc[[i]])) 
+     break  # Exit the inner loop once the threshold is met
+    } 
+    }
+  }
+}
+
+
+sink(file = "./results/AICc_filter_with_shift.txt")
+paste("Total number of time series investigated:", length(aicc))
+paste("Total number of time series described by more than one model:", length(aicc_filtered))
+paste("Percentage of time series filtered:", length(aicc_filtered)/length(aicc)*100)
+sink()
+
+
+
 
   
 ###################
