@@ -3,7 +3,8 @@
 ##########################################################################
 
 #paleoTS.v.0.5.3
-#evoTS GitHub version
+#evoTS GitHub version, main branch
+#adePEM GitHub version, new-models branch
 
 rm(list = ls())
 
@@ -13,10 +14,10 @@ library(adePEM)
 library(evoTS)
 library(paleoTS)
 
-source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
+source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/assessing_models_evolution/assessing_models/assessing_models_functions.R")
 
 # set working directory
-setwd("/Users/vildeki/GitHub/assessing_models/")
+setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/assessing_models_evolution/assessing_models")
 
 # -------------------------
 # Set up for parallel runs
@@ -112,7 +113,7 @@ load("Results_fit_models.Rdata")
 ########################
 
 ### Remove problematic timeseries ###
-pblm_TS <- c("584","585","75")
+pblm_TS <- c("584","585","75","427","428")
 keep_TS <- !names(model_shift_results) %in% pblm_TS
 model_shift_results_clean <- model_shift_results[keep_TS]
 keep_TS2 <- !names(model_noshift_results) %in% pblm_TS
@@ -162,21 +163,22 @@ aicc_shift <- Map(function(x, y) {
 ## Get percent of the best AICcs ##
 ###################################
 
-# combine the AICcs of no shift and shift models
 aicc <- list()
-
 for (i in 1:length(aicc_noshift)) {
-  aicc[[i]] <- rbind(aicc_noshift[[i]], aicc_shift[[i]])
+  aicc_name <- names(aicc_noshift)[i]  # Extract the name of the current sublist in aicc_noshift
+  aicc[[aicc_name]] <- rbind(aicc_noshift[[i]], aicc_shift[[i]])
 }
 
 #------------------------------------------
 # Find the best AICs for each timeseries
 #------------------------------------------
 
+
 # check which AICc value is the lowest
 aicc_min <- lapply(aicc, function(x) {
   which.min(as.numeric(unlist(x)))
 })
+
 
 # get percentage
 aicc_unlist <- unlist(aicc_min)
@@ -194,10 +196,10 @@ for (i in 1:25) {
 }
 
 names(aicc_results_complete) <- c("GRW", "URW", "Stasis", "Strict stasis", "Decel", "Accel", "OU",
-                         "OU mov. optm. (ancestral state)", "OU mov. optm.","Stasis-Stasis", 
-                         "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
-                         "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
-                         "GRW-Stasis", "URW-Stasis")
+                                  "OU mov. optm. (ancestral state)", "OU mov. optm.","Stasis-Stasis", 
+                                  "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+                                  "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+                                  "GRW-Stasis", "URW-Stasis")
 
 aicc_results_complete <- data.frame(model = names(aicc_results_complete), count = unname(aicc_results_complete))
 aicc_results_complete$percentage <- (aicc_results_complete$count/sum(aicc_results_complete$count))*100
@@ -215,6 +217,7 @@ paste("Percentage of time series not described by URW, GRW, stasis or strict sta
 paste("Percentage of time series described by models with shift:", percent4)
 sink()
 
+
 #--------------------------------------------------------------------------------------------------
 # Time series described by more than one model (AICcs with a difference inferior to 2 units)
 #--------------------------------------------------------------------------------------------------
@@ -225,10 +228,10 @@ threshold = 2
 for (i in 1:length(aicc)) {
   for (j in 1:nrow(aicc[[1]][])) {
     if (aicc[[i]][j,] != aicc[[i]][aicc_min[[i]],]) {
-    if (any(abs(aicc[[i]][j,] - aicc[[i]][aicc_min[[i]],]) <= threshold)) {
-     aicc_filtered = c(aicc_filtered, list(aicc[[i]])) 
-     break  # Exit the inner loop once the threshold is met
-    } 
+      if (any(abs(aicc[[i]][j,] - aicc[[i]][aicc_min[[i]],]) <= threshold)) {
+        aicc_filtered = c(aicc_filtered, list(aicc[[i]])) 
+        break  # Exit the inner loop once the threshold is met
+      } 
     }
   }
 }
@@ -245,19 +248,25 @@ sink()
 ## Test adequacy ##
 ###################
 
-# Remove problematic timeseries from ln_datalong 
+
+data_aicc = list()
+
+# Remove problematic and too short time series from ln_datalong
 keep_TS3 <- !names(ln_datalong) %in% pblm_TS
 data_aicc <- ln_datalong[keep_TS3]
+names_short_TS <- names(aicc_min)
+keep_TS_short <- names(data_aicc) %in% names_short_TS
+data_aicc <- data_aicc[keep_TS_short]
 
 # Add a column with lowest AIC for each time series
 for (i in 1:length(data_aicc)) {
-  data_aicc[[i]]$Lowest_AICc <- aicc_min[i]
+  data_aicc[[i]]$Lowest_AICc <- aicc_min[[i]]
 }
-
 
 #----------------------------------------------------
 # Filter the time series according to the best model
 #----------------------------------------------------
+
 
 categories <- c("GRW", "URW", "Stasis", "Strict_stasis", "Decel", "Accel", "OU",
                 "OU_mov_opt_anc", "OU_mov_opt", "Stasis_Stasis", 
@@ -265,10 +274,12 @@ categories <- c("GRW", "URW", "Stasis", "Strict_stasis", "Decel", "Accel", "OU",
                 "GRW_GRW", "GRW_OU", "OU_OU", "OU_GRW", "OU_URW", "OU_Stasis", "GRW_URW",
                 "GRW_Stasis", "URW_Stasis")
 
-# Store the timeseries in different lists according to the best model fitted
+# Create a list to store the results
 result_list <- list()
+
 for (i in 1:length(categories)) {
   category <- categories[i]
+  
   # Filter data for the current category
   filtered_data <- Filter(function(x) x[[10]] == i, data_aicc)
   filtered_data <- lapply(filtered_data, function(x) { x[[10]] <- NULL; x })
@@ -276,7 +287,7 @@ for (i in 1:length(categories)) {
     as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
   })
   
-  # Store the result in the result_list and in the different best-model lists
+  # Store the result in the result_list
   result_list[[category]] <- filtered_data
   assign(paste(category, sep = ""), filtered_data)
 }
@@ -285,13 +296,6 @@ for (i in 1:length(categories)) {
 #------------------------------------
 # Splitting the shift models
 #------------------------------------
-                          
-# load previous version of paleoTS containing function to split PaleoTS objects
-#install.packages("remotes")
-library(remotes)
-#install_version("paleoTS", version = "0.5-1")
-library(paleoTS)
-
                           
 ### Stasis-Stasis ###
 # Add a column with the best shift point to each timeseries
@@ -309,7 +313,7 @@ Stasis_Stasis_subset2 = list()
 if (length(Stasis_Stasis) > 0) {
   for (i in 1:length(Stasis_Stasis)) {
     gg <- rep(1:2, c(Stasis_Stasis[[i]]$Shift_point, length(Stasis_Stasis[[i]]$mm) - Stasis_Stasis[[i]]$Shift_point))
-    Stasis_Stasis_split = split4punc(Stasis_Stasis[[i]],gg, overlap=TRUE)
+    Stasis_Stasis_split = paleoTS:::split4punc(Stasis_Stasis[[i]],gg, overlap=TRUE)
     Stasis_Stasis_subset1[[i]] = Stasis_Stasis_split[[1]]
     Stasis_Stasis_subset2[[i]] = Stasis_Stasis_split[[2]]
   }
@@ -332,7 +336,7 @@ Stasis_URW_subset2 = list()
 if (length(Stasis_URW) > 0) {
   for (i in 1:length(Stasis_URW)) {
     gg <- rep(1:2, c(Stasis_URW[[i]]$Shift_point, length(Stasis_URW[[i]]$mm) - Stasis_URW[[i]]$Shift_point))
-   Stasis_URW_split = split4punc(Stasis_URW[[i]],gg, overlap=TRUE)
+   Stasis_URW_split = paleoTS:::split4punc(Stasis_URW[[i]],gg, overlap=TRUE)
    Stasis_URW_subset1[[i]] = Stasis_URW_split[[1]]
    Stasis_URW_subset2[[i]] = Stasis_URW_split[[2]]
   }
@@ -355,7 +359,7 @@ Stasis_GRW_subset2 = list()
 if (length(Stasis_GRW) > 0) {
   for (i in 1:length(Stasis_GRW)) {
     gg <- rep(1:2, c(Stasis_GRW[[i]]$Shift_point, length(Stasis_GRW[[i]]$mm) - Stasis_GRW[[i]]$Shift_point))
-    Stasis_GRW_split = split4punc(Stasis_GRW[[i]],gg, overlap=TRUE)
+    Stasis_GRW_split = paleoTS:::split4punc(Stasis_GRW[[i]],gg, overlap=TRUE)
     Stasis_GRW_subset1[[i]] = Stasis_GRW_split[[1]]
     Stasis_GRW_subset2[[i]] = Stasis_GRW_split[[2]]
   }
@@ -378,7 +382,7 @@ Stasis_OU_subset2 = list()
 if (length(Stasis_OU) > 0) {
   for (i in 1:length(Stasis_OU)) {
     gg <- rep(1:2, c(Stasis_OU[[i]]$Shift_point, length(Stasis_OU[[i]]$mm) - Stasis_OU[[i]]$Shift_point))
-    Stasis_OU_split = split4punc(Stasis_OU[[i]],gg, overlap=TRUE)
+    Stasis_OU_split = paleoTS:::split4punc(Stasis_OU[[i]],gg, overlap=TRUE)
     Stasis_OU_subset1[[i]] = Stasis_OU_split[[1]]
     Stasis_OU_subset2[[i]] = Stasis_OU_split[[2]]
   }
@@ -401,7 +405,7 @@ URW_URW_subset2 = list()
 if (length(URW_URW) > 0) {
   for (i in 1:length(URW_URW)) {
     gg <- rep(1:2, c(URW_URW[[i]]$Shift_point, length(URW_URW[[i]]$mm) - URW_URW[[i]]$Shift_point))
-    URW_URW_split = split4punc(URW_URW[[i]],gg, overlap=TRUE)
+    URW_URW_split = paleoTS:::split4punc(URW_URW[[i]],gg, overlap=TRUE)
     URW_URW_subset1[[i]] = URW_URW_split[[1]]
     URW_URW_subset2[[i]] = URW_URW_split[[2]]
   }
@@ -424,7 +428,7 @@ URW_GRW_subset2 = list()
 if (length(URW_GRW) > 0) {
   for (i in 1:length(URW_GRW)) {
     gg <- rep(1:2, c(URW_GRW[[i]]$Shift_point, length(URW_GRW[[i]]$mm) - URW_GRW[[i]]$Shift_point))
-    URW_GRW_split = split4punc(URW_GRW[[i]],gg, overlap=TRUE)
+    URW_GRW_split = paleoTS:::split4punc(URW_GRW[[i]],gg, overlap=TRUE)
     URW_GRW_subset1[[i]] = URW_GRW_split[[1]]
     URW_GRW_subset2[[i]] = URW_GRW_split[[2]]
   }
@@ -447,7 +451,7 @@ URW_OU_subset2 = list()
 if (length(URW_OU) > 0) {
   for (i in 1:length(URW_OU)) {
    gg <- rep(1:2, c(URW_OU[[i]]$Shift_point, length(URW_OU[[i]]$mm) - URW_OU[[i]]$Shift_point))
-   URW_OU_split = split4punc(URW_OU[[i]],gg, overlap=TRUE)
+   URW_OU_split = paleoTS:::split4punc(URW_OU[[i]],gg, overlap=TRUE)
    URW_OU_subset1[[i]] = URW_OU_split[[1]]
    URW_OU_subset2[[i]] = URW_OU_split[[2]]
   }
@@ -470,7 +474,7 @@ GRW_GRW_subset2 = list()
 if (length(GRW_GRW) > 0) {
   for (i in 1:length(GRW_GRW)) {
    gg <- rep(1:2, c(GRW_GRW[[i]]$Shift_point, length(GRW_GRW[[i]]$mm) - GRW_GRW[[i]]$Shift_point))
-   GRW_GRW_split = split4punc(GRW_GRW[[i]],gg, overlap=TRUE)
+   GRW_GRW_split = paleoTS:::split4punc(GRW_GRW[[i]],gg, overlap=TRUE)
    GRW_GRW_subset1[[i]] = GRW_GRW_split[[1]]
    GRW_GRW_subset2[[i]] = GRW_GRW_split[[2]]
   }
@@ -493,7 +497,7 @@ GRW_OU_subset2 = list()
 if (length(GRW_OU) > 0) {
   for (i in 1:length(GRW_OU)) {
     gg <- rep(1:2, c(GRW_OU[[i]]$Shift_point, length(GRW_OU[[i]]$mm) - GRW_OU[[i]]$Shift_point))
-    GRW_OU_split = split4punc(GRW_OU[[i]],gg, overlap=TRUE)
+    GRW_OU_split = paleoTS:::split4punc(GRW_OU[[i]],gg, overlap=TRUE)
     GRW_OU_subset1[[i]] = GRW_OU_split[[1]]
     GRW_OU_subset2[[i]] = GRW_OU_split[[2]]
   }
@@ -516,7 +520,7 @@ OU_OU_subset2 = list()
 if (length(OU_OU) > 0) {
   for (i in 1:length(OU_OU)) {
    gg <- rep(1:2, c(OU_OU[[i]]$Shift_point, length(OU_OU[[i]]$mm) - OU_OU[[i]]$Shift_point))
-   OU_OU_split = split4punc(OU_OU[[i]],gg, overlap=TRUE)
+   OU_OU_split = paleoTS:::split4punc(OU_OU[[i]],gg, overlap=TRUE)
    OU_OU_subset1[[i]] = OU_OU_split[[1]]
    OU_OU_subset2[[i]] = OU_OU_split[[2]]
   }
@@ -538,7 +542,7 @@ OU_GRW_subset2 = list()
 if (length(OU_GRW) > 0) {
   for (i in 1:length(OU_GRW)) {
    gg <- rep(1:2, c(OU_GRW[[i]]$Shift_point, length(OU_GRW[[i]]$mm) - OU_GRW[[i]]$Shift_point))
-   OU_GRW_split = split4punc(OU_GRW[[i]],gg, overlap=TRUE)
+   OU_GRW_split = paleoTS:::split4punc(OU_GRW[[i]],gg, overlap=TRUE)
    OU_GRW_subset1[[i]] = OU_GRW_split[[1]]
    OU_GRW_subset2[[i]] = OU_GRW_split[[2]]
   }
@@ -561,7 +565,7 @@ OU_URW_subset2 = list()
 if (length(OU_URW) > 0) {
   for (i in 1:length(OU_URW)) {
    gg <- rep(1:2, c(OU_URW[[i]]$Shift_point, length(OU_URW[[i]]$mm) - OU_URW[[i]]$Shift_point))
-   OU_URW_split = split4punc(OU_URW[[i]],gg, overlap=TRUE)
+   OU_URW_split = paleoTS:::split4punc(OU_URW[[i]],gg, overlap=TRUE)
    OU_URW_subset1[[i]] = OU_URW_split[[1]]
    OU_URW_subset2[[i]] = OU_URW_split[[2]]
   }
@@ -584,7 +588,7 @@ OU_Stasis_subset2 = list()
 if (length(OU_Stasis) > 0) {
   for (i in 1:length(OU_Stasis)) {
     gg <- rep(1:2, c(OU_Stasis[[i]]$Shift_point, length(OU_Stasis[[i]]$mm) - OU_Stasis[[i]]$Shift_point))
-    OU_Stasis_split = split4punc(OU_Stasis[[i]],gg, overlap=TRUE)
+    OU_Stasis_split = paleoTS:::split4punc(OU_Stasis[[i]],gg, overlap=TRUE)
     OU_Stasis_subset1[[i]] = OU_Stasis_split[[1]]
     OU_Stasis_subset2[[i]] = OU_Stasis_split[[2]]
   }
@@ -607,7 +611,7 @@ GRW_URW_subset2 = list()
 if (length(GRW_URW) > 0) {
   for (i in 1:length(GRW_URW)) {
    gg <- rep(1:2, c(GRW_URW[[i]]$Shift_point, length(GRW_URW[[i]]$mm) - GRW_URW[[i]]$Shift_point))
-   GRW_URW_split = split4punc(GRW_URW[[i]],gg, overlap=TRUE)
+   GRW_URW_split = paleoTS:::split4punc(GRW_URW[[i]],gg, overlap=TRUE)
    GRW_URW_subset1[[i]] = GRW_URW_split[[1]]
    GRW_URW_subset2[[i]] = GRW_URW_split[[2]]
   }
@@ -630,7 +634,7 @@ GRW_Stasis_subset2 = list()
 if (length(GRW_Stasis) > 0) {
   for (i in 1:length(GRW_Stasis)) {
     gg <- rep(1:2, c(GRW_Stasis[[i]]$Shift_point, length(GRW_Stasis[[i]]$mm) - GRW_Stasis[[i]]$Shift_point))
-    GRW_Stasis_split = split4punc(GRW_Stasis[[i]],gg, overlap=TRUE)
+    GRW_Stasis_split = paleoTS:::split4punc(GRW_Stasis[[i]],gg, overlap=TRUE)
     GRW_Stasis_subset1[[i]] = GRW_Stasis_split[[1]]
     GRW_Stasis_subset2[[i]] = GRW_Stasis_split[[2]]
   }
@@ -653,7 +657,7 @@ URW_Stasis_subset2 = list()
 if (length(URW_Stasis) > 0) {
   for (i in 1:length(URW_Stasis)) {
     gg <- rep(1:2, c(URW_Stasis[[i]]$Shift_point, length(URW_Stasis[[i]]$mm) - URW_Stasis[[i]]$Shift_point))
-    URW_Stasis_split = split4punc(URW_Stasis[[i]],gg, overlap=TRUE)
+    URW_Stasis_split = paleoTS:::split4punc(URW_Stasis[[i]],gg, overlap=TRUE)
     URW_Stasis_subset1[[i]] = URW_Stasis_split[[1]]
     URW_Stasis_subset2[[i]] = URW_Stasis_split[[2]]
   }
