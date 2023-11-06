@@ -116,7 +116,8 @@ adequate2tests <- function(data){
   # filter out those that did not pass the adequacy test
   data_adeq_passed1 <- Filter(function(x) x$results ==  "c(\"PASSED\", \"PASSED\", \"PASSED\")", data_adeq)
   data_adeq_passed2 <- Filter(function(x) x$results ==  "c(\"PASSED\", \"PASSED\", \"FAILED\")", data_adeq)
-  data_adeq_passed <- c(data_adeq_passed1, data_adeq_passed2)
+  data_adeq_passed3 <- Filter(function(x) x$results ==  "c(\"PASSED\", \"PASSED\", \"NA\")", data_adeq)
+  data_adeq_passed <- c(data_adeq_passed1, data_adeq_passed2, data_adeq_passed3)
   
   return(data_adeq_passed)
   

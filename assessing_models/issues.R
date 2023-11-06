@@ -3,15 +3,18 @@
 #########################################
 
 #evoTS GitHub version
+#adePEM new models
+#paleoTS 0.5.3
+
 
 rm(list = ls())
 
 library(adePEM)
-library(evoTS)
+#library(evoTS)
 library(paleoTS)
 
 # set working directory
-setwd("/Users/kjetillv/GitHub/assessing_models/")
+#setwd("/Users/kjetillv/GitHub/assessing_models/")
 setwd("/Users/vildeki/GitHub/assessing_models/")
 #-----------------
 # IMPORT FILES
