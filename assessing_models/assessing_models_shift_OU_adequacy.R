@@ -3,9 +3,9 @@
 # Testing the adequacy of the OU models
 #---------------------------------------
 
-#remotes::install_github("klvoje/adePEM", ref = "new_models")
-#library(adePEM)
-#adePEM:::sim.OU.modified
+#paleoTS.v.0.5.3
+#evoTS GitHub version, main branch
+#adePEM GitHub version, new-models branch
 
 load('Results_fit_models.RData')
 
@@ -95,6 +95,8 @@ if (length(OU_Stasis_subset1) > 0) {
 }
 
 
+
 save(OU_adeq, OU_mov_opt_anc_adeq, OU_mov_opt_adeq, Stasis_OU_subset2_adeq, 
            URW_OU_subset2_adeq, GRW_OU_subset2_adeq, OU_OU_subset1_adeq, OU_OU_subset2_adeq, 
            OU_GRW_subset1_adeq, OU_URW_subset1_adeq, OU_Stasis_subset1_adeq, file="OU_subset_adeq.Rdata")
+
