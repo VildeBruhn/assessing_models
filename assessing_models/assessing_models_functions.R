@@ -1,9 +1,8 @@
-library(evoTS)
-library(adePEM)
+library(evoTS) #github version 1.0.2
+library(adePEM) #verison new models
 library(tidyverse)
 library(data.table)
-library(paleoTS)
-
+library(paleoTS) #version 0.5.3
 #------------------------
 # Data manipulation (dt)
 #------------------------
