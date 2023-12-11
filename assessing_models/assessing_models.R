@@ -18,8 +18,6 @@ source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 # set working directory
 setwd("/Users/vildeki/GitHub/assessing_models/")
 
-load("results_adequacy_models.RData")
-
 # -------------------------
 # Set up for parallel runs
 # -------------------------
@@ -161,6 +159,12 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 })
 
 
+#save(GRW, URW, stasis,
+#strict_stasis, decel,
+#accel, OU, OU_mov_opt, 
+#OU_mov_opt_anc, file = "adeq_uni_aicc.Rdata")
+
+
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
@@ -189,10 +193,11 @@ OU_adeq_passed <- adequate2tests(OU_adeq)
 OU_mov_opt_anc_adeq_passed <- adequate2tests(OU_mov_opt_anc_adeq)
 OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
-  c(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
-                   strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed, 
-                   OU_adeq_passed, OU_mov_opt_anc_adeq_passed, OU_mov_opt_adeq_passed)
 
+#save(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
+#strict_stasis_adeq_passed, decel_adeq_passed,
+#accel_adeq_passed, OU_adeq_passed, OU_mov_opt_adeq_passed, 
+#OU_mov_opt_anc_adeq_passed, file = "adeq_uni_passed.Rdata")
 
 
 # get counts passed
@@ -229,3 +234,5 @@ adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_
 sink(file = "./results/adequacy_passed.txt")
 adeq_table
 sink()
+
+
