@@ -14,7 +14,7 @@ library(adePEM)
 library(evoTS)
 library(paleoTS)
 
-source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/assessing_models_evolution/assessing_models/assessing_models_functions.R")
+source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 
 # set working directory
 setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/assessing_models_evolution/assessing_models")
@@ -39,8 +39,8 @@ doParallel::registerDoParallel(cl = my_cluster)
 #-----------------
 
 # import
-timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim = "\t")
-metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
+timeseries <- read_delim("./timeseries.txt", col_names = TRUE, delim = "\t")
+metadata <- read_delim("./metadata.txt", col_names = TRUE, delim = "\t")
 
 #---------------------------------------------------------------------------------------------
 # EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing more than 10 steps)
@@ -106,7 +106,7 @@ fit_mode_shift <- function(ln_datalong) {
 
 #model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
 
-load("Results_fit_models.Rdata")
+load("../../../../../GitHub/assessing_models/Results_fit_models.Rdata")
 
 ########################
 ##  Extract the AICcs ##

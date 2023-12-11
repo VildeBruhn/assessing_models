@@ -18,6 +18,8 @@ source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 # set working directory
 setwd("/Users/vildeki/GitHub/assessing_models/")
 
+load("results_adequacy_models.RData")
+
 # -------------------------
 # Set up for parallel runs
 # -------------------------
@@ -173,7 +175,7 @@ load("OU_adeq.Rdata")
 #save(file = "OU_mov_opt_anc_adeq.Rdata", OU_mov_opt_anc_adeq)
 load("OU_mov_opt_anc_adeq.Rdata")
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
-save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
+#save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
 load("OU_mov_opt_adeq.Rdata")
 
 # get only adequate time series
@@ -186,6 +188,12 @@ accel_adeq_passed <- adequate3tests(accel_adeq)
 OU_adeq_passed <- adequate2tests(OU_adeq)
 OU_mov_opt_anc_adeq_passed <- adequate2tests(OU_mov_opt_anc_adeq)
 OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
+
+  c(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
+                   strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed, 
+                   OU_adeq_passed, OU_mov_opt_anc_adeq_passed, OU_mov_opt_adeq_passed)
+
+
 
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
