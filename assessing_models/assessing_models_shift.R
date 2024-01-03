@@ -14,10 +14,10 @@ library(adePEM)
 library(evoTS)
 library(paleoTS)
 
-source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/assessing_models_evolution/assessing_models/assessing_models_functions.R")
+source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Project6/Github_folder/assessing_models_evolution-main/assessing_models/assessing_models/assessing_models_functions.R")
 
 # set working directory
-setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/assessing_models_evolution/assessing_models")
+setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Project6/Github_folder/assessing_models_evolution-main/assessing_models/assessing_models")
 
 # -------------------------
 # Set up for parallel runs
@@ -681,6 +681,10 @@ accel_adeq <- mclapply(Accel, fit3adequacy.RW, plot = FALSE)
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+tsID_OU = names(OU)
+names(OU_adeq) = tsID_OU
+names(OU_mov_opt_anc_adeq) = tsID_Stasis_Stasis
+names(OU_mov_opt_adeq) = tsID_Stasis_Stasis
 
 Stasis_Stasis_subset1_adeq <- mclapply(Stasis_Stasis_subset1, fit4adequacy.stasis, plot = FALSE)
 Stasis_Stasis_subset2_adeq <- mclapply(Stasis_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
@@ -823,7 +827,7 @@ URW_Stasis_subset1_adeq_passed <- adequate3tests(URW_Stasis_subset1_adeq)
 URW_Stasis_subset2_adeq_passed <- adequate4tests(URW_Stasis_subset2_adeq)
 
                           
-# merge split timeseries if the two subsets passed the adequacy tests
+# merge split time series if the two subsets passed the adequacy tests
 Stasis_Stasis_adeq_passed <- Stasis_Stasis_subset1_adeq_passed[intersect(names(Stasis_Stasis_subset1_adeq_passed), names(Stasis_Stasis_subset2_adeq_passed))]
 Stasis_URW_adeq_passed <- Stasis_URW_subset1_adeq_passed[intersect(names(Stasis_URW_subset1_adeq_passed), names(Stasis_URW_subset2_adeq_passed))]
 Stasis_GRW_adeq_passed <- Stasis_GRW_subset1_adeq_passed[intersect(names(Stasis_GRW_subset1_adeq_passed), names(Stasis_GRW_subset2_adeq_passed))]
@@ -917,3 +921,51 @@ sink()
 
 # Save the results
 save.image(file='results_adequacy_models.RData')
+
+
+#-------------------------------------------------
+# Difference adequate and inadequate time series
+#-------------------------------------------------
+
+# checking number of adequate time series
+
+Adequacy_passed <- c(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
+                     strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed,
+                     
+                     OU_adeq_passed, OU_mov_opt_anc_adeq_passed, OU_mov_opt_adeq_passed,
+                     
+                     Stasis_Stasis_adeq_passed, Stasis_URW_adeq_passed, Stasis_GRW_adeq_passed,
+                     Stasis_OU_adeq_passed, URW_URW_adeq_passed, URW_GRW_adeq_passed, URW_OU_adeq_passed,
+                     GRW_GRW_adeq_passed, GRW_OU_adeq_passed,
+                     
+                     OU_OU_adeq_passed,
+                     
+                     OU_GRW_adeq_passed,
+                     OU_URW_adeq_passed, OU_Stasis_adeq_passed, GRW_URW_adeq_passed,
+                     GRW_Stasis_adeq_passed, URW_Stasis_adeq_passed)
+
+# adding a new column for adequacy status
+
+metadatalong$tsID <- as.character(metadatalong$tsID)
+
+inadequate_series <- metadatalong[!(
+  metadatalong$tsID %in% unlist(
+    lapply(Filter(Negate(is.null), list(
+      GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
+      strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed,
+      OU_adeq_passed, OU_mov_opt_anc_adeq_passed, OU_mov_opt_adeq_passed,
+      Stasis_Stasis_adeq_passed, Stasis_URW_adeq_passed, Stasis_GRW_adeq_passed,
+      Stasis_OU_adeq_passed, URW_URW_adeq_passed, URW_GRW_adeq_passed, URW_OU_adeq_passed,
+      GRW_GRW_adeq_passed, GRW_OU_adeq_passed, OU_OU_adeq_passed, OU_GRW_adeq_passed,
+      OU_URW_adeq_passed, OU_Stasis_adeq_passed, GRW_URW_adeq_passed,
+      GRW_Stasis_adeq_passed, URW_Stasis_adeq_passed
+    )), function(lst) names(lst))
+  )
+), ]
+
+metadatalong$adequacy_status <- ifelse(metadatalong$tsID %in% inadequate_series$tsID, "inadequate", "adequate")
+
+
+#-------------------
+# Plot of the data
+#-------------------
