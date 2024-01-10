@@ -28,55 +28,55 @@ OU_Stasis_subset1_adeq <- list()
 
 
 
-if (length(OU) > 0) {
+if (length(OU) > 0) { 
   for (i in 1:length(OU)) {
    OU_adeq[[i]] <- fit3adequacy.OU(OU[[i]], plot = FALSE)
   }
 }
 
-if (length(OU_mov_opt_anc) > 0) {
+if (length(OU_mov_opt_anc) > 0) { 
   for (i in 1:length(OU_mov_opt_anc)) {
    OU_mov_opt_anc_adeq[[i]] <- fit3adequacy.OU(OU_mov_opt_anc[[i]], plot = FALSE)
   }
 }
 
-if (length(OU_mov_opt) > 0) {
+if (length(OU_mov_opt) > 0) { 
   for (i in 1:length(OU_mov_opt)) {
     OU_mov_opt_adeq[[i]] <- fit3adequacy.OU(OU_mov_opt[[i]], plot = FALSE)
   }
 }
 
-if (length(Stasis_OU_subset2) > 0) {
+if (length(Stasis_OU_subset2) > 0) { 
   for (i in 1:length(Stasis_OU_subset2)) {
    Stasis_OU_subset2_adeq[[i]] <- fit3adequacy.OU(Stasis_OU_subset2[[i]], plot = FALSE)
   }
 }
 
-if (length(URW_OU_subset2) > 0) {
+if (length(URW_OU_subset2) > 0) { 
   for (i in 1:length(URW_OU_subset2)) {
     URW_OU_subset2_adeq[[i]] <- fit3adequacy.OU(URW_OU_subset2[[i]], plot = FALSE)
   }
 }
 
-if (length(GRW_OU_subset2) > 0) {
+if (length(GRW_OU_subset2) > 0) { 
   for (i in 1:length(GRW_OU_subset2)) {
    GRW_OU_subset2_adeq[[i]] <- fit3adequacy.OU(GRW_OU_subset2[[i]], plot = FALSE) 
   }
 }
 
-if (length(OU_OU_subset1) > 0) {
+if (length(OU_OU_subset1) > 0) { 
   for (i in 1:length(OU_OU_subset1)) {
     OU_OU_subset1_adeq[[i]] <- fit3adequacy.OU(OU_OU_subset1[[i]], plot = FALSE)
   }
 }
 
-if (length(OU_OU_subset2) > 0) {
+if (length(OU_OU_subset2) > 0) { 
   for (i in 1:length(OU_OU_subset2)) {
     OU_OU_subset2_adeq[[i]] <- fit3adequacy.OU(OU_OU_subset2[[i]], plot = FALSE)
   }
 }
 
-if (length(OU_GRW_subset1) > 0) {
+if (length(OU_GRW_subset1) > 0) { 
   for (i in 1:length(OU_GRW_subset1)) {
     OU_GRW_subset1_adeq[[i]] <- fit3adequacy.OU(OU_GRW_subset1[[i]], plot = FALSE) 
   }

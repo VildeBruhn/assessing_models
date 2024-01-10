@@ -52,7 +52,7 @@ tsIDremoved <- c()
 
 # Filter rows of the metadata file based on step number 
 for (i in 1:nrow(metadata)) {                          
-  if (metadata[i, "steps"] >= 10) {   
+  if (metadata[i, "steps"] >= 20) {   
     metadatalong <- rbind(metadatalong, metadata[i, ])  # Add the filtered row to metadatalong
   } else {
     tsIDremoved <- c(tsIDremoved, metadata[i, "tsID"]) # Save the ID of removed timeseries
@@ -79,6 +79,7 @@ ln_data_metalong <- dt(dflong, "tsID")
 ln_datalong <- lapply(ln_data_metalong, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
+
                         
 #####################################################
 ## Fit models including shift and find best (AICc) ##
@@ -96,7 +97,7 @@ fit_mode_shift <- function(ln_datalong) {
     model1 <- models_list[i]  
     for (j in 1:4) {
       model2 <- models_list[j]
-        fit_result <- fit.mode.shift(ln_datalong, model1, model2, minb = 5)
+        fit_result <- fit.mode.shift(ln_datalong, model1, model2, minb = 10)
         k = k + 1
         store_results[[k]] <- fit_result
     } 
@@ -223,19 +224,22 @@ sink()
 #--------------------------------------------------------------------------------------------------
 
 aicc_filtered = list()
+aicc_filtered_names = list()
 threshold = 2
 
 for (i in 1:length(aicc)) {
   for (j in 1:nrow(aicc[[1]][])) {
     if (aicc[[i]][j,] != aicc[[i]][aicc_min[[i]],]) {
       if (any(abs(aicc[[i]][j,] - aicc[[i]][aicc_min[[i]],]) <= threshold)) {
-        aicc_filtered = c(aicc_filtered, list(aicc[[i]])) 
+        aicc_filtered = c(aicc_filtered, list(aicc[[i]]))
+        aicc_filtered_names = c(aicc_filtered_names, names(aicc)[i])
         break  # Exit the inner loop once the threshold is met
       } 
     }
   }
 }
 
+names(aicc_filtered) <- aicc_filtered_names
 
 sink(file = "./results/AICc_filter_with_shift.txt")
 paste("Total number of time series investigated:", length(aicc))
@@ -257,6 +261,7 @@ data_aicc <- ln_datalong[keep_TS3]
 names_short_TS <- names(aicc_min)
 keep_TS_short <- names(data_aicc) %in% names_short_TS
 data_aicc <- data_aicc[keep_TS_short]
+
 
 # Add a column with lowest AIC for each time series
 for (i in 1:length(data_aicc)) {
@@ -681,10 +686,15 @@ accel_adeq <- mclapply(Accel, fit3adequacy.RW, plot = FALSE)
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+
 tsID_OU = names(OU)
 names(OU_adeq) = tsID_OU
-names(OU_mov_opt_anc_adeq) = tsID_Stasis_Stasis
-names(OU_mov_opt_adeq) = tsID_Stasis_Stasis
+
+tsID_OU_mov_opt_anc = names(OU_mov_opt_anc)
+names(OU_mov_opt_anc_adeq) = tsID_OU_mov_opt_anc
+
+tsID_OU_mov_opt = names(OU_mov_opt)
+names(OU_mov_opt) = tsID_OU_mov_opt
 
 Stasis_Stasis_subset1_adeq <- mclapply(Stasis_Stasis_subset1, fit4adequacy.stasis, plot = FALSE)
 Stasis_Stasis_subset2_adeq <- mclapply(Stasis_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
@@ -748,7 +758,7 @@ names(OU_URW_subset2_adeq) = tsID_OU_URW
 
 #OU_Stasis_subset1_adeq <- mclapply(OU_Stasis_subset1, fit3adequacy.OU, plot = FALSE)
 OU_Stasis_subset2_adeq <- mclapply(OU_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
-names(OU_Stasis_subset1_adeq) = tsID_OU_Stasis
+names(OU_Stasis_subset1_adeq) = tsID_OU_Stasis                                             
 names(OU_Stasis_subset2_adeq) = tsID_OU_Stasis
 
 GRW_URW_subset1_adeq <- mclapply(GRW_URW_subset1, fit3adequacy.trend, plot = FALSE)
@@ -774,9 +784,9 @@ stasis_adeq_passed <- adequate4tests(stasis_adeq)
 strict_stasis_adeq_passed <- adequate4tests(strict_stasis_adeq)
 decel_adeq_passed <- adequate3tests(decel_adeq)
 accel_adeq_passed <- adequate3tests(accel_adeq)
-OU_adeq_passed <- adequate3tests(OU_adeq)
-OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
-OU_mov_opt_adeq_passed <- adequate3tests(OU_mov_opt_adeq)
+OU_adeq_passed <- adequate2tests(OU_adeq)
+OU_mov_opt_anc_adeq_passed <- adequate2tests(OU_mov_opt_anc_adeq)
+OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
 Stasis_Stasis_subset1_adeq_passed <- adequate4tests(Stasis_Stasis_subset1_adeq)
 Stasis_Stasis_subset2_adeq_passed <- adequate4tests(Stasis_Stasis_subset2_adeq)
@@ -788,7 +798,7 @@ Stasis_GRW_subset1_adeq_passed <- adequate4tests(Stasis_GRW_subset1_adeq)
 Stasis_GRW_subset2_adeq_passed <- adequate3tests(Stasis_GRW_subset2_adeq)
 
 Stasis_OU_subset1_adeq_passed <- adequate4tests(Stasis_OU_subset1_adeq)
-Stasis_OU_subset2_adeq_passed <- adequate3tests(Stasis_OU_subset2_adeq)
+Stasis_OU_subset2_adeq_passed <- adequate2tests(Stasis_OU_subset2_adeq)
 
 URW_URW_subset1_adeq_passed <- adequate3tests(URW_URW_subset1_adeq)
 URW_URW_subset2_adeq_passed <- adequate3tests(URW_URW_subset2_adeq)
@@ -797,24 +807,24 @@ URW_GRW_subset1_adeq_passed <- adequate3tests(URW_GRW_subset1_adeq)
 URW_GRW_subset2_adeq_passed <- adequate3tests(URW_GRW_subset2_adeq)
 
 URW_OU_subset1_adeq_passed <- adequate3tests(URW_OU_subset1_adeq)
-URW_OU_subset2_adeq_passed <- adequate3tests(URW_OU_subset2_adeq)
+URW_OU_subset2_adeq_passed <- adequate2tests(URW_OU_subset2_adeq)
 
 GRW_GRW_subset1_adeq_passed <- adequate3tests(GRW_GRW_subset1_adeq)
 GRW_GRW_subset2_adeq_passed <- adequate3tests(GRW_GRW_subset2_adeq)
 
 GRW_OU_subset1_adeq_passed <- adequate3tests(GRW_OU_subset1_adeq)
-GRW_OU_subset2_adeq_passed <- adequate3tests(GRW_OU_subset2_adeq)
+GRW_OU_subset2_adeq_passed <- adequate2tests(GRW_OU_subset2_adeq)
 
-OU_OU_subset1_adeq_passed <- adequate3tests(OU_OU_subset1_adeq)
-OU_OU_subset2_adeq_passed <- adequate3tests(OU_OU_subset2_adeq)
+OU_OU_subset1_adeq_passed <- adequate2tests(OU_OU_subset1_adeq)
+OU_OU_subset2_adeq_passed <- adequate2tests(OU_OU_subset2_adeq)
 
-OU_GRW_subset1_adeq_passed <- adequate3tests(OU_GRW_subset1_adeq)
+OU_GRW_subset1_adeq_passed <- adequate2tests(OU_GRW_subset1_adeq)
 OU_GRW_subset2_adeq_passed <- adequate3tests(OU_GRW_subset2_adeq)
 
-OU_URW_subset1_adeq_passed <- adequate3tests(OU_URW_subset1_adeq)
+OU_URW_subset1_adeq_passed <- adequate2tests(OU_URW_subset1_adeq)
 OU_URW_subset2_adeq_passed <- adequate3tests(OU_URW_subset2_adeq)
 
-OU_Stasis_subset1_adeq_passed <- adequate3tests(OU_Stasis_subset1_adeq)
+OU_Stasis_subset1_adeq_passed <- adequate2tests(OU_Stasis_subset1_adeq)
 OU_Stasis_subset2_adeq_passed <- adequate4tests(OU_Stasis_subset2_adeq)
 
 GRW_URW_subset1_adeq_passed <- adequate3tests(GRW_URW_subset1_adeq)
@@ -927,29 +937,27 @@ save.image(file='results_adequacy_models.RData')
 # Difference adequate and inadequate time series
 #-------------------------------------------------
 
-# checking number of adequate time series
 
+# Remove problematic time series from metadatalong 
+metadatalong_clear <- metadatalong[!(metadatalong$tsID %in% pblm_TS), ]
+
+
+# checking number of adequate time series
 Adequacy_passed <- c(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
                      strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed,
-                     
                      OU_adeq_passed, OU_mov_opt_anc_adeq_passed, OU_mov_opt_adeq_passed,
-                     
                      Stasis_Stasis_adeq_passed, Stasis_URW_adeq_passed, Stasis_GRW_adeq_passed,
                      Stasis_OU_adeq_passed, URW_URW_adeq_passed, URW_GRW_adeq_passed, URW_OU_adeq_passed,
-                     GRW_GRW_adeq_passed, GRW_OU_adeq_passed,
-                     
-                     OU_OU_adeq_passed,
-                     
-                     OU_GRW_adeq_passed,
-                     OU_URW_adeq_passed, OU_Stasis_adeq_passed, GRW_URW_adeq_passed,
-                     GRW_Stasis_adeq_passed, URW_Stasis_adeq_passed)
+                     GRW_GRW_adeq_passed, GRW_OU_adeq_passed, OU_OU_adeq_passed, OU_GRW_adeq_passed, OU_URW_adeq_passed,
+                     OU_Stasis_adeq_passed, GRW_URW_adeq_passed, GRW_Stasis_adeq_passed, URW_Stasis_adeq_passed)
+
+length(Adequacy_passed)
 
 # adding a new column for adequacy status
+metadatalong_clear$tsID <- as.character(metadatalong_clear$tsID)
 
-metadatalong$tsID <- as.character(metadatalong$tsID)
-
-inadequate_series <- metadatalong[!(
-  metadatalong$tsID %in% unlist(
+inadequate_series <- metadatalong_clear[!(
+  metadatalong_clear$tsID %in% unlist(
     lapply(Filter(Negate(is.null), list(
       GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
       strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed,
@@ -963,9 +971,107 @@ inadequate_series <- metadatalong[!(
   )
 ), ]
 
-metadatalong$adequacy_status <- ifelse(metadatalong$tsID %in% inadequate_series$tsID, "inadequate", "adequate")
+metadatalong_clear$adequacy_status <- ifelse(metadatalong_clear$tsID %in% inadequate_series$tsID, "inadequate", "adequate")
+
+
+# adding model_fit (TS best described by one or multiple models) to metadata
+multiple_models <- metadatalong_clear[metadatalong_clear$tsID %in% names(aicc_filtered), ]
+metadatalong_clear$model_fit <- ifelse(metadatalong_clear$tsID %in% multiple_models$tsID, "multiple_models", "unique_model")
+
+# splitting adequate and inadequate time series
+adeq_TS = metadatalong_clear[metadatalong_clear$adequacy_status == "adequate", ]
+inadeq_TS = metadatalong_clear[metadatalong_clear$adequacy_status == "inadequate", ]
+
+# chi-squared test (447 ts for this test)
+contingency_table <- table(metadatalong_clear$adequacy_status, metadatalong_clear$model_fit)
+chi_squared_test <- chisq.test(contingency_table)
+
+# list of the minimal aicc gap for each time series (186 ts for this test)
+aicc_gap <- list()
+aicc_mingap <- list()
+
+for (i in 1:length(aicc)) {
+  for (j in 1:nrow(aicc[[1]][])) {
+    if (aicc[[i]][j,] != aicc[[i]][aicc_min[[i]],]) {
+     aicc_gap[[j]] = abs(aicc[[i]][j,] - aicc[[i]][aicc_min[[i]],])
+      } 
+  }
+  aicc_mingap[i] <- min(unlist(aicc_gap, use.names = FALSE))
+  aicc_gap <- list()
+}
+
+aicc_mingap_names = names(aicc)
+names(aicc_mingap) <- aicc_mingap_names
+
+metadatalong_clear$aicc_mingap = unlist(aicc_mingap)
+
+# anova test
+anova_test <- aov(aicc_mingap ~ metadatalong_clear$adequacy_status, data = metadatalong_clear)
+summary.lm(anova_test)
+
+# save the test results
+sink(file = "./results/Correlation_adequacy_modelfit.txt")
+paste("Tests realized on the 186 time series used in the analysis with shift models:")
+paste("Chi-squared test between adequacy and models described by more than one model (aicc gap < 2):", chi_squared_test)
+paste("Anova test based on the minimum gap between two Aiccs of each time series and their adequacy status:", summary.lm(anova_test))
+sink()
 
 
 #-------------------
 # Plot of the data
 #-------------------
+
+#loading environmental data
+metadata_envi <- read_delim("./timeseries/metadata_envi.txt", col_names = TRUE, delim = "\t")
+metadata_envi$tsID <- as.character(metadata_envi$tsID)
+
+#transfer of info about marine environment in metadatalong_clear
+metadatalong_clear$marine_envi <- left_join(metadatalong_clear, metadata_envi, by = "tsID")$Marine_environment
+
+#transfer of best model
+metadatalong_clear$best_model <- aicc_min
+  
+metadatalong_clear <- metadatalong_clear %>%
+  mutate(best_model = case_when(
+    aicc_min == 1 ~ 'GRW',
+    aicc_min == 2 ~ 'URW',
+    aicc_min == 3 ~ 'Stasis',
+    aicc_min == 4 ~ 'Strict_stasis',
+    aicc_min == 5 ~ 'Decel',
+    aicc_min == 6 ~ 'Accel',
+    aicc_min == 7 ~ 'OU',
+    aicc_min == 8 ~ 'OU_mov_opt_anc',
+    aicc_min == 9 ~ 'OU_mov_opt',
+    aicc_min == 10 ~ 'Stasis_Stasis',
+    aicc_min == 11 ~ 'Stasis_URW',
+    aicc_min == 12 ~ 'Stasis_GRW',
+    aicc_min == 13 ~ 'Stasis_OU',
+    aicc_min == 14 ~ 'URW_URW',
+    aicc_min == 15 ~ 'URW_GRW',
+    aicc_min == 16 ~ 'URW_OU',
+    aicc_min == 17 ~ 'GRW_GRW',
+    aicc_min == 18 ~ 'GRW_OU',
+    aicc_min == 19 ~ 'OU_OU',
+    aicc_min == 20 ~ 'OU_GRW',
+    aicc_min == 21 ~ 'OU_URW',
+    aicc_min == 22 ~ 'OU_Stasis',
+    aicc_min == 23 ~ 'GRW_URW',
+    aicc_min == 24 ~ 'GRW_Stasis',
+    aicc_min == 25 ~ 'URW_Stasis',
+    TRUE ~ as.character(best_model)
+))
+
+#remove inadequate time series before performing the analysis
+metadatalong_adequate <- metadatalong_clear %>%
+  filter(adequacy_status != "inadequate")
+
+#barplot - best models as categories                    A ORDONNNER 
+best_model <- ggplot(metadatalong_adequate, aes(x = best_model)) +
+  stat_count(geom = "bar", fill = "blue") +
+  labs(title = "Barplot of the best model among adequate time series", x = "Best evolutionary model", y = "Number of time series")
+
+ggsave("results/plotshift/best_model_shift.pdf", best_model, width = 20, height = 10)
+
+#barplot with adequate inadequate dessus
+
+#boxplot with marine envi
