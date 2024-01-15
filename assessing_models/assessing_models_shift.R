@@ -14,7 +14,9 @@ library(adePEM)
 library(evoTS)
 library(paleoTS)
 
+
 source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Project6/Github_folder/assessing_models_evolution-main/assessing_models/assessing_models/assessing_models_functions.R")
+
 
 # set working directory
 setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Project6/Github_folder/assessing_models_evolution-main/assessing_models/assessing_models")

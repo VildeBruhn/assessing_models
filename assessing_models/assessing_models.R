@@ -4,6 +4,7 @@
 
 #evoTS GitHub version
 #adePEM new models version
+#paleoTS verison 0.5.3
 
 rm(list = ls())
 
@@ -11,7 +12,6 @@ library(foreach)
 library(iterators)
 library(parallel)
 library(doParallel)
-library(adePEM)
 
 source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
 
@@ -159,6 +159,12 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 })
 
 
+#save(GRW, URW, stasis,
+#strict_stasis, decel,
+#accel, OU, OU_mov_opt, 
+#OU_mov_opt_anc, file = "adeq_uni_aicc.Rdata")
+
+
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
@@ -168,13 +174,13 @@ decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
 #save(file = "OU_adeq.Rdata", OU_adeq)
-#load("OU_adeq.Rdata")
+load("OU_adeq.Rdata")
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
-#save(file = "OU_mov_opt_anc_adeq.Rdata", OU_adeq_mov_opt_anc_adeq)
-#load("OU_mov_opt_anc_adeq.Rdata")
+#save(file = "OU_mov_opt_anc_adeq.Rdata", OU_mov_opt_anc_adeq)
+load("OU_mov_opt_anc_adeq.Rdata")
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
 #save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
-#load("OU_mov_opt_adeq.Rdata")
+load("OU_mov_opt_adeq.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -183,9 +189,16 @@ stasis_adeq_passed <- adequate4tests(stasis_adeq)
 strict_stasis_adeq_passed <- adequate4tests(strict_stasis_adeq)
 decel_adeq_passed <- adequate3tests(decel_adeq)
 accel_adeq_passed <- adequate3tests(accel_adeq)
-OU_adeq_passed <- adequate3tests(OU_adeq)
-OU_mov_opt_anc_adeq_passed <- adequate3tests(OU_mov_opt_anc_adeq)
+OU_adeq_passed <- adequate2tests(OU_adeq)
+OU_mov_opt_anc_adeq_passed <- adequate2tests(OU_mov_opt_anc_adeq)
 OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
+
+
+#save(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
+#strict_stasis_adeq_passed, decel_adeq_passed,
+#accel_adeq_passed, OU_adeq_passed, OU_mov_opt_adeq_passed, 
+#OU_mov_opt_anc_adeq_passed, file = "adeq_uni_passed.Rdata")
+
 
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
@@ -221,3 +234,5 @@ adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_
 sink(file = "./results/adequacy_passed.txt")
 adeq_table
 sink()
+
+

@@ -1,9 +1,8 @@
-library(evoTS)
-library(adePEM)
+library(evoTS) #github version 1.0.2
+library(adePEM) #verison new models
 library(tidyverse)
 library(data.table)
-library(paleoTS)
-
+library(paleoTS) #version 0.5.3
 #------------------------
 # Data manipulation (dt)
 #------------------------
@@ -122,3 +121,28 @@ adequate2tests <- function(data){
   return(data_adeq_passed)
   
 }
+
+### Add model info to metadata ###
+
+model_aicc <- function(data, aicc_results, model){
+  data <- lapply(data, function(x){
+    if (any(names(aicc_results) == x$tsID[1]) == TRUE){
+      x$model_aicc <- model
+    } else {
+      data <- data
+    }
+    return(x)
+  })
+}
+
+model_adeq <- function(data, adeq_results, model){
+  data <- lapply(data, function(x){
+    if (any(names(adeq_results) == x$tsID[1]) == TRUE){
+      x$model_adequate <- model
+    } else {
+      data <- data 
+    }
+    return(x)
+  })
+}
+
