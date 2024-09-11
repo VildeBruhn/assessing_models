@@ -13,7 +13,7 @@ library(iterators)
 library(parallel)
 library(doParallel)
 
-source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
+source("/Users/vildeki/GitHub/assessing_models/assessing_models_uni_functions.R")
 
 # set working directory
 setwd("/Users/vildeki/GitHub/assessing_models/")
@@ -103,7 +103,7 @@ aicc_results$percentage <- (aicc_results$count/sum(aicc_results$count))*100
 percent2 <- sum(aicc_results$percentage[4:9])
 percent3 <- sum(aicc_results$percentage[5:9])
 
-sink(file = "./results_paleoTS_v0.6.1/AICc_results.txt")
+sink(file = "./results_paleoTS_v0.6.1/AICc_uni_results.txt")
 aicc_results
 paste("Total count:", length(aicc))
 paste("Percentage not URW, GRW or stasis:", percent2)
@@ -221,7 +221,15 @@ OU_mov_opt_anc_adeq = OU_mov_opt_anc_adeq[-which(sapply(OU_mov_opt_anc_adeq, is.
 ## load OU test used in article
 load("OU_mov_opt_anc_uni_adeq.Rdata")
 
-OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+OU_mov_opt_adeq <- list()
+for(i in 1:length(OU_mov_opt)){
+  try(OU_mov_opt_adeq[[i]] <- fit3adequacy.OU(OU_mov_opt[[i]], plot = FALSE))
+}
+
+names(OU_mov_opt_adeq) <- names(OU_mov_opt)
+
+# remove time series that cannot be processed by the loglikelihood function
+OU_mov_opt_adeq = OU_mov_opt_adeq[-which(sapply(OU_mov_opt_adeq, is.null))]
 #save(file = "OU_mov_opt_uni_adeq.Rdata", OU_mov_opt_adeq)
 
 ## load OU test used in article
@@ -277,7 +285,7 @@ adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_
 
 
 # write to file
-sink(file = "./results/adequacy_passed.txt")
+sink(file = "./results_paleoTS_v0.6.1//adequacy_uni_passed.txt")
 adeq_table
 sink()
 
