@@ -6,8 +6,7 @@ __Authors:__ Marion Thaureau<sup>1*†</sup>, Vilde Bruhn Kinneberg<sup>1*‡</s
 
 __Affiliation:__ <sup>1</sup>Evolution and Paleobiology, Natural History Museum, University of Oslo
 
-__Contact:__ <sup>†</sup>marion.thaureau@nhm.uio.no /n
-             <sup>‡</sup>v.b.kinneberg@nhm.uio.no
+__Contact:__ <sup>†</sup>marion.thaureau@nhm.uio.no, <sup>‡</sup>v.b.kinneberg@nhm.uio.no
 
 __Journal:__ NA
 
