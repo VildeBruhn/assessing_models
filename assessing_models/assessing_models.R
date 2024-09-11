@@ -2,9 +2,9 @@
 ## Adequacy of models of evolution     ##
 #########################################
 
-#evoTS GitHub version
+#evoTS version 1.0.3
 #adePEM new models version
-#paleoTS verison 0.5.3
+#paleoTS verison 0.6.1
 
 rm(list = ls())
 
@@ -60,9 +60,29 @@ ln_data <- lapply(ln_data_meta, function(x) {
 ## Fit models and find best (AICc) ##
 #####################################
 
-# test all possible univariate models from evoTS on time series
-#model_test <- mclapply(ln_data, fit.all.univariate, pool = TRUE)
-load("model_test.Rdata")
+# example of how to run model test (takes time, load model test used
+# in article below)
+model_test <- mclapply(ln_data, fit.all.univariate)
+## this will give some error messages with paleoTS v0.6.1,
+## circumvent the errors with this approach:
+
+model_test <- list()
+for(i in 1:length(ln_data)){
+  try(model_test[[i]] <- fit.all.univariate(ln_data[[i]]))
+}
+
+# add time series IDs
+names_list <- names(ln_data)
+names(model_test) <- names_list
+
+# remove time series that cannot be processed by the loglikelihood function
+ln_data = ln_data[-which(sapply(model_test, is.null))]
+model_test = model_test[-which(sapply(model_test, is.null))]
+
+save(model_test, file = "./model_test_uni.Rdata")
+
+## load model test used in article
+load("./model_test_uni.Rdata")
 
 # extract AICc values on all results
 aicc <- lapply(model_test, function(x) x[(names(x) %in% c("AICc"))])
@@ -83,9 +103,9 @@ aicc_results$percentage <- (aicc_results$count/sum(aicc_results$count))*100
 percent2 <- sum(aicc_results$percentage[4:9])
 percent3 <- sum(aicc_results$percentage[5:9])
 
-sink(file = "./results/AICc_results.txt")
+sink(file = "./results_paleoTS_v0.6.1/AICc_results.txt")
 aicc_results
-paste("Total count:", length(ln_data))
+paste("Total count:", length(aicc))
 paste("Percentage not URW, GRW or stasis:", percent2)
 paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
@@ -140,12 +160,6 @@ OU <- lapply(OU, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
 
-# remove problem time series
-OU <- OU[names(OU) != 427]
-OU <- OU[names(OU) != 428]
-OU <- OU[names(OU) != 584]
-OU <- OU[names(OU) != 585]
-
 OU_mov_opt_anc <- Filter(function(x) x[[10]] == 8, data_aicc)
 OU_mov_opt_anc <- lapply(OU_mov_opt_anc, function(x) { x[[10]] <- NULL; x })
 OU_mov_opt_anc<- lapply(OU_mov_opt_anc, function(x) {
@@ -162,7 +176,7 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 #save(GRW, URW, stasis,
 #strict_stasis, decel,
 #accel, OU, OU_mov_opt, 
-#OU_mov_opt_anc, file = "adeq_uni_aicc.Rdata")
+#OU_mov_opt_anc, file = "aicc_uni_passed.Rdata")
 
 
 # test adequacy
@@ -172,15 +186,33 @@ stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE)
 strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
-#OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
-#save(file = "OU_adeq.Rdata", OU_adeq)
-load("OU_adeq.Rdata")
+
+# example of how to test adequacy for OU (this will take time, 
+# load tests used in article below)
+OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
+## this will give some error messages with paleoTS v0.6.1,
+## circumvent the errors with this approach:
+
+OU_adeq <- list()
+for(i in 1:length(OU)){
+  try(OU_adeq[[i]] <- fit3adequacy.OU(OU[[i]], plot = FALSE))
+}
+
+# remove time series that cannot be processed by the loglikelihood function
+OU_adeq = OU_adeq[-which(sapply(OU_adeq, is.null))]
+
+#save(file = "OU_uni_adeq.Rdata", OU_adeq)
+## load OU test used in article
+load("OU_uni_adeq.Rdata")
+
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
 #save(file = "OU_mov_opt_anc_adeq.Rdata", OU_mov_opt_anc_adeq)
 load("OU_mov_opt_anc_adeq.Rdata")
+names(OU_mov_opt_anc_adeq) <- names(OU_mov_opt_anc)
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
 #save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
 load("OU_mov_opt_adeq.Rdata")
+names(OU_mov_opt_adeq) <- names(OU_mov_opt)
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)

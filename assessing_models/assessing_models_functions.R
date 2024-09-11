@@ -146,3 +146,10 @@ model_adeq <- function(data, adeq_results, model){
   })
 }
 
+### binding list to dataframe ###
+bind <- function(data, unit_list){
+  binded <- lapply(data, function(x) x[(names(x) %in% unit_list)])
+  binded <- bind_rows(binded, .id="data_frame")
+  # remove duplicated data
+  binded <- binded[!duplicated(binded),]
+}
