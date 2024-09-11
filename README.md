@@ -4,6 +4,9 @@ __Article:__ Unpublished
 
 __Authors:__ Marion Thaureau<sup>1*†</sup>, Vilde Bruhn Kinneberg<sup>1*‡</sup> and Kjetil Lysne Voje<sup>1</sup>
 
+<sup>*</sup>MT and VBK both contributed equally to this work.
+
+
 __Affiliation:__ <sup>1</sup>Evolution and Paleobiology, Natural History Museum, University of Oslo
 
 __Contact:__ <sup>†</sup>marion.thaureau@nhm.uio.no, <sup>‡</sup>v.b.kinneberg@nhm.uio.no
