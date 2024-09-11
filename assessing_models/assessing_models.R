@@ -198,21 +198,35 @@ for(i in 1:length(OU)){
   try(OU_adeq[[i]] <- fit3adequacy.OU(OU[[i]], plot = FALSE))
 }
 
+names(OU_adeq) <- names(OU)
+
 # remove time series that cannot be processed by the loglikelihood function
 OU_adeq = OU_adeq[-which(sapply(OU_adeq, is.null))]
-
 #save(file = "OU_uni_adeq.Rdata", OU_adeq)
+
 ## load OU test used in article
 load("OU_uni_adeq.Rdata")
 
-#OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
-#save(file = "OU_mov_opt_anc_adeq.Rdata", OU_mov_opt_anc_adeq)
-load("OU_mov_opt_anc_adeq.Rdata")
+OU_mov_opt_anc_adeq <- list()
+for(i in 1:length(OU_mov_opt_anc)){
+  try(OU_mov_opt_anc_adeq[[i]] <- fit3adequacy.OU(OU_mov_opt_anc[[i]], plot = FALSE))
+}
+
 names(OU_mov_opt_anc_adeq) <- names(OU_mov_opt_anc)
-#OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
-#save(file = "OU_mov_opt_adeq.Rdata", OU_mov_opt_adeq)
-load("OU_mov_opt_adeq.Rdata")
-names(OU_mov_opt_adeq) <- names(OU_mov_opt)
+
+# remove time series that cannot be processed by the loglikelihood function
+OU_mov_opt_anc_adeq = OU_mov_opt_anc_adeq[-which(sapply(OU_mov_opt_anc_adeq, is.null))]
+#save(file = "OU_mov_opt_anc_uni_adeq.Rdata", OU_mov_opt_anc_adeq)
+
+## load OU test used in article
+load("OU_mov_opt_anc_uni_adeq.Rdata")
+
+OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
+#save(file = "OU_mov_opt_uni_adeq.Rdata", OU_mov_opt_adeq)
+
+## load OU test used in article
+load("OU_mov_opt_uni_adeq.Rdata")
+
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
