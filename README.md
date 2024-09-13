@@ -15,7 +15,7 @@ __Journal:__ NA
 
 __Year:__ 2025  
 
-__Abstract:__ 
+__Abstract:__ Models of phenotypic evolution are tools designed to describe variations in patterns and rates of trait evolution across time. In the fossil record, three models are commonly used to study within-lineage evolution: stasis, random walk, and directional evolution. Previous works have established that random walk and stasis mainly fit empirical time series, but the three canonical models only represent a subset of potential models describing trait evolution in the fossil record. In this study, we assess how often 9 different models best explain phenotypic evolution in 450 fossil time series. Our results largely confirm previous observations, with stasis (36%) and random walk (25%) as the models that most often describe the data best. However, the analyses also show that 30% of the time series are described by one of the other models of evolution. When allowing different segments of a time series to be described by different models, the number of time series not described by the canonical three drastically increases (75%). Overall, our results indicate that it can be worthwhile assessing the fit of a large set of candidate models when exploring trait dynamics in fossil time series.
 
 __Info:__ This repository contains scripts and data used for analyses in the publication.
 
