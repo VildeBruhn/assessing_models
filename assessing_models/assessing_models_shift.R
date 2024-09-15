@@ -48,7 +48,7 @@ timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim 
 metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
 
 #---------------------------------------------------------------------------------------------
-# EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing more than 10 steps)
+# EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing 20 or more steps)
 #---------------------------------------------------------------------------------------------
 
 metadatalong <- matrix(nrow = 0, ncol = ncol(metadata))
