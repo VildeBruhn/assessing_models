@@ -2,12 +2,15 @@
 ## Evolutionary rates and time series scaling with shift model included ##
 ##########################################################################
 
-#paleoTS.v.0.5.3
-#evoTS GitHub version, main branch
-#adePEM GitHub version, new-models branch
+#R version 4.2.1
+#evoTS version 1.0.3
+#adePEM new models version
+#paleoTS version 0.6.2
 
 rm(list = ls())
 
+library(foreach)
+library(iterators)
 library(parallel)
 library(doParallel)
 library(adePEM)
@@ -15,11 +18,11 @@ library(evoTS)
 library(paleoTS)
 
 
-source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Project6/Github_folder/assessing_models_evolution-main/assessing_models/assessing_models/assessing_models_functions.R")
+source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/GitHub/assessing_models/assessing_models_uni_functions.R")
 
 
 # set working directory
-setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Project6/Github_folder/assessing_models_evolution-main/assessing_models/assessing_models")
+setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/GitHub/assessing_models")
 
 # -------------------------
 # Set up for parallel runs
@@ -45,7 +48,7 @@ timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim 
 metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
 
 #---------------------------------------------------------------------------------------------
-# EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing more than 10 steps)
+# EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing 20 or more steps)
 #---------------------------------------------------------------------------------------------
 
 metadatalong <- matrix(nrow = 0, ncol = ncol(metadata))
