@@ -3,9 +3,9 @@
 ##          statistics                 ##
 #########################################
 
-#evoTS GitHub version
-#adePEM new models version
-#paleoTS verison 0.5.3
+#evoTS version 1.0.3
+#adePEM version 1.1.1
+#paleoTS verison 0.6.1
 library(tidyverse)
 library(devtools)
 library(wesanderson)
@@ -13,7 +13,7 @@ rm(list = ls())
 
 # set working directory
 setwd("/Users/vildeki/GitHub/assessing_models/")
-source("/Users/vildeki/GitHub/assessing_models/assessing_models_functions.R")
+source("/Users/vildeki/GitHub/assessing_models/assessing_models_uni_functions.R")
 
 
 
@@ -44,16 +44,10 @@ ln_data <- lapply(ln_data_meta, function(x) {
 })
 
 # load timeseries best according to aicc
-load("./adeq_uni_aicc.Rdata")
+load("./aicc_uni_passed.Rdata")
 
 # load adequate timeseries 
 load("./adeq_uni_passed.Rdata")
-
-# remove problem time series
-ln_data_meta <- ln_data_meta[names(ln_data_meta) != 427]
-ln_data_meta <- ln_data_meta[names(ln_data_meta) != 428]
-ln_data_meta <- ln_data_meta[names(ln_data_meta) != 584]
-ln_data_meta <- ln_data_meta[names(ln_data_meta) != 585]
 
 # get aicc model info into metadata
 ln_data_meta <- model_aicc(ln_data_meta, GRW, "GRW")
@@ -82,27 +76,25 @@ unit_list <- c("total_N", "steps", "interval_MY", "trait_type", "microfossil",
                "lat", "lon", "sediment", "model_aicc", "model_adequate", "Environment", "Marine environment")
 bind_models <- bind(ln_data_meta, unit_list)
 
-library(nnet)
-model <- multinom(model_aicc ~ `Marine environment`, bind_models)
-summary(model)
+#library(nnet)
+#model <- multinom(model_aicc ~ `Marine environment`, bind_models)
+#summary(model)
 
 # set colors
-
 col_val <- c(wes_palette("Chevalier1"), wes_palette("IsleofDogs1")[6])
-
 
 # aicc
 models_marin_env <- bind_models
 models_marin_env <- models_marin_env %>% drop_na(`Marine environment`)
 pdf("/Users/vildeki/Downloads/marin_env_aicc.pdf")
 ggplot(models_marin_env, aes(model_aicc, fill = `Marine environment`)) + geom_bar() +
-  scale_fill_manual(values = col_val)
+  scale_fill_manual(values = col_val) + theme_classic()
 dev.off()
 
 models_env <- bind_models
 models_env <- models_env %>% drop_na(Environment)
 ggplot(models_env, aes(model_aicc, fill = Environment)) + geom_bar() +
-  scale_fill_manual(values = wes_palette("Chevalier1"))
+  scale_fill_manual(values = wes_palette("Chevalier1")) + theme_classic()
 
 ggplot(bind_models, aes(interval_MY, model_aicc)) + geom_boxplot() + theme_classic()
 
@@ -119,16 +111,15 @@ models_marin_env2 <- bind_models2
 models_marin_env2 <- models_marin_env2 %>% drop_na(`Marine environment`)
 pdf("/Users/vildeki/Downloads/marin_env_adeq.pdf")
 ggplot(models_marin_env2, aes(model_adequate, fill = `Marine environment`)) + geom_bar() +
-  scale_fill_manual(values = wes_palette("Chevalier1"))
+  scale_fill_manual(values = wes_palette("Chevalier1")) + theme_classic()
 dev.off()
 
 models_env2 <- bind_models2
 models_env2 <- models_env2 %>% drop_na(Environment)
 ggplot(models_env2, aes(model_adequate, fill = Environment)) + geom_bar() +
-  scale_fill_manual(values = wes_palette("Chevalier1"))
+  scale_fill_manual(values = wes_palette("Chevalier1")) + theme_classic()
 
 ggplot(models_env2, aes(model_adequate, fill = trait_type)) + geom_bar()
-
 
 ggplot(bind_models2, aes(interval_MY, model_adequate)) + geom_boxplot() + theme_classic()
 
@@ -137,7 +128,5 @@ ggplot(bind_models2, aes(total_N, model_adequate)) + geom_boxplot() + theme_clas
 ggplot(bind_models2, aes(steps, model_adequate)) + geom_boxplot() + theme_classic()
 
 
-model2 <- multinom(model_adequate ~ `Marine environment`, models_marin_env2)
-summary(model)
-'
-'
+#model2 <- multinom(model_adequate ~ `Marine environment`, models_marin_env2)
+#summary(model2)
