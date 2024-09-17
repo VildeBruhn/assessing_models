@@ -2,7 +2,7 @@
 
 __Article:__ Unpublished
 
-__Authors:__ Marion Thaureau<sup>1*†</sup>, Vilde Bruhn Kinneberg<sup>1*‡</sup> and Kjetil Lysne Voje<sup>1</sup>
+__Authors:__ Marion Thaureau<sup>*1†</sup>, Vilde Bruhn Kinneberg<sup>*1‡</sup> and Kjetil Lysne Voje<sup>1</sup>
 
 <sup>*</sup>MT and VBK both contributed equally to this work
 
