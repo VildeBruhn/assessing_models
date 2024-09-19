@@ -79,7 +79,7 @@ names(model_test) <- names_list
 ln_data = ln_data[-which(sapply(model_test, is.null))]
 model_test = model_test[-which(sapply(model_test, is.null))]
 
-save(model_test, file = "./model_test_uni.Rdata")
+#save(model_test, file = "./model_test_uni.Rdata")
 
 ## load model test used in article
 load("./model_test_uni.Rdata")
@@ -276,17 +276,27 @@ OU_p <- (length(OU_adeq_passed)/length(OU_adeq))*100
 OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_adeq))*100
 OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
 
+
 # make output table
+total_count <- sum(GRW_c,URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c)
 adeq_table <- as.data.frame(c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
                 "OU mov. optm. (ancestral state)", "OU mov. optm."))
 colnames(adeq_table) <- "model"
 adeq_table$count_passed <- c(GRW_c,URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c)
 adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p)
 
+# get percentage
+percent2 <- (sum(adeq_table$count_passed[4:9])/total_count)*100
+percent3 <- (sum(adeq_table$count_passed[5:9])/total_count)*100
 
 # write to file
 sink(file = "./results_paleoTS_v0.6.1//adequacy_uni_passed.txt")
 adeq_table
+paste("Total count:", length(aicc))
+paste("Percentage not URW, GRW or stasis:", percent2)
+paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
+
+
 
 

@@ -8,3 +8,6 @@
 7                              OU           47          94.00000
 8 OU mov. optm. (ancestral state)           27          93.10345
 9                   OU mov. optm.            3         100.00000
+[1] "Total count: 345"
+[1] "Percentage not URW, GRW or stasis: 43.1884057971014"
+[1] "Percentage not URW, GRW, stasis or strict stasis: 29.5652173913043"
