@@ -1,0 +1,30 @@
+                             model count percentage
+1                              GRW     8  4.2553191
+2                              URW     7  3.7234043
+3                           Stasis    18  9.5744681
+4                    Strict stasis     7  3.7234043
+5                            Decel     1  0.5319149
+6                            Accel     2  1.0638298
+7                               OU    13  6.9148936
+8  OU mov. optm. (ancestral state)     4  2.1276596
+9                    OU mov. optm.     0  0.0000000
+10                   Stasis-Stasis     2  1.0638298
+11                      Stasis-URW    11  5.8510638
+12                      Stasis-GRW     3  1.5957447
+13                       Stasis-OU     7  3.7234043
+14                         URW-URW     0  0.0000000
+15                         URW-GRW     5  2.6595745
+16                          URW-OU     4  2.1276596
+17                         GRW-GRW    19 10.1063830
+18                          GRW-OU    15  7.9787234
+19                           OU-OU    24 12.7659574
+20                          OU-GRW     9  4.7872340
+21                          OU-URW    11  5.8510638
+22                       OU-Stasis    10  5.3191489
+23                         GRW-URW     1  0.5319149
+24                      GRW-Stasis     2  1.0638298
+25                      URW-Stasis     5  2.6595745
+[1] "Total number of time series investigated: 188"
+[1] "Percentage of time series not described by URW, GRW or stasis: 82.4468085106383"
+[1] "Percentage of time series not described by URW, GRW, stasis or strict stasis: 78.7234042553192"
+[1] "Percentage of time series described by models with shift: 68.0851063829787"
