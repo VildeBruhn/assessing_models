@@ -18,11 +18,11 @@ library(evoTS)
 library(paleoTS)
 
 
-source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/GitHub/assessing_models/assessing_models_uni_functions.R")
+source("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Github/assessing_models_evolution/assessing_models/assessing_models_uni_functions.R")
 
 
 # set working directory
-setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/GitHub/assessing_models")
+setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Github/assessing_models_evolution/assessing_models")
 
 # -------------------------
 # Set up for parallel runs
@@ -82,7 +82,7 @@ dflong <- lapply(split(dflong,dflong$tsID), function(x) as.list(x))
 # process data
 ln_data_metalong <- dt(dflong, "tsID")
 ln_datalong <- lapply(ln_data_metalong, function(x) {
-  as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
+  as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")   ###NEED TO ADD TIME RESCALING
 })
 
                         
@@ -91,9 +91,21 @@ ln_datalong <- lapply(ln_data_metalong, function(x) {
 #####################################################
 
 # test all possible univariate models from evoTS on every timeseries
-#model_noshift_results <- mclapply(ln_datalong, fit.all.univariate, pool = TRUE)
+# for paleoTS v0.5.3
+# model_noshift_results <- mclapply(ln_datalong, fit.all.univariate) 
+
+# for paleoTS v0.6.1
+model_noshift_results <- list()
+for(i in 1:length(ln_datalong)){
+  try(model_noshift_results[[i]] <- fit.all.univariate(ln_datalong[[i]]))
+}
+
+# add time series IDs
+names_list <- names(ln_datalong)
+names(model_noshift_results) <- names_list
+
                  
-# test all possible shift models from evoTS on time series
+# test all possible shift models from evoTS on time series (To do on the HPC)
 fit_mode_shift <- function(ln_datalong) {
   models_list <- c("Stasis", "URW", "GRW", "OU")
   store_results <- list()
@@ -112,31 +124,48 @@ fit_mode_shift <- function(ln_datalong) {
 
 #model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
 
-load("Results_fit_models.Rdata")
+#save(model_noshift_results, model_shift_results, file = "./results_paleoTS_v0.6.1/Results_fit_shiftmodels.RData")
+load("./results_paleoTS_v0.6.1/Results_fit_shiftmodels.RData") # Loading results from the HPC
+
+
+# remove time series that cannot be processed by the loglikelihood function 
+ln_datalong2 = ln_datalong
+ln_datalong2 = ln_datalong2[-which(sapply(model_shift_results, is.null))]
+model_noshift_results = model_noshift_results[-which(sapply(model_noshift_results, is.null))]
+
+# remove time series that can not be processed by the loglikelihood function from the results with a shift
+model_shift_results_names <- names(model_shift_results)
+model_noshift_results_names <- names(model_noshift_results)
+removed_TS <- setdiff(model_shift_results_names, model_noshift_results_names)
+model_shift_results[removed_TS] <- NULL
+
+# remove time series that can not be processed by the loglikelihood function from ln_datalong
+ln_datalong[removed_TS] <- NULL
+
 
 ########################
 ##  Extract the AICcs ##
 ########################
 
 ### Remove problematic timeseries ###
-pblm_TS <- c("584","585","75","427","428")
+pblm_TS <- c("584","585","75","427","428","574","368") #issues during the adequacy tests
 keep_TS <- !names(model_shift_results) %in% pblm_TS
-model_shift_results_clean <- model_shift_results[keep_TS]
+model_shift_results <- model_shift_results[keep_TS]
 keep_TS2 <- !names(model_noshift_results) %in% pblm_TS
-model_noshift_results_clean <- model_noshift_results[keep_TS2]
+model_noshift_results <- model_noshift_results[keep_TS2]
 
 #------------------------------------------
 # Extract AICcs for the no shift models
 #------------------------------------------
 
-aicc_noshift <- lapply(model_noshift_results_clean, function(x) x[(names(x) %in% c("AICc"))])
+aicc_noshift <- lapply(model_noshift_results, function(x) x[(names(x) %in% c("AICc"))]) #USE model_noshift_results_clean if those time series are still problematic
 
 #------------------------------------------
 # Extract AICcs for the shift models
 #------------------------------------------
 
 # extract AICc values of shift models on all results
-aicc_shift_extraction <- lapply(model_shift_results_clean, function(x) { ### remettre model_shift_result when problem will be solved
+aicc_shift_extraction <- lapply(model_shift_results, function(x) { ### remettre model_shift_result when problem will be solved
   sapply(x, function(result) result$AICc)
 })
 
@@ -215,7 +244,7 @@ percent3 <- sum(aicc_results_complete$percent[5:25])
 percent4 <- sum(aicc_results_complete$percent[10:25])
 
 # write to file
-sink(file = "./results/AICc_results_with_shift.txt")
+sink(file = "./results_paleoTS_v0.6.1/AICc_results_with_shift.txt")
 aicc_results_complete
 paste("Total number of time series investigated:", length(aicc))
 paste("Percentage of time series not described by URW, GRW or stasis:", percent2)
@@ -246,7 +275,7 @@ for (i in 1:length(aicc)) {
 
 names(aicc_filtered) <- aicc_filtered_names
 
-sink(file = "./results/AICc_filter_with_shift.txt")
+sink(file = "./results_paleoTS_v0.6.1/AICc_filter_with_shift.txt")
 paste("Total number of time series investigated:", length(aicc))
 paste("Total number of time series described by more than one model:", length(aicc_filtered))
 paste("Percentage of time series filtered:", length(aicc_filtered)/length(aicc)*100)
@@ -260,12 +289,9 @@ sink()
 
 data_aicc = list()
 
-# Remove problematic and too short time series from ln_datalong
+### Remove problematic and too short time series from ln_datalong ###
 keep_TS3 <- !names(ln_datalong) %in% pblm_TS
 data_aicc <- ln_datalong[keep_TS3]
-names_short_TS <- names(aicc_min)
-keep_TS_short <- names(data_aicc) %in% names_short_TS
-data_aicc <- data_aicc[keep_TS_short]
 
 
 # Add a column with lowest AIC for each time series
@@ -303,17 +329,17 @@ for (i in 1:length(categories)) {
 }
 
                           
-#------------------------------------
-# Splitting the shift models
-#------------------------------------
+#-----------------------------------------------------------------------
+# Splitting the timeseries best described by models with a shift models
+#-----------------------------------------------------------------------
                           
 ### Stasis-Stasis ###
 # Add a column with the best shift point to each timeseries
 tsID_Stasis_Stasis = names(Stasis_Stasis)
-model_results_Stasis_Stasis <- model_shift_results_clean[tsID_Stasis_Stasis]
+model_results_Stasis_Stasis <- model_shift_results[tsID_Stasis_Stasis]
 
 for (i in tsID_Stasis_Stasis) {
-  Stasis_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[1]]$parameters[["shift1"]]  #1 is for the model Stasis_Stasis, need to be change for the other models
+  Stasis_Stasis[[i]]$Shift_point <- model_shift_results[[i]][[1]]$parameters[["shift1"]]  #1 is for the model Stasis_Stasis, need to be changed for the other models
 }
 
 #Splitting the model
@@ -333,10 +359,10 @@ if (length(Stasis_Stasis) > 0) {
 ### Stasis-URW ###
 # Add a column with the best shift point to each timeseries
 tsID_Stasis_URW = names(Stasis_URW)
-model_results_Stasis_URW <- model_shift_results_clean[tsID_Stasis_URW]
+model_results_Stasis_URW <- model_shift_results[tsID_Stasis_URW]
 
 for (i in tsID_Stasis_URW) {
-  Stasis_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[2]]$parameters[["shift1"]]
+  Stasis_URW[[i]]$Shift_point <- model_shift_results[[i]][[2]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -356,10 +382,10 @@ if (length(Stasis_URW) > 0) {
 ### Stasis-GRW ###
 # Add a column with the best shift point to each timeseries
 tsID_Stasis_GRW = names(Stasis_GRW)
-model_results_Stasis_GRW <- model_shift_results_clean[tsID_Stasis_GRW]
+model_results_Stasis_GRW <- model_shift_results[tsID_Stasis_GRW]
 
 for (i in tsID_Stasis_GRW) {
-  Stasis_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[3]]$parameters[["shift1"]]
+  Stasis_GRW[[i]]$Shift_point <- model_shift_results[[i]][[3]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -379,10 +405,10 @@ if (length(Stasis_GRW) > 0) {
 ### URW-OU ###
 # Add a column with the best shift point to each timeseries
 tsID_Stasis_OU = names(Stasis_OU)
-model_results_Stasis_OU <- model_shift_results_clean[tsID_Stasis_OU]
+model_results_Stasis_OU <- model_shift_results[tsID_Stasis_OU]
 
 for (i in tsID_Stasis_OU) {
-  Stasis_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[4]]$parameters[["shift1"]]
+  Stasis_OU[[i]]$Shift_point <- model_shift_results[[i]][[4]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -402,10 +428,10 @@ if (length(Stasis_OU) > 0) {
 ### URW-URW ###
 # Add a column with the best shift point to each timeseries
 tsID_URW_URW = names(URW_URW)
-model_results_URW_URW <- model_shift_results_clean[tsID_URW_URW]
+model_results_URW_URW <- model_shift_results[tsID_URW_URW]
 
 for (i in tsID_URW_URW) {
-  URW_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[5]]$parameters[["shift1"]]
+  URW_URW[[i]]$Shift_point <- model_shift_results[[i]][[5]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -425,10 +451,10 @@ if (length(URW_URW) > 0) {
 ### URW-GRW ###
 # Add a column with the best shift point to each timeseries
 tsID_URW_GRW = names(URW_GRW)
-model_results_URW_GRW <- model_shift_results_clean[tsID_URW_GRW]
+model_results_URW_GRW <- model_shift_results[tsID_URW_GRW]
 
 for (i in tsID_URW_GRW) {
-  URW_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[6]]$parameters[["shift1"]]
+  URW_GRW[[i]]$Shift_point <- model_shift_results[[i]][[6]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -448,10 +474,10 @@ if (length(URW_GRW) > 0) {
 ### URW-OU ###
 # Add a column with the best shift point to each timeseries
 tsID_URW_OU = names(URW_OU)
-model_results_URW_OU <- model_shift_results_clean[tsID_URW_OU]
+model_results_URW_OU <- model_shift_results[tsID_URW_OU]
 
 for (i in tsID_URW_OU) {
-  URW_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[7]]$parameters[["shift1"]]
+  URW_OU[[i]]$Shift_point <- model_shift_results[[i]][[7]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -471,10 +497,10 @@ if (length(URW_OU) > 0) {
 ### GRW-GRW ###
 # Add a column with the best shift point to each timeseries
 tsID_GRW_GRW = names(GRW_GRW)
-model_results_GRW_GRW <- model_shift_results_clean[tsID_GRW_GRW]
+model_results_GRW_GRW <- model_shift_results[tsID_GRW_GRW]
 
 for (i in tsID_GRW_GRW) {
-  GRW_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[8]]$parameters[["shift1"]]
+  GRW_GRW[[i]]$Shift_point <- model_shift_results[[i]][[8]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -494,10 +520,10 @@ if (length(GRW_GRW) > 0) {
 ### GRW-OU ###
 # Add a column with the best shift point to each timeseries
 tsID_GRW_OU = names(GRW_OU)
-model_results_GRW_OU <- model_shift_results_clean[tsID_GRW_OU]
+model_results_GRW_OU <- model_shift_results[tsID_GRW_OU]
 
 for (i in tsID_GRW_OU) {
-  GRW_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[9]]$parameters[["shift1"]]
+  GRW_OU[[i]]$Shift_point <- model_shift_results[[i]][[9]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -517,10 +543,10 @@ if (length(GRW_OU) > 0) {
 ### OU-OU ###
 # Add a column with the best shift point to each timeseries
 tsID_OU_OU = names(OU_OU)
-model_results_OU_OU <- model_shift_results_clean[tsID_OU_OU]
+model_results_OU_OU <- model_shift_results[tsID_OU_OU]
 
 for (i in tsID_OU_OU) {
-  OU_OU[[i]]$Shift_point <- model_shift_results_clean[[i]][[10]]$parameters[["shift1"]]
+  OU_OU[[i]]$Shift_point <- model_shift_results[[i]][[10]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -539,10 +565,10 @@ if (length(OU_OU) > 0) {
 ### OU-GRW ###
 # Add a column with the best shift point to each timeseries
 tsID_OU_GRW = names(OU_GRW)
-model_results_OU_GRW <- model_shift_results_clean[tsID_OU_GRW]
+model_results_OU_GRW <- model_shift_results[tsID_OU_GRW]
 
 for (i in tsID_OU_GRW) {
-  OU_GRW[[i]]$Shift_point <- model_shift_results_clean[[i]][[11]]$parameters[["shift1"]]
+  OU_GRW[[i]]$Shift_point <- model_shift_results[[i]][[11]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -562,10 +588,10 @@ if (length(OU_GRW) > 0) {
 ### OU-URW ###
 # Add a column with the best shift point to each timeseries
 tsID_OU_URW = names(OU_URW)
-model_results_OU_URW <- model_shift_results_clean[tsID_OU_URW]
+model_results_OU_URW <- model_shift_results[tsID_OU_URW]
 
 for (i in tsID_OU_URW) {
-  OU_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[12]]$parameters[["shift1"]]
+  OU_URW[[i]]$Shift_point <- model_shift_results[[i]][[12]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -585,10 +611,10 @@ if (length(OU_URW) > 0) {
 ### OU-Stasis ###
 # Add a column with the best shift point to each timeseries
 tsID_OU_Stasis = names(OU_Stasis)
-model_results_OU_Stasis <- model_shift_results_clean[tsID_OU_Stasis]
+model_results_OU_Stasis <- model_shift_results[tsID_OU_Stasis]
 
 for (i in tsID_OU_Stasis) {
-  OU_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[13]]$parameters[["shift1"]]
+  OU_Stasis[[i]]$Shift_point <- model_shift_results[[i]][[13]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -608,10 +634,10 @@ if (length(OU_Stasis) > 0) {
 ### GRW-URW ###
 # Add a column with the best shift point to each timeseries
 tsID_GRW_URW = names(GRW_URW)
-model_results_GRW_URW <- model_shift_results_clean[tsID_GRW_URW]
+model_results_GRW_URW <- model_shift_results[tsID_GRW_URW]
 
 for (i in tsID_GRW_URW) {
-  GRW_URW[[i]]$Shift_point <- model_shift_results_clean[[i]][[14]]$parameters[["shift1"]]
+  GRW_URW[[i]]$Shift_point <- model_shift_results[[i]][[14]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -631,10 +657,10 @@ if (length(GRW_URW) > 0) {
 ### GRW-Stasis ###
 # Add a column with the best shift point to each timeseries
 tsID_GRW_Stasis = names(GRW_Stasis)
-model_results_GRW_Stasis <- model_shift_results_clean[tsID_GRW_Stasis]
+model_results_GRW_Stasis <- model_shift_results[tsID_GRW_Stasis]
 
 for (i in tsID_GRW_Stasis) {
-  GRW_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[15]]$parameters[["shift1"]]
+  GRW_Stasis[[i]]$Shift_point <- model_shift_results[[i]][[15]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -654,10 +680,10 @@ if (length(GRW_Stasis) > 0) {
 ### URW-Stasis ###
 # Add a column with the best shift point to each timeseries
 tsID_URW_Stasis = names(URW_Stasis)
-model_results_URW_Stasis <- model_shift_results_clean[tsID_URW_Stasis]
+model_results_URW_Stasis <- model_shift_results[tsID_URW_Stasis]
 
 for (i in tsID_URW_Stasis) {
-  URW_Stasis[[i]]$Shift_point <- model_shift_results_clean[[i]][[16]]$parameters[["shift1"]]
+  URW_Stasis[[i]]$Shift_point <- model_shift_results[[i]][[16]]$parameters[["shift1"]]
 }
 
 #Splitting the model
@@ -673,13 +699,18 @@ if (length(URW_Stasis) > 0) {
   }
 }
 
+# Saving OU subsets to work on them in another script (the adequacy of OU models is not working in parallel so need to be implemented in a loop)
+# see assessing_models_shift_OU_adequacy.R for the code
+save(OU, OU_mov_opt_anc, OU_mov_opt, Stasis_OU_subset2, URW_OU_subset2, GRW_OU_subset2,
+     OU_OU_subset1, OU_OU_subset2, OU_GRW_subset1, OU_URW_subset1, OU_Stasis_subset1,
+     file = "./results_paleoTS_v0.6.1/Results_OUsubsets_shiftmodels.RData")
 
 #------------------------------------
 # Testing the adequacy of the models
 #------------------------------------
 
-# For loop for the OU models which are not working in parallel
-load("OU_subset_adeq.Rdata")
+# Loading results of the OU adequacy (the OU models are not working in parallel)
+load("./results_paleoTS_v0.6.1/Results_OUadeq_shiftmodels.RData")
 
 # test adequacy
 GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
@@ -718,8 +749,8 @@ names(Stasis_GRW_subset2_adeq) = tsID_Stasis_GRW
 
 Stasis_OU_subset1_adeq <- mclapply(Stasis_OU_subset1, fit4adequacy.stasis, plot = FALSE)
 #Stasis_OU_subset2_adeq <- mclapply(Stasis_OU_subset2, fit3adequacy.OU, plot = FALSE)
-names(Stasis_OU_subset1_adeq) = tsID_Stasis_OU
-names(Stasis_OU_subset2_adeq) = tsID_Stasis_OU
+names(Stasis_OU_subset1_adeq) = tsID_Stasis_OU 
+names(Stasis_OU_subset2_adeq) = tsID_Stasis_OU 
 
 URW_URW_subset1_adeq <- mclapply(URW_URW_subset1, fit3adequacy.RW, plot = FALSE)
 URW_URW_subset2_adeq <- mclapply(URW_URW_subset2, fit3adequacy.RW, plot = FALSE)
@@ -748,7 +779,7 @@ names(GRW_OU_subset2_adeq) = tsID_GRW_OU
 
 #OU_OU_subset1_adeq <- mclapply(OU_OU_subset1, fit3adequacy.OU, plot = FALSE)
 #OU_OU_subset2_adeq <- mclapply(OU_OU_subset2, fit3adequacy.OU, plot = FALSE)
-names(OU_OU_subset1_adeq) = tsID_OU_OU
+names(OU_OU_subset1_adeq) = tsID_OU_OU 
 names(OU_OU_subset2_adeq) = tsID_OU_OU
 
 #OU_GRW_subset1_adeq <- mclapply(OU_GRW_subset1, fit3adequacy.OU, plot = FALSE)
@@ -764,7 +795,7 @@ names(OU_URW_subset2_adeq) = tsID_OU_URW
 #OU_Stasis_subset1_adeq <- mclapply(OU_Stasis_subset1, fit3adequacy.OU, plot = FALSE)
 OU_Stasis_subset2_adeq <- mclapply(OU_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
 names(OU_Stasis_subset1_adeq) = tsID_OU_Stasis                                             
-names(OU_Stasis_subset2_adeq) = tsID_OU_Stasis
+names(OU_Stasis_subset2_adeq) = tsID_OU_Stasis 
 
 GRW_URW_subset1_adeq <- mclapply(GRW_URW_subset1, fit3adequacy.trend, plot = FALSE)
 GRW_URW_subset2_adeq <- mclapply(GRW_URW_subset2, fit3adequacy.RW, plot = FALSE)
@@ -915,32 +946,46 @@ GRW_Stasis_p <- (length(GRW_Stasis_adeq_passed)/length(GRW_Stasis_subset1_adeq))
 URW_Stasis_p <- (length(URW_Stasis_adeq_passed)/length(URW_Stasis_subset1_adeq))*100
 
 # make output table
-adeq_table <- as.data.frame(c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
-                              "OU mov. optm. (ancestral state)", "OU mov. optm.", "Stasis-Stasis", 
-                              "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
-                              "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
-                              "GRW-Stasis", "URW-Stasis"))
+adeq_table <- data.frame(
+  model = c("GRW", "URW", "Stasis", "Strict Stasis", "Decel", "Accel", "OU",
+            "OU Mov. Optm. (Ancestral State)", "OU Mov. Optm.", "Stasis-Stasis", 
+            "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
+            "GRW-GRW", "GRW-OU", "OU-OU", "OU-GRW", "OU-URW", "OU-Stasis", "GRW-URW",
+            "GRW-Stasis", "URW-Stasis"),
+  
+  count_passed = c(GRW_c, URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, 
+                   OU_mov_opt_anc_c, OU_mov_opt_c, Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, 
+                   Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c, GRW_OU_c, 
+                   OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, 
+                   URW_Stasis_c),
+  
+  percentage_passed = c(GRW_p, URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, 
+                        OU_mov_opt_anc_p, OU_mov_opt_p, Stasis_Stasis_p, Stasis_URW_p, 
+                        Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p, 
+                        GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, 
+                        GRW_Stasis_p, URW_Stasis_p)
+)
 
-adeq_table$count_passed <- c(GRW_c,URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c,
-                             Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c,
-                             GRW_OU_c, OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, URW_Stasis_c)
-
-adeq_table$percentage_passed <- c(GRW_p,URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, OU_mov_opt_anc_p, OU_mov_opt_p,
-                                  Stasis_Stasis_p, Stasis_URW_p, Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p,
-                                  GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, GRW_Stasis_p, URW_Stasis_p)
+Total_adeq_passed = sum(GRW_c, URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, 
+    OU_mov_opt_anc_c, OU_mov_opt_c, Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, 
+    Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c, GRW_OU_c, 
+    OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, 
+    URW_Stasis_c)
 
 # write to file
-sink(file = "./results/adequacy_passed_with_shift.txt")
+sink(file = "./results_paleoTS_v0.6.1/adequacy_passed_with_shift.txt")
 adeq_table
+paste("Total number of time series investigated:", length(model_noshift_results))
+paste("Total number of time series which passed adequacy tests:", Total_adeq_passed)
+paste("Percentage of time series which passed adequacy tests:", (Total_adeq_passed*100)/length(model_noshift_results))
 sink()
 
-# Save the results
-save.image(file='results_adequacy_models.RData')
+# Save all the results
+save.image(file='./results_paleoTS_v0.6.1/Results_fit_adequacy_shiftmodels.RData')
 
-
-#-------------------------------------------------
-# Difference adequate and inadequate time series
-#-------------------------------------------------
+#------------------------------------------------------------------------------------------------------------ ££££££££££££££££3£££££££££££££££££
+# Correlation between multiple models fitting best one time series (AICc gap < 2) and the adequacy status
+#------------------------------------------------------------------------------------------------------------
 
 
 # Remove problematic time series from metadatalong 
@@ -1015,12 +1060,57 @@ anova_test <- aov(aicc_mingap ~ metadatalong_clear$adequacy_status, data = metad
 summary.lm(anova_test)
 
 # save the test results
-sink(file = "./results/Correlation_adequacy_modelfit.txt")
+sink(file = "./results_paleoTS_v0.6.1/Correlation_adequacy_modelfit.txt")
 paste("Tests realized on the 186 time series used in the analysis with shift models:")
 paste("Chi-squared test between adequacy and models described by more than one model (aicc gap < 2):", chi_squared_test)
 paste("Anova test based on the minimum gap between two Aiccs of each time series and their adequacy status:", summary.lm(anova_test))
 sink()
 
+
+#------------------------------------------------------------------------------------------
+# Correlation time series length (number of datapoints) and complex models as best fits
+#------------------------------------------------------------------------------------------
+
+data_length <- data.frame(tsID = names(a), best_model = unlist(a))
+data_length$nbr_datapoint <- metadatalong$steps[match(data_length$tsID, metadatalong$tsID)]
+
+data_length$model_type <- ifelse(data_length$best_model >= 1 & data_length$best_model <= 9, "without_shift", "with_shift")
+
+
+TS_with_shift <- data_length$nbr_datapoint[data_length$model_type == "with_shift"]  # Models with shift
+TS_without_shift <- data_length$nbr_datapoint[data_length$model_type == "without_shift"]  # Models without shift
+
+# T test
+t_test_result <- t.test(TS_with_shift, TS_without_shift)
+print(t_test_result)
+
+# anova test
+data_for_anova <- data.frame(
+  nbr_datapoint = data_length$nbr_datapoint,
+  model_type = data_length$model_type
+)
+
+anova_result <- aov(nbr_datapoint ~ model_type, data = data_for_anova)
+summary.lm(anova_result)
+
+# save the test results
+sink(file = "./results_paleoTS_v0.6.1/Correlation_length_modelfit.txt")
+paste("Comparison of datapoint number in relation to the best fit being a model with or without a shift.")
+paste("Results of the T test:", print(t_test_result))
+paste("Results of the anova test:", summary.lm(anova_result))
+paste("Tests realized on the 185 time series used in the analysis with shift models.")
+sink()
+
+# boxplot
+png("./results_paleoTS_v0.6.1/Correlation_length_modelfit.png")
+ggplot(data_for_anova, aes(x = model_type, y = nbr_datapoint, fill = model_type)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Number of Data Points by Model Type",
+       x = "Model Type",
+       y = "Number of Data Points") +
+  theme_minimal() +
+  theme(legend.position = "none")
+dev.off()
 
 #-------------------
 # Plot of the data
