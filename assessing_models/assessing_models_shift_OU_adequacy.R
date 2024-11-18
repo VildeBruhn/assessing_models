@@ -3,12 +3,12 @@
 # Testing the adequacy of the OU models
 #---------------------------------------
 
-#paleoTS.v.0.5.3
-#evoTS GitHub version, main branch
-#adePEM GitHub version, new-models branch
+#R version 4.2.1
+#evoTS version 1.0.3
+#adePEM new models version
+#paleoTS version 0.6.2
 
-load('Results_fit_models.RData')
-
+load('./results_paleoTS_v0.6.1/Results_OUsubsets_shiftmodels.RData')
 
 # test adequacy
 
@@ -23,9 +23,6 @@ OU_OU_subset2_adeq <- list()
 OU_GRW_subset1_adeq <- list()
 OU_URW_subset1_adeq <- list()
 OU_Stasis_subset1_adeq <- list()
-
-
-
 
 
 if (length(OU) > 0) { 
@@ -48,7 +45,7 @@ if (length(OU_mov_opt) > 0) {
 
 if (length(Stasis_OU_subset2) > 0) { 
   for (i in 1:length(Stasis_OU_subset2)) {
-   Stasis_OU_subset2_adeq[[i]] <- fit3adequacy.OU(Stasis_OU_subset2[[i]], plot = FALSE)
+   Stasis_OU_subset2_adeq[[i]] <- fit3adequacy.OU(Stasis_OU_subset2[[i]], plot = FALSE) 
   }
 }
 
@@ -66,7 +63,7 @@ if (length(GRW_OU_subset2) > 0) {
 
 if (length(OU_OU_subset1) > 0) { 
   for (i in 1:length(OU_OU_subset1)) {
-    OU_OU_subset1_adeq[[i]] <- fit3adequacy.OU(OU_OU_subset1[[i]], plot = FALSE)
+    OU_OU_subset1_adeq[[i]] <- fit3adequacy.OU(OU_OU_subset1[[i]], plot = FALSE) 
   }
 }
 
@@ -98,5 +95,5 @@ if (length(OU_Stasis_subset1) > 0) {
 
 save(OU_adeq, OU_mov_opt_anc_adeq, OU_mov_opt_adeq, Stasis_OU_subset2_adeq, 
            URW_OU_subset2_adeq, GRW_OU_subset2_adeq, OU_OU_subset1_adeq, OU_OU_subset2_adeq, 
-           OU_GRW_subset1_adeq, OU_URW_subset1_adeq, OU_Stasis_subset1_adeq, file="OU_subset_adeq.Rdata")
+           OU_GRW_subset1_adeq, OU_URW_subset1_adeq, OU_Stasis_subset1_adeq, file="./results_paleoTS_v0.6.1/Results_OUadeq_shiftmodels.RData")
 
