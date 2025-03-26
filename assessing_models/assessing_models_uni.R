@@ -292,7 +292,7 @@ percent3 <- (sum(adeq_table$count_passed[5:9])/total_count)*100
 # write to file
 sink(file = "./results_paleoTS_v0.6.1//adequacy_uni_passed.txt")
 adeq_table
-paste("Total count:", length(aicc))
+paste("Total count:", total_count)
 paste("Percentage not URW, GRW or stasis:", percent2)
 paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
