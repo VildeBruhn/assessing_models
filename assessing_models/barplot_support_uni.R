@@ -7,6 +7,7 @@
 #adePEM new models version
 #paleoTS version 0.6.2
 
+library(tidyverse)
 
 # importing results of test without shift and TS with minimum 10 datapoints
 load("./model_test_uni.Rdata")
@@ -199,9 +200,9 @@ grid.arrange(hist_Stasis, hist_URW, hist_GRW, hist_Strict_stasis, hist_Accel, hi
 dev.off()
 
 
-#----------------------------------------------------------------
+#--------------------------------------------------------------------
 # Barplot of the support for each model depending on type of trait
-#----------------------------------------------------------------
+#--------------------------------------------------------------------
 
 metadatashort <- metadata_trait[metadata_trait$tsID %in% names(model_test), ]
 

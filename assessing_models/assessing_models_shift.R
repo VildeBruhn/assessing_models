@@ -1103,12 +1103,12 @@ GRW_OU_rp = GRW_OU_rc/length(model_noshift_results)*100
 OU_OU_rp = OU_OU_rc/length(model_noshift_results)*100
 
 # compile results for the mirror models (stasis + URW = URW + stasis) for the percentage of time series which passed the adequacy test (over number of time series best described by this model)
-Stasis_URW_p2 = mean(Stasis_URW_p + URW_Stasis_p)
-Stasis_GRW_p2 = mean(Stasis_GRW_p + GRW_Stasis_p)
-Stasis_OU_p2 = mean(Stasis_OU_p + OU_Stasis_p)
-URW_GRW_p2 = mean(URW_GRW_p + GRW_URW_p)
-URW_OU_p2 = mean(URW_OU_p + OU_URW_p)
-GRW_OU_p2 = mean(GRW_OU_p + OU_GRW_p)
+Stasis_URW_p2 = (Stasis_URW_c + URW_Stasis_c)/(Stasis_URW_rc)*100
+Stasis_GRW_p2 = (Stasis_GRW_c + GRW_Stasis_c)/(Stasis_GRW_rc)*100
+Stasis_OU_p2 = (Stasis_OU_c + OU_Stasis_c)/(Stasis_OU_rc)*100
+URW_GRW_p2 = (URW_GRW_c + GRW_URW_c)/(URW_GRW_rc)*100
+URW_OU_p2 = (URW_OU_c + OU_URW_c)/(URW_OU_rc)*100
+GRW_OU_p2 = (GRW_OU_c + OU_GRW_c)/(GRW_OU_rc)*100
 
 # compile results for the mirror models (stasis + URW = URW + stasis) for the count of time series which passed the adequacy test
 Stasis_URW_c2 = Stasis_URW_c + URW_Stasis_c
@@ -1118,7 +1118,7 @@ URW_GRW_c2 = URW_GRW_c + GRW_URW_c
 URW_OU_c2 = URW_OU_c + OU_URW_c
 GRW_OU_c2 = GRW_OU_c + OU_GRW_c
 
-# get absolute percentage of time series which passed the adequacy test over t
+# get absolute percentage of time series which passed the adequacy test over total of the time series 
 GRW_ap <- (GRW_c/sum(aicc_results_complete$count))*100
 URW_ap <- (URW_c/sum(aicc_results_complete$count))*100
 stasis_ap <- (stasis_c/sum(aicc_results_complete$count))*100
@@ -1350,6 +1350,8 @@ metadata_trait_organized <- metadata_trait_organized %>% # classify trait_catego
 
 metadata_trait_organized <- metadata_trait_organized %>% # remove lines without shape or size
   filter(!is.na(size_or_shape))
+
+save(metadata_trait_organized, file = "./timeseries/metadata_trait_2.RData") # Save the new metadata_trait file with the column shape_or_size
 
 GRW_size_nbr = 0
 GRW_shape_nbr = 0
