@@ -7,6 +7,13 @@
 #adePEM new models version
 #paleoTS version 0.6.2
 
+
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(gridExtra)
+
+
 # load the results
 load('./results_paleoTS_v0.6.1/Results_fit_adequacy_shiftmodels.RData')
 metadata_trait <- read_delim("./timeseries/metadata_envi.txt", col_names = TRUE, delim = "\t")
@@ -191,123 +198,81 @@ metadatashort2$support_Stasis_envi <- ifelse(metadatashort2$support_Stasis_envi 
 metadatashort2$support_URW_envi <- lapply(model_test_envi, function(df) {
   return(df["URW", "Akaike.wt"])
 })
+metadatashort2$support_URW_envi <- ifelse(metadatashort2$support_URW_envi > 0, 
+                                          metadatashort2$support_URW_envi, NA)
 
 metadatashort2$support_GRW_envi <- lapply(model_test_envi, function(df) {
   return(df["GRW", "Akaike.wt"])
 })
+metadatashort2$support_GRW_envi <- ifelse(metadatashort2$support_GRW_envi > 0, 
+                                          metadatashort2$support_GRW_envi, NA)
 
 metadatashort2$support_Strict_stasis_envi <- lapply(model_test_envi, function(df) {
   return(df["StrictStasis", "Akaike.wt"])
 })
+metadatashort2$support_Strict_stasis_envi <- ifelse(metadatashort2$support_Strict_stasis_envi > 0, 
+                                                    metadatashort2$support_Strict_stasis_envi, NA)
 
 metadatashort2$support_Decel_envi <- lapply(model_test_envi, function(df) {
   return(df["Decel", "Akaike.wt"])
 })
+metadatashort2$support_Decel_envi <- ifelse(metadatashort2$support_Decel_envi > 0, 
+                                            metadatashort2$support_Decel_envi, NA)
 
 metadatashort2$support_Accel_envi <- lapply(model_test_envi, function(df) {
   return(df["Accel", "Akaike.wt"])
 })
+metadatashort2$support_Accel_envi <- ifelse(metadatashort2$support_Accel_envi > 0, 
+                                            metadatashort2$support_Accel_envi, NA)
 
-support_OU_envi <- lapply(model_test_envi, function(df) {
+metadatashort2$support_OU_envi <- lapply(model_test_envi, function(df) {
   return(df["OU", "Akaike.wt"])
 })
+metadatashort2$support_OU_envi <- ifelse(metadatashort2$support_OU_envi > 0, 
+                                         metadatashort2$support_OU_envi, NA)
 
-support_OU_mov_opt_anc_envi <- lapply(model_test_envi, function(df) {
+metadatashort2$support_OU_mov_opt_anc_envi <- lapply(model_test_envi, function(df) {
   return(df["OU model with moving optimum (ancestral state at optimum)", "Akaike.wt"])
 })
+metadatashort2$support_OU_mov_opt_anc_envi <- ifelse(metadatashort2$support_OU_mov_opt_anc_envi > 0, 
+                                                     metadatashort2$support_OU_mov_opt_anc_envi, NA)
 
-support_OU_mov_opt_envi <- lapply(model_test_envi, function(df) {
+metadatashort2$support_OU_mov_opt_envi <- lapply(model_test_envi, function(df) {
   return(df["OU model with moving optimum", "Akaike.wt"])
 })
+metadatashort2$support_OU_mov_opt_envi <- ifelse(metadatashort2$support_OU_mov_opt_envi > 0, 
+                                                 metadatashort2$support_OU_mov_opt_envi, NA)
 
+# convert the supports into numeric
+metadatashort2$support_Stasis_envi <- as.numeric(as.character(metadatashort2$support_Stasis_envi))
 
-# filtering the data by trait categories and environment
-data_filtered <- metadatashort2 %>%
-  filter(!marine_envi %in% c("unsure")) %>%
-  mutate(Category = case_when(
-    marine_envi == "benthic" & trait_category %in% c("size", "area") ~ "Benthic Size",
-    marine_envi == "benthic" & trait_category == "shape" ~ "Benthic Shape",
-    marine_envi == "planktic" & trait_category %in% c("size", "area") ~ "Planktic Size",
-    marine_envi == "planktic" & trait_category == "angle" ~ "Planktic Shape"
-  ))
+# remove data with marine envi = unsure
+metadatashort2_filtered <- metadatashort2 %>%
+  filter(!marine_envi %in% c("unsure", "unsure benthic"))
 
+# remove data with trait category = number
+metadatashort2_filtered <- metadatashort2_filtered %>%
+  filter(!trait_category %in% "number")
 
-# Plotting the box plot
-ggplot(data_filtered, aes(x = Category, y = support_Stasis_envi)) + 
-  geom_boxplot(na.rm = TRUE) + 
-  labs(x = "Categories", y = "Support for Stasis", title = "Box Plot of Benthic and Planktic by Size and Shape") +
+# classify trait_category in shape or size 
+metadatashort2_filtered <- metadatashort2_filtered %>%
+  mutate(size_or_shape = case_when(
+    trait_category %in% c("size", "area") ~ "size",    # Assign "size" if ll is "sh"
+    trait_category %in% c("shape", "angle") ~ "shape",))
+
+metadatashort2_filtered <- metadatashort2_filtered %>%
+  filter(!is.na(size_or_shape))
+
+# Create the Boxplot
+box_stasis = ggplot(metadatashort2_filtered, aes(x = interaction(marine_envi, size_or_shape), y = support_Stasis_envi, fill = marine_envi)) +
+  geom_boxplot() +
+  labs(title = "Comparison of Size and Shape Traits",
+       x = "Trait (Species Type - Trait Type)",
+       y = "Support for stasis") +
   theme_minimal()
 
-
-
-
-
-
-
-
-
-
-
-
-
-#loading environmental data
-
-metadata_envi$tsID <- as.character(metadata_envi$tsID)
-
-# Remove problematic time series from metadatalong 
-metadata_envi_clear <- metadata_envi[!(metadata_envi$tsID %in% pblm_TS), ]
-# remove time series that can not be processed by the loglikelihood function from metadatalong
-metadata_envi_clear <- metadata_envi_clear[!metadata_envi_clear$tsID %in% removed_TS, ]
-
-#transfer of info about marine environment in metadatalong_clear
-metadatalong_clear$marine_envi <- left_join(metadatalong_clear, metadata_envi_clear, by = "tsID")$Marine_environment
-
-#transfer of best model
-metadatalong_clear$best_model <- aicc_min
-
-metadatalong_clear <- metadatalong_clear %>%
-  mutate(best_model = case_when(
-    aicc_min == 1 ~ 'GRW',
-    aicc_min == 2 ~ 'URW',
-    aicc_min == 3 ~ 'Stasis',
-    aicc_min == 4 ~ 'Strict_stasis',
-    aicc_min == 5 ~ 'Decel',
-    aicc_min == 6 ~ 'Accel',
-    aicc_min == 7 ~ 'OU',
-    aicc_min == 8 ~ 'OU_mov_opt_anc',
-    aicc_min == 9 ~ 'OU_mov_opt',
-    aicc_min == 10 ~ 'Stasis_Stasis',
-    aicc_min == 11 ~ 'Stasis_URW',
-    aicc_min == 12 ~ 'Stasis_GRW',
-    aicc_min == 13 ~ 'Stasis_OU',
-    aicc_min == 14 ~ 'URW_URW',
-    aicc_min == 15 ~ 'URW_GRW',
-    aicc_min == 16 ~ 'URW_OU',
-    aicc_min == 17 ~ 'GRW_GRW',
-    aicc_min == 18 ~ 'GRW_OU',
-    aicc_min == 19 ~ 'OU_OU',
-    aicc_min == 20 ~ 'OU_GRW',
-    aicc_min == 21 ~ 'OU_URW',
-    aicc_min == 22 ~ 'OU_Stasis',
-    aicc_min == 23 ~ 'GRW_URW',
-    aicc_min == 24 ~ 'GRW_Stasis',
-    aicc_min == 25 ~ 'URW_Stasis',
-    TRUE ~ as.character(best_model)
-  ))
-
-#remove inadequate time series before performing the analysis
-metadatalong_adequate <- metadatalong_clear %>%
-  filter(adequacy_status != "inadequate")
-
-#barplot - best models as categories                    A ORDONNNER 
-png("./results_paleoTS_v0.6.1/plot/correlation_bestmodel_envi_with_shift_barplot.png", width = 1440, height = 720)
-
-best_model <- ggplot(metadatalong_adequate, aes(x = best_model)) +
-  stat_count(geom = "bar", fill = "blue") +
-  labs(title = "Barplot of the best model among adequate time series", x = "Best evolutionary model", y = "Number of time series")
-
+# save the graphs
+png("./results_paleoTS_v0.6.1/plot/results_support_envi_trait_boxplot.png", width = 2400, height = 1800)
+grid.arrange(box_stasis, ncol = 1)
 dev.off()
 
-#barplot with adequate inadequate?
-
-#boxplot with marine envi?

@@ -9,8 +9,8 @@
 8  OU Mov. Optm. (Ancestral State)            4         100.00000
 9                    OU Mov. Optm.            0               NaN
 10                   Stasis-Stasis            0           0.00000
-11                      Stasis-URW            5          45.45455
-12                      Stasis-GRW            1          33.33333
+11                      Stasis-URW            7          63.63636
+12                      Stasis-GRW            2          66.66667
 13                       Stasis-OU            5          83.33333
 14                         URW-URW            0               NaN
 15                         URW-GRW            5         100.00000
@@ -21,9 +21,9 @@
 20                          OU-GRW            6          66.66667
 21                          OU-URW            7          63.63636
 22                       OU-Stasis            5          50.00000
-23                         GRW-URW            0           0.00000
+23                         GRW-URW            1         100.00000
 24                      GRW-Stasis            0           0.00000
 25                      URW-Stasis            1          20.00000
 [1] "Total number of time series investigated: 183"
-[1] "Total number of time series which passed adequacy tests: 134"
-[1] "Percentage of time series which passed adequacy tests: 73.224043715847"
+[1] "Total number of time series which passed adequacy tests: 138"
+[1] "Percentage of time series which passed adequacy tests: 75.4098360655738"
