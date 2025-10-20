@@ -2,9 +2,9 @@
 
 __Article:__ Unpublished
 
-__Authors:__ Marion Thaureau<sup>*1†</sup>, Vilde Bruhn Kinneberg<sup>*1‡</sup> and Kjetil Lysne Voje<sup>1</sup>
+__Authors:__ Vilde Bruhn Kinneberg<sup>*1†</sup>, Marion Thaureau<sup>*1‡</sup> and Kjetil Lysne Voje<sup>1</sup>
 
-<sup>*</sup>MT and VBK both contributed equally to this work
+<sup>*</sup>VBK and MT both contributed equally to this work
 
 
 __Affiliation:__ <sup>1</sup>Evolution and Paleobiology, Natural History Museum, University of Oslo
@@ -19,7 +19,7 @@ __Abstract:__ Models of phenotypic evolution are tools designed to describe vari
 
 __Info:__ This repository contains scripts and data used for analyses in the publication.
 
-__Responsibility:__ MT and VBK are responsible for writing and analyses of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
+__Responsibility:__ VBK and MT are responsible for writing and analyses of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
 
 __Files__ 
 
