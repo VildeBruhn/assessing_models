@@ -122,10 +122,9 @@ metadata_adeq_passed_trait$best_model <- metadata_adeq_passed$best_model[metadat
 # Correlation between best fitted model and total time interval within adequate time series
 #--------------------------------------------------------------------------------------------
 
-lmm_model_time <- lmer(interval_MY ~ best_model + (1| popID), data = metadata_adeq_passed)
+lmm_model_time <- lmer(interval_MY ~ 1+ best_model + (1| popID), data = metadata_adeq_passed)
 summary(lmm_model_time)
 plot(lmm_model_time)
-print(metadata_adeq_passed)
 
 #--------------------------------------------------------------------------------------------
 # Correlation between best fitted model and number of steps within adequate time series
@@ -134,6 +133,15 @@ print(metadata_adeq_passed)
 lmm_model_steps <- lmer(steps ~ best_model + (1| popID), data = metadata_adeq_passed)
 summary(lmm_model_steps)
 plot(lmm_model_steps)
+
+mean(metadata_adeq_passed$steps) 
+
+# check the mean for URW best models
+metadatalong_URW <- metadata_adeq_passed[metadata_adeq_passed$best_model == "URW", ]
+mean(metadatalong_URW$steps)
+
+anov_model_steps <- lm(steps ~ best_model, data = metadata_adeq_passed)
+summary(anov_model_steps)
 
 
 #####################
@@ -247,6 +255,7 @@ plot(glmm_adequacy_aiccgap)
 
 lmm_model_aiccgap <- lmer(aicc_bestmodels_gap ~ best_model + (1| popID), data = metadatalong2_adeq_passed)
 print(lmm_model_aiccgap, correlation = TRUE)
+summary(lmm_model_aiccgap)
 plot(lmm_model_aiccgap)
 
 
