@@ -1,26 +1,39 @@
 #########################################
-## Adequacy of models of evolution     ##
+##    Assessing models of evolution    ##
+##          UNIVARIATE MODELS          ##
 #########################################
 
-#evoTS version 1.0.3
-#adePEM new models version
-#paleoTS verison 0.6.1
 
+# install packages
+#install.packages("evoTS") #version 1.0.3
+#install.packages("devtools")
+#devtools::install_github("klvoje/adePEM")
+#install.packages("tidyverse")
+#install.packages("data.table")
+#install.packages("paleoTS") #version 0.6.1
+
+# clean environment
 rm(list = ls())
 
-library(foreach)
-library(iterators)
-library(parallel)
+# load packages
+library(evoTS) #github version 1.0.3
+library(adePEM)
+library(tidyverse)
+library(data.table)
+library(paleoTS) #version 0.6.1
 library(doParallel)
 
-source("/Users/vildeki/GitHub/assessing_models/assessing_models_uni_functions.R")
+# load functions
+source("/Users/markusof/Dropbox/Familiemappe/Vilde_jobb/assessing_models/assessing_models_uni_functions.R")
 
 # set working directory
-setwd("/Users/vildeki/GitHub/assessing_models/")
+setwd("/Users/markusof/Dropbox/Familiemappe/Vilde_jobb/assessing_models/")
+
 
 # -------------------------
 # Set up for parallel runs
 # -------------------------
+
 
 n_cores <- parallel::detectCores() - 1
 
@@ -33,9 +46,11 @@ my_cluster <- parallel::makeCluster(
 # register it to be used
 doParallel::registerDoParallel(cl = my_cluster)
 
-#-----------------
+
+#--------------
 # IMPORT FILES
-#-----------------
+#--------------
+
 
 # import
 timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim = "\t")
@@ -45,7 +60,10 @@ metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\
 df <- left_join(timeseries, metadata, by = c("tsID"))
 
 # remove time series with less than 10 steps
-df <- subset(df, steps >= 10)
+df <- subset(df, steps >= 7)
+
+# remove modern time series
+df <- subset(df, period_start != "Present")
 
 # make list based on ID
 df <- lapply(split(df,df$tsID), function(x) as.list(x))
@@ -56,33 +74,39 @@ ln_data <- lapply(ln_data_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
-#####################################
-## Fit models and find best (AICc) ##
-#####################################
+
+#-----------------------
+# FIT UNIVARIATE MODELS
+#-----------------------
 
 # example of how to run model test (takes time, load model test used
 # in article below)
-model_test <- mclapply(ln_data, fit.all.univariate)
-## this will give some error messages with paleoTS v0.6.1,
-## circumvent the errors with this approach:
-
 model_test <- list()
 for(i in 1:length(ln_data)){
   try(model_test[[i]] <- fit.all.univariate(ln_data[[i]]))
 }
-
 # add time series IDs
 names_list <- names(ln_data)
 names(model_test) <- names_list
-
 # remove time series that cannot be processed by the loglikelihood function
 ln_data = ln_data[-which(sapply(model_test, is.null))]
+ln_data_meta = ln_data_meta[-which(sapply(model_test, is.null))]
 model_test = model_test[-which(sapply(model_test, is.null))]
 
 #save(model_test, file = "./model_test_uni.Rdata")
+#save(ln_data, file = "./ln_data_uni.Rdata")
+#save(ln_data_meta, file = "./ln_data_meta_uni.Rdata")
 
-## load model test used in article
+## load model test and data used in article
 load("./model_test_uni.Rdata")
+load("./ln_data_uni.Rdata")
+load("./ln_data_meta_uni.Rdata")
+
+
+#----------------------------
+# ASSESS RELATIVE FIT (AICc)
+#----------------------------
+
 
 # extract AICc values on all results
 aicc <- lapply(model_test, function(x) x[(names(x) %in% c("AICc"))])
@@ -110,9 +134,11 @@ paste("Percentage not URW, GRW or stasis:", percent2)
 paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
 
-###################
-## Test adequacy ##
-###################
+
+#----------------------------
+# MAKE RELATIVE FIT DATA SET
+#----------------------------
+
 
 # filter time series according to best AICc
 data_aicc <- mapply(c, ln_data, aicc, SIMPLIFY = FALSE) #adds index of lowest AICc as column in ln_data
@@ -122,7 +148,6 @@ GRW <- lapply(GRW, function(x) { x[[10]] <- NULL; x })
 GRW <- lapply(GRW, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
-
 
 URW <- Filter(function(x) x[[10]] == 2, data_aicc)
 URW <- lapply(URW, function(x) { x[[10]] <- NULL; x })
@@ -179,62 +204,61 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 #OU_mov_opt_anc, file = "aicc_uni_passed.Rdata")
 
 
+#--------------------------------
+# ASSESS ABSOLUTE FIT (ADEQUACY) 
+#--------------------------------
+
+
 # test adequacy
-GRW_adeq <- mclapply(GRW, fit3adequacy.trend, plot = FALSE)
+
+GRW_adeq <- list()
+for(i in 1:length(GRW)){
+  try(GRW_adeq[[i]] <- fit3adequacy.trend(GRW[[i]], plot = FALSE))
+}
+# add time series IDs
+names_list <- names(GRW)
+names(GRW_adeq) <- names_list
+# remove time series that cannot be processed by the loglikelihood function
+GRW = GRW[-which(sapply(GRW_adeq, is.null))]
+GRW_adeq = GRW_adeq[-which(sapply(GRW_adeq, is.null))]
+
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
+
 stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE) 
+
 strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
+
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
+
 accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
 
-# example of how to test adequacy for OU (this will take time, 
+# example of how to test adequacy for OU models (this will take time, 
 # load tests used in article below)
-OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
-## this will give some error messages with paleoTS v0.6.1,
-## circumvent the errors with this approach:
-
 OU_adeq <- list()
 for(i in 1:length(OU)){
-  try(OU_adeq[[i]] <- fit3adequacy.OU(OU[[i]], plot = FALSE))
+  OU_adeq[[i]] <- tryCatch({
+    fit3adequacy.OU(OU[[i]], plot = FALSE)
+  }, error = function(x) {
+    cat("An error occurred:", x$message, "\n")
+    return(OU_adeq[[i]] <- NA)
+  })
 }
-
+# set names
 names(OU_adeq) <- names(OU)
-
 # remove time series that cannot be processed by the loglikelihood function
-OU_adeq = OU_adeq[-which(sapply(OU_adeq, is.null))]
-#save(file = "OU_uni_adeq.Rdata", OU_adeq)
+OU = Filter(function(x) length(x) > 1, OU_adeq)
+OU_adeq <- Filter(function(x) length(x) > 1, OU_adeq)
+# save
+save(file = "OU_uni.Rdata", OU)
+save(file = "OU_uni_adeq.Rdata", OU_adeq)
 
-## load OU test used in article
-load("OU_uni_adeq.Rdata")
 
-OU_mov_opt_anc_adeq <- list()
-for(i in 1:length(OU_mov_opt_anc)){
-  try(OU_mov_opt_anc_adeq[[i]] <- fit3adequacy.OU(OU_mov_opt_anc[[i]], plot = FALSE))
-}
+## same approach for OU_mov_opt and OU_mov_opt_anc
 
-names(OU_mov_opt_anc_adeq) <- names(OU_mov_opt_anc)
-
-# remove time series that cannot be processed by the loglikelihood function
-OU_mov_opt_anc_adeq = OU_mov_opt_anc_adeq[-which(sapply(OU_mov_opt_anc_adeq, is.null))]
-#save(file = "OU_mov_opt_anc_uni_adeq.Rdata", OU_mov_opt_anc_adeq)
-
-## load OU test used in article
-load("OU_mov_opt_anc_uni_adeq.Rdata")
-
-OU_mov_opt_adeq <- list()
-for(i in 1:length(OU_mov_opt)){
-  try(OU_mov_opt_adeq[[i]] <- fit3adequacy.OU(OU_mov_opt[[i]], plot = FALSE))
-}
-
-names(OU_mov_opt_adeq) <- names(OU_mov_opt)
-
-# remove time series that cannot be processed by the loglikelihood function
-OU_mov_opt_adeq = OU_mov_opt_adeq[-which(sapply(OU_mov_opt_adeq, is.null))]
-#save(file = "OU_mov_opt_uni_adeq.Rdata", OU_mov_opt_adeq)
-
-## load OU test used in article
-load("OU_mov_opt_uni_adeq.Rdata")
-
+## load OU tests used in article
+load("OU_adeq_uni.Rdata")
+load("OU_mov_opt_adeq_uni.Rdata")
+load("OU_mov_opt_anc_adeq_uni.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -250,8 +274,8 @@ OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
 #save(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
 #strict_stasis_adeq_passed, decel_adeq_passed,
-#accel_adeq_passed, OU_adeq_passed, OU_mov_opt_adeq_passed, 
-#OU_mov_opt_anc_adeq_passed, file = "adeq_uni_passed.Rdata")
+#accel_adeq_passed, OU_adeq_passed, OU_mov_opt_adeq_passed, OU_mov_opt_anc_adeq_passed, 
+#file = "adeq_uni_passed.Rdata")
 
 
 # get counts passed
