@@ -1,38 +1,44 @@
 #########################################
-## Adequacy of models of evolution     ##
-##          statistics                 ##
+##   Assessing models of evolution     ##
+##          STATISTICS                 ##
 #########################################
 
-#evoTS version 1.0.3
-#adePEM version 1.1.1
-#paleoTS verison 0.6.1
+# install packages
+#install.packages("evoTS") #version 1.0.3
+#install.packages("devtools")
+#devtools::install_github("klvoje/adePEM")
+#install.packages("tidyverse")
+#install.packages("paleoTS") #version 0.6.1
+#install.packages("wesanderson")
+
 library(tidyverse)
 library(devtools)
 library(wesanderson)
+
 rm(list = ls())
 
 # set working directory
-setwd("/Users/vildeki/GitHub/assessing_models/")
-source("/Users/vildeki/GitHub/assessing_models/assessing_models_uni_functions.R")
+setwd("/Users/markusof/Dropbox/Familiemappe/Vilde_jobb/assessing_models/")
+source("/Users/markusof/Dropbox/Familiemappe/Vilde_jobb/assessing_models/assessing_models_uni_functions.R")
 
 
-
-#-----------------
+#--------------
 # IMPORT FILES
-#-----------------
+#--------------
+
 
 # import
 timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim = "\t")
 metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
-envi <- read_delim("./timeseries/Microfossils_envi.txt", col_names = TRUE, delim = "\t")
 
 # join dataframes
 df <- left_join(timeseries, metadata, by = c("tsID"))
-envi <- select(envi, `Marine environment`, Environment, tsID)
-df <- left_join(df, envi, by = c("tsID"))
 
 # remove time series with less than 10 steps
-df <- subset(df, steps >= 10)
+df <- subset(df, steps >= 7)
+
+# remove modern time series
+df <- subset(df, period_start != "Present")
 
 # make list based on ID
 df <- lapply(split(df,df$tsID), function(x) as.list(x))
@@ -43,7 +49,7 @@ ln_data <- lapply(ln_data_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
-# load timeseries best according to aicc
+# load relative fit time series
 load("./aicc_uni_passed.Rdata")
 
 # load adequate timeseries 
@@ -73,23 +79,34 @@ ln_data_meta <- model_adeq(ln_data_meta, OU_mov_opt_adeq_passed, "OU mov opt")
 
 # bind data to dataframe
 unit_list <- c("total_N", "steps", "interval_MY", "trait_type", "microfossil",
-               "lat", "lon", "sediment", "model_aicc", "model_adequate", "Environment", "Marine environment")
+               "lat", "lon", "sediment", "model_aicc", #"model_adequate", 
+               "environment")
 bind_models <- bind(ln_data_meta, unit_list)
 
-#library(nnet)
-#model <- multinom(model_aicc ~ `Marine environment`, bind_models)
-#summary(model)
+# collapse strict stasis to stasis
+bind_models$model_aicc <- replace(bind_models$model_aicc, bind_models$model_aicc== "strict stasis", "stasis")
+
+# collapse OU mov opt anc to OU mov opt
+bind_models$model_aicc <- replace(bind_models$model_aicc, bind_models$model_aicc== "OU mov opt anc", "OU mov opt")
+
+# remove time series with NA models
+bind_models <- bind_models %>% drop_na(model_aicc)
 
 # set colors
 col_val <- c(wes_palette("Chevalier1"), wes_palette("IsleofDogs1")[6])
 
-# aicc
-models_marin_env <- bind_models
-models_marin_env <- models_marin_env %>% drop_na(`Marine environment`)
+# Micro vs. macro
+micro_macro <- bind_models
+level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
 pdf("/Users/vildeki/Downloads/marin_env_aicc.pdf")
-ggplot(models_marin_env, aes(model_aicc, fill = `Marine environment`)) + geom_bar() +
-  scale_fill_manual(values = col_val) + theme_classic()
+ggplot(micro_macro, aes(x = factor(model_aicc, levels = level_order), fill = microfossil)) + geom_bar() +
+  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val) +
+  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
 dev.off()
+
+
+
 
 models_env <- bind_models
 models_env <- models_env %>% drop_na(Environment)

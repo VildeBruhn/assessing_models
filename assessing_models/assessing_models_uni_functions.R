@@ -1,8 +1,6 @@
-library(evoTS) #github version 1.0.2
-library(adePEM) #verison new models
-library(tidyverse)
-library(data.table)
-library(paleoTS) #version 0.5.3
+## packages are loaded in the main script "Assessing models of evolution - 
+## UNIVARIATE MODELS"
+
 #------------------------
 # Data manipulation (dt)
 #------------------------
@@ -29,22 +27,6 @@ dt <- function(df, tsID){
   
   df_not_log = df_not_log[-which(sapply(df_not_log, is.null))]
   
-  # check if oldest is first, change those with youngest first to oldest first
-  df_log <- lapply(df_log, function(x) {
-    if (isTRUE(x$oldest_first[1] == "no") == TRUE){
-      arrange(x, desc(age_MY))
-    } else if (isTRUE(x$oldest_first[1] == "yes") == TRUE){
-      x <- x
-    }
-  })
-  
-  df_not_log <- lapply(df_not_log, function(x) {
-    if (isTRUE(x$oldest_first[1] == "no") == TRUE){
-      arrange(x, desc(age_MY))
-    } else if (isTRUE(x$oldest_first[1] == "yes") == TRUE){
-      x <- x
-    }
-  })
   
   ## CREATE paleoTS OBJECTS AND TRANSFORM DATA ##
   
