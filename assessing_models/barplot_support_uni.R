@@ -8,6 +8,7 @@
 #paleoTS version 0.6.2
 
 library(tidyverse)
+library(gridExtra)
 
 # importing results of test without shift and TS with minimum 10 datapoints
 load("./model_test_uni.Rdata")
@@ -65,7 +66,7 @@ hist_Stasis = ggplot(df_Stasis, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) + 
-  scale_y_continuous(limits = c(0, 300), expand = expansion(mult = c(0, 0))) + 
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) + 
   theme_minimal()
 
 
@@ -78,7 +79,7 @@ hist_URW = ggplot(df_URW, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 300), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -91,7 +92,7 @@ hist_GRW = ggplot(df_GRW, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 300), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -104,7 +105,7 @@ hist_Strict_stasis = ggplot(df_Strict_stasis, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 400), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -117,7 +118,7 @@ hist_Accel = ggplot(df_Accel, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 400), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -130,7 +131,7 @@ hist_Decel = ggplot(df_Decel, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 400), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -143,7 +144,7 @@ hist_OU = ggplot(df_OU, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 500), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -156,7 +157,7 @@ hist_OU_mov_opt_anc = ggplot(df_OU_mov_opt_anc, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 500), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -169,7 +170,7 @@ hist_OU_mov_opt = ggplot(df_OU_mov_opt, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 500), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 # Set common theme for the plots
@@ -261,7 +262,7 @@ hist_Stasis_size = ggplot(df_Stasis_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) + 
-  scale_y_continuous(limits = c(0, 150), expand = expansion(mult = c(0, 0))) + 
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) + 
   theme_minimal()
 
 
@@ -274,7 +275,7 @@ hist_URW_size = ggplot(df_URW_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 150), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -287,7 +288,7 @@ hist_GRW_size = ggplot(df_GRW_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 150), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -300,7 +301,7 @@ hist_Strict_stasis_size = ggplot(df_Strict_stasis_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 50), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -313,7 +314,7 @@ hist_Accel_size = ggplot(df_Accel_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 200), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -326,7 +327,7 @@ hist_Decel_size = ggplot(df_Decel_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 200), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -339,7 +340,7 @@ hist_OU_size = ggplot(df_OU_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 250), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -352,7 +353,7 @@ hist_OU_mov_opt_anc_size = ggplot(df_OU_mov_opt_anc_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 250), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -365,7 +366,7 @@ hist_OU_mov_opt_size = ggplot(df_OU_mov_opt_size, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 250), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -417,7 +418,7 @@ hist_Stasis_shape = ggplot(df_Stasis_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) + 
-  scale_y_continuous(limits = c(0, 100), expand = expansion(mult = c(0, 0))) + 
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) + 
   theme_minimal()
 
 
@@ -430,7 +431,7 @@ hist_URW_shape = ggplot(df_URW_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 100), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -443,7 +444,7 @@ hist_GRW_shape = ggplot(df_GRW_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 100), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -456,7 +457,7 @@ hist_Strict_stasis_shape = ggplot(df_Strict_stasis_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 50), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -469,7 +470,7 @@ hist_Accel_shape = ggplot(df_Accel_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 100), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -482,7 +483,7 @@ hist_Decel_shape = ggplot(df_Decel_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 100), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -495,7 +496,7 @@ hist_OU_shape = ggplot(df_OU_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 150), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -508,7 +509,7 @@ hist_OU_mov_opt_anc_shape = ggplot(df_OU_mov_opt_anc_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 150), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 
@@ -521,7 +522,7 @@ hist_OU_mov_opt_shape = ggplot(df_OU_mov_opt_shape, aes(x = values)) +
        x = "Akaike weight", 
        y = "Frequency") +
   scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand = expansion(mult = c(0, 0))) +  
-  scale_y_continuous(limits = c(0, 150), expand = expansion(mult = c(0, 0))) +  
+  scale_y_log10(limits = c(1, 500), expand = expansion(mult = c(0, 0))) +  
   theme_minimal()
 
 # Set common theme for the plots
