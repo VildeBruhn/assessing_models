@@ -23,15 +23,11 @@ library(ggplot2)
 # Models without shift #
 ########################
 
-#Import results of the test (no models with double processes, no adequacy)
+#Import metadata and results of the test (only models with single processes, no adequacy)
 load("./model_test_uni.Rdata")
+load("./ln_data_meta.Rdata")
 
-#Import metadata and extract the ones for time series tested
-metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
-metadata_model_test <- metadata[metadata$tsID %in% names(model_test), ] 
-metadata_model_test$tsID = as.character(metadata_model_test$tsID)
-
-# missing_ids <- setdiff(names(model_test), metadata_model_test$tsID)
+# missing_ids <- setdiff(names(model_test), ln_data_meta$tsID)
 # model_test <- model_test[!names(model_test) %in% missing_ids]
 
 #Add the model which has the minimal AICc for each time series to the metadata
@@ -39,10 +35,10 @@ model_aicc_min <- lapply(model_test, function(aicc_min) {
   which.min(as.numeric(unlist(aicc_min$AICc)))
 })
 
-metadata_model_test$best_model_numeric <- model_aicc_min[metadata_model_test$tsID]
+ln_data_meta$best_model_numeric <- model_aicc_min[ln_data_meta$tsID]
 
-metadata_model_test$best_model <- 0
-metadata_model_test <- metadata_model_test %>%
+ln_data_meta$best_model <- 0
+ln_data_meta <- ln_data_meta %>%
   mutate(best_model = case_when(
     best_model_numeric == 1 ~ 'GRW',
     best_model_numeric == 2 ~ 'URW',
@@ -57,15 +53,15 @@ metadata_model_test <- metadata_model_test %>%
   ))
 
 model_order <- c("Stasis", "URW", "GRW", "Accel", "Decel", "OU", "OU_mov_opt")
-metadata_model_test$best_model <- factor(metadata_model_test$best_model, levels = model_order)
+ln_data_meta$best_model <- factor(ln_data_meta$best_model, levels = model_order)
 
-histogram_main_results = ggplot(metadata_model_test, aes(x = best_model, fill = best_model)) +
+histogram_main_results = ggplot(ln_data_meta, aes(x = best_model, fill = best_model)) +
   geom_bar(color = "black") +
-  scale_fill_manual(values = rainbow(length(unique(metadata_model_test$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(ln_data_meta$best_model)))) +
   labs(title = "Time series best fitted for each model",
        x = "Models",
        y = "Time series") +
-  scale_y_continuous(limits = c(0, 175)) +
+  scale_y_continuous(limits = c(0, 250)) +
   theme(
   panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
   plot.title = element_text(size = 38),
@@ -84,18 +80,18 @@ dev.off()
 # Correlation between best model and number of steps 
 #-----------------------------------------------------
 
-lmm_model_steps <- lmer(steps ~ best_model + (1| popID), data = metadata_model_test)
+lmm_model_steps <- lmer(steps ~ best_model + (1| popID), data = ln_data_meta)
 summary(lmm_model_steps)
 
 # Create the Boxplot
-boxplot_model_steps = ggplot(metadata_model_test, aes(x = best_model, y = steps, fill = best_model)) +
+boxplot_model_steps = ggplot(ln_data_meta, aes(x = best_model, y = steps, fill = best_model)) +
   geom_boxplot() +
   labs(title = "Comparison of time series resolution (number of steps) with their best model",
        x = "Best model",
        y = "Number of steps") +
   theme_classic() +
   scale_y_log10() +
-  scale_fill_manual(values = rainbow(length(unique(metadata_model_test$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(ln_data_meta$best_model)))) +
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
     plot.title = element_text(size = 38),
@@ -109,17 +105,17 @@ boxplot_model_steps = ggplot(metadata_model_test, aes(x = best_model, y = steps,
 # Correlation between best model and total time interval 
 #--------------------------------------------------------
 
-lmm_model_time <- lmer(interval_MY ~ 1+ best_model + (1| popID), data = metadata_model_test)
+lmm_model_time <- lmer(interval_MY ~ 1+ best_model + (1| popID), data = ln_data_meta)
 summary(lmm_model_time)
 
 # Create the Boxplot
-boxplot_model_time = ggplot(metadata_model_test, aes(x = best_model, y = interval_MY, fill = best_model)) +
+boxplot_model_time = ggplot(ln_data_meta, aes(x = best_model, y = interval_MY, fill = best_model)) +
   geom_boxplot() +
   labs(title = "Comparison of time series length (total time interval) with their best model",
        x = "Best model",
        y = "Total time interval in MY") +
   theme_classic() +
-  scale_fill_manual(values = rainbow(length(unique(metadata_model_test$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(ln_data_meta$best_model)))) +
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
     plot.title = element_text(size = 38),
@@ -133,20 +129,20 @@ boxplot_model_time = ggplot(metadata_model_test, aes(x = best_model, y = interva
 # Correlation between best model and resolution
 #------------------------------------------------
 
-metadata_model_test$resolution = metadata_model_test$steps/metadata_model_test$interval_MY
+ln_data_meta$resolution = ln_data_meta$steps/ln_data_meta$interval_MY
 
-lmm_model_time <- lmer(resolution ~ 1+ best_model + (1| popID), data = metadata_model_test)
+lmm_model_time <- lmer(resolution ~ 1+ best_model + (1| popID), data = ln_data_meta)
 summary(lmm_model_time)
 
 # Create the Boxplot
-boxplot_model_resolution = ggplot(metadata_model_test, aes(x = best_model, y = resolution, fill = best_model)) +
+boxplot_model_resolution = ggplot(ln_data_meta, aes(x = best_model, y = resolution, fill = best_model)) +
   geom_boxplot() +
   labs(title = "Comparison of time series length (total time interval) with their best model",
        x = "Best model",
        y = "Resolution (step/interval)") +
   theme_classic() +
   scale_y_log10() +
-  scale_fill_manual(values = rainbow(length(unique(metadata_model_test$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(ln_data_meta$best_model)))) +
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
     plot.title = element_text(size = 38),
@@ -167,23 +163,19 @@ dev.off()
 # Models with shift #
 #####################
 
-#Import results of the test (no models with double processes, no adequacy)
-load("./results_paleoTS_v0.6.1/Results_fit_shiftmodels.RData")
+#Import metadata and results of the test (models with single and double processes, no adequacy)
+load("./results_paleoTS_v0.6.1/model_test_shift.Rdata")
+load("./ln_data_meta_shift.Rdata")
 
-#Import metadata and extract the ones for time series tested
-metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
-metadata_shiftmodel_test <- metadata[metadata$tsID %in% names(model_shift_results), ] 
-metadata_shiftmodel_test$tsID = as.character(metadata_shiftmodel_test$tsID)
-
-# missing_ids <- setdiff(names(model_shift_results), metadata_shiftmodel_test$tsID)
-# model_shift_results <- model_shift_results[!names(model_shift_results) %in% missing_ids]
+# missing_ids <- setdiff(names(model_test_shift), ln_data_meta_shift$tsID)
+# model_test_shift <- model_test_shift[!names(model_test_shift) %in% missing_ids]
 
 #Add the model which has the minimal AICc for each time series to the metadata
-metadata_shiftmodel_test <- metadata_shiftmodel_test %>% filter(tsID %in% names(aicc_min))
-metadata_shiftmodel_test$best_model_numeric <- unlist(aicc_min[metadata_shiftmodel_test$tsID])
+ln_data_meta_shift <- ln_data_meta_shift %>% filter(tsID %in% names(aicc_min))
+ln_data_meta_shift$best_model_numeric <- unlist(aicc_min[ln_data_meta_shift$tsID])
 
-metadata_shiftmodel_test$best_model <- 0
-metadata_shiftmodel_test <- metadata_shiftmodel_test %>%
+ln_data_meta_shift$best_model <- 0
+ln_data_meta_shift <- ln_data_meta_shift %>%
   mutate(best_model = case_when(
     best_model_numeric == 1 ~ 'GRW',
     best_model_numeric == 2 ~ 'URW',
@@ -214,21 +206,21 @@ metadata_shiftmodel_test <- metadata_shiftmodel_test %>%
   ))
 
 #Add a column to indicate if the best model is with or without shift
-metadata_shiftmodel_test$shift <- ifelse(metadata_shiftmodel_test$best_model_numeric >= 1 & metadata_shiftmodel_test$best_model_numeric <= 9, "without shift", "with shift")
+ln_data_meta_shift$shift <- ifelse(ln_data_meta_shift$best_model_numeric >= 1 & ln_data_meta_shift$best_model_numeric <= 9, "without shift", "with shift")
 
 
 #--------------------------------------------------------
 # Correlation between type of model and number of steps 
 #--------------------------------------------------------
 
-lmm_shift_steps <- lmer(steps ~ shift + (1| popID), data = metadata_shiftmodel_test)
+lmm_shift_steps <- lmer(steps ~ shift + (1| popID), data = ln_data_meta_shift)
 summary(lmm_shift_steps)
 
 shift_order <- c("without shift", "with shift")
-metadata_shiftmodel_test$shift <- factor(metadata_shiftmodel_test$shift, levels = shift_order)
+ln_data_meta_shift$shift <- factor(ln_data_meta_shift$shift, levels = shift_order)
 
 # Create the Boxplot
-boxplot_shiftmodel_steps = ggplot(metadata_shiftmodel_test, aes(x = shift, y = steps, fill = shift)) +
+boxplot_shiftmodel_steps = ggplot(ln_data_meta_shift, aes(x = shift, y = steps, fill = shift)) +
   geom_boxplot() +
   labs(title = "Comparison of time series resolution (number of steps) with their best model",
        x = "Best model",
@@ -249,11 +241,11 @@ boxplot_shiftmodel_steps = ggplot(metadata_shiftmodel_test, aes(x = shift, y = s
 # Correlation between type of model and total time interval 
 #-----------------------------------------------------------
 
-lmm_shift_time <- lmer(interval_MY ~ 1+ shift + (1| popID), data = metadata_shiftmodel_test)
+lmm_shift_time <- lmer(interval_MY ~ 1+ shift + (1| popID), data = ln_data_meta_shift)
 summary(lmm_shift_time)
 
 # Create the Boxplot
-boxplot_shiftmodel_time = ggplot(metadata_shiftmodel_test, aes(x = shift, y = interval_MY, fill = shift)) +
+boxplot_shiftmodel_time = ggplot(ln_data_meta_shift, aes(x = shift, y = interval_MY, fill = shift)) +
   geom_boxplot() +
   labs(title = "Comparison of time series length (total time interval) with their best model",
        x = "Best model",
@@ -273,13 +265,13 @@ boxplot_shiftmodel_time = ggplot(metadata_shiftmodel_test, aes(x = shift, y = in
 # Correlation between type of model and resolution
 #---------------------------------------------------
 
-metadata_shiftmodel_test$resolution = metadata_shiftmodel_test$steps/metadata_shiftmodel_test$interval_MY
+ln_data_meta_shift$resolution = ln_data_meta_shift$steps/ln_data_meta_shift$interval_MY
 
-lmm_shift_time <- lmer(resolution ~ 1+ shift + (1| popID), data = metadata_shiftmodel_test)
+lmm_shift_time <- lmer(resolution ~ 1+ shift + (1| popID), data = ln_data_meta_shift)
 summary(lmm_shift_time)
 
 # Create the Boxplot
-boxplot_shiftmodel_resolution = ggplot(metadata_shiftmodel_test, aes(x = shift, y = resolution, fill = shift)) +
+boxplot_shiftmodel_resolution = ggplot(ln_data_meta_shift, aes(x = shift, y = resolution, fill = shift)) +
   geom_boxplot() +
   labs(title = "Comparison of time series length (total time interval) with their best model",
        x = "Best model",

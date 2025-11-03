@@ -42,74 +42,74 @@ my_cluster <- parallel::makeCluster(
 # register it to be used
 doParallel::registerDoParallel(cl = my_cluster)
 
+
+
 #-----------------
 # IMPORT FILES
 #-----------------
+
+
 
 # import
 timeseries <- read_delim("./timeseries/timeseries.txt", col_names = TRUE, delim = "\t")
 metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
 
+
+
 #---------------------------------------------------------------------------------------------
-# EXCLUDING THE SHORTEST TIMESERIES (Keep timeseries only if containing 20 or more steps)
+# EXCLUDING THE SHORTEST TIME SERIES (Keep time series only if containing 14 or more steps)
 #---------------------------------------------------------------------------------------------
 
-metadatalong <- matrix(nrow = 0, ncol = ncol(metadata))
-timeserieslong <- matrix(nrow = 0, ncol = ncol(timeseries))
-tsIDremoved <- c()
 
-# Filter rows of the metadata file based on step number 
-for (i in 1:nrow(metadata)) {                          
-  if (metadata[i, "steps"] >= 20) {   
-    metadatalong <- rbind(metadatalong, metadata[i, ])  # Add the filtered row to metadatalong
-  } else {
-    tsIDremoved <- c(tsIDremoved, metadata[i, "tsID"]) # Save the ID of removed timeseries
-  }
-}
-
-# Filter rows of the timeseries file based on tsID number 
-for (j in 1:nrow(timeseries)) {
-    tsID <- timeseries[j, "tsID"]
-    matching_tsID <- tsID %in% tsIDremoved # Check if tsID exists in tsIDremoved
-    if (!matching_tsID) {
-      timeserieslong <- rbind(timeserieslong, timeseries[j, ])  # Add the filtered row to timeserieslong if tsID does not exist in tsIDremoved
-    }
-}
 
 # join dataframes
-dflong <- left_join(timeserieslong, metadatalong, by = c("tsID"))
+df <- left_join(timeseries, metadata, by = c("tsID"))
+
+# remove time series with less than 14 steps
+df_shift <- subset(df, steps >= 14)
+
+# remove modern time series
+df_shift <- subset(df_shift, period_start != "Present")
 
 # make list based on ID
-dflong <- lapply(split(dflong,dflong$tsID), function(x) as.list(x))
+df_shift <- lapply(split(df_shift, df_shift$tsID), function(x) as.list(x))
 
 # process data
-ln_data_metalong <- dt(dflong, "tsID")
-ln_datalong <- lapply(ln_data_metalong, function(x) {
-  as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")   ###NEED TO ADD TIME RESCALING
+ln_data_meta_shift <- dt(df_shift, "tsID")
+
+ln_data_shift <- lapply(ln_data_meta_shift, function(x) {
+  as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
+
                         
-#####################################################
-## Fit models including shift and find best (AICc) ##
-#####################################################
+#-------------------------------------------------
+# FIT UNIVARIATE MODELS WITHOUT AND WITH A SHIFT
+#-------------------------------------------------
+
+
 
 # test all possible univariate models from evoTS on every timeseries
-# for paleoTS v0.5.3
-# model_noshift_results <- mclapply(ln_datalong, fit.all.univariate) 
+# for paleoTS v0.6.2
+# model_noshift_results <- mclapply(ln_data_shift, fit.all.univariate) 
 
-# for paleoTS v0.6.1
+# for paleoTS v0.6.2
 model_noshift_results <- list()
-for(i in 1:length(ln_datalong)){
-  try(model_noshift_results[[i]] <- fit.all.univariate(ln_datalong[[i]]))
+for(i in 1:length(ln_data_shift)){
+  try(model_noshift_results[[i]] <- fit.all.univariate(ln_data_shift[[i]]))
 }
 
 # add time series IDs
-names_list <- names(ln_datalong)
+names_list <- names(ln_data_shift)
 names(model_noshift_results) <- names_list
 
-                 
+# remove time series that cannot be processed by the loglikelihood function
+ln_data_shift = ln_data_shift[-which(sapply(model_noshift_results, is.null))]
+ln_data_meta_shift = ln_data_meta_shift[-which(sapply(model_noshift_results, is.null))]
+model_noshift_results = model_noshift_results[-which(sapply(model_noshift_results, is.null))]
+
 # test all possible shift models from evoTS on time series (To do on the HPC)
-fit_mode_shift <- function(ln_datalong) {
+fit_mode_shift <- function(ln_data_shift) {
   models_list <- c("Stasis", "URW", "GRW", "OU")
   store_results <- list()
   k <- 0
@@ -117,38 +117,32 @@ fit_mode_shift <- function(ln_datalong) {
     model1 <- models_list[i]  
     for (j in 1:4) {
       model2 <- models_list[j]
-        fit_result <- fit.mode.shift(ln_datalong, model1, model2, minb = 10)
-        k = k + 1
-        store_results[[k]] <- fit_result
+      fit_result <- fit.mode.shift(ln_data_shift, model1, model2, minb = 7)
+      k = k + 1
+      store_results[[k]] <- fit_result
     } 
   }
   return(store_results)
 }
 
-#model_shift_results <- mclapply(ln_datalong, fit_mode_shift)
-
-#save(model_noshift_results, model_shift_results, file = "./results_paleoTS_v0.6.1/Results_fit_shiftmodels.RData")
+# Run model fit on the HPC
+#model_shift_results <- mclapply(ln_data_shift, fit_mode_shift) 
 load("./results_paleoTS_v0.6.1/Results_fit_shiftmodels.RData") # Loading results from the HPC
 
+# Save the results
+save(model_noshift_results, model_shift_results, file = "model_test_shift.RData")
 
-# remove time series that cannot be processed by the loglikelihood function 
-ln_datalong2 = ln_datalong
-ln_datalong2 = ln_datalong2[-which(sapply(model_shift_results, is.null))]
-model_noshift_results = model_noshift_results[-which(sapply(model_noshift_results, is.null))]
-
-# remove time series that can not be processed by the loglikelihood function from the results with a shift
-model_shift_results_names <- names(model_shift_results)
-model_noshift_results_names <- names(model_noshift_results)
-removed_TS <- setdiff(model_shift_results_names, model_noshift_results_names)
-model_shift_results[removed_TS] <- NULL
-
-# remove time series that can not be processed by the loglikelihood function from ln_datalong
-ln_datalong[removed_TS] <- NULL
+# Save the data
+save(ln_data_shift, file = "ln_data_shift.RData")
+save(ln_data_meta_shift, file = "ln_data_meta_shift.RData")
 
 
-########################
-##  Extract the AICcs ##
-########################
+
+#----------------------------
+# ASSESS RELATIVE FIT (AICc)
+#----------------------------
+
+
 
 ### Remove problematic timeseries ###
 pblm_TS <- c("584","585","75","427","428","574","368") #issues during the adequacy tests
@@ -157,17 +151,12 @@ model_shift_results <- model_shift_results[keep_TS]
 keep_TS2 <- !names(model_noshift_results) %in% pblm_TS
 model_noshift_results <- model_noshift_results[keep_TS2]
 
-#------------------------------------------
-# Extract AICcs for the no shift models
-#------------------------------------------
 
+# Extract AICcs for the models without shift
 aicc_noshift <- lapply(model_noshift_results, function(x) x[(names(x) %in% c("AICc"))]) #USE model_noshift_results_clean if those time series are still problematic
 
-#------------------------------------------
-# Extract AICcs for the shift models
-#------------------------------------------
 
-# extract AICc values of shift models on all results
+# Extract AICc values of shift models on all results
 aicc_shift_extraction <- lapply(model_shift_results, function(x) { ### remettre model_shift_result when problem will be solved
   sapply(x, function(result) result$AICc)
 })
@@ -819,10 +808,10 @@ names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 # get adequacy results for only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
 URW_adeq_passed <- adequate3tests(URW_adeq)
-stasis_adeq_passed <- adequate4tests(stasis_adeq)
-strict_stasis_adeq_passed <- adequate4tests(strict_stasis_adeq)
-decel_adeq_passed <- adequate3tests(decel_adeq)
-accel_adeq_passed <- adequate3tests(accel_adeq)
+Stasis_adeq_passed <- adequate4tests(stasis_adeq)
+Strict_stasis_adeq_passed <- adequate4tests(strict_stasis_adeq)
+Decel_adeq_passed <- adequate3tests(decel_adeq)
+Accel_adeq_passed <- adequate3tests(accel_adeq)
 OU_adeq_passed <- adequate2tests(OU_adeq)
 OU_mov_opt_anc_adeq_passed <- adequate2tests(OU_mov_opt_anc_adeq)
 OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
@@ -899,13 +888,13 @@ GRW_list_adequate <- names(GRW_adeq_passed)
 GRW_adeq_list <- GRW[names(GRW) %in% GRW_list_adequate]
 URW_list_adequate <- names(URW_adeq_passed)
 URW_adeq_list <- URW[names(URW) %in% URW_list_adequate]
-stasis_list_adequate <- names(stasis_adeq_passed)
+stasis_list_adequate <- names(Stasis_adeq_passed)
 stasis_adeq_list <- Stasis[names(Stasis) %in% stasis_list_adequate]
-strict_stasis_list_adequate <- names(strict_stasis_adeq_passed)
+strict_stasis_list_adequate <- names(Strict_stasis_adeq_passed)
 strict_stasis_adeq_list <- Strict_stasis[names(Strict_stasis) %in% strict_stasis_list_adequate]
-decel_list_adequate <- names(decel_adeq_passed)
+decel_list_adequate <- names(Decel_adeq_passed)
 decel_adeq_list <- Decel[names(Decel) %in% decel_list_adequate]
-accel_list_adequate <- names(accel_adeq_passed)
+accel_list_adequate <- names(Accel_adeq_passed)
 accel_adeq_list <- Accel[names(Accel) %in% accel_list_adequate]
 OU_list_adequate <- names(OU_adeq_passed)
 OU_adeq_list <- OU[names(OU) %in% OU_list_adequate]
@@ -949,10 +938,10 @@ URW_Stasis_adeq_list <- URW_Stasis[names(URW_Stasis) %in% URW_Stasis_list_adequa
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
 URW_c <- length(URW_adeq_passed)
-stasis_c <- length(stasis_adeq_passed)
-strict_stasis_c <- length(strict_stasis_adeq_passed)
-decel_c <- length(decel_adeq_passed)
-accel_c <- length(accel_adeq_passed)
+stasis_c <- length(Stasis_adeq_passed)
+strict_stasis_c <- length(Strict_stasis_adeq_passed)
+decel_c <- length(Decel_adeq_passed)
+accel_c <- length(Accel_adeq_passed)
 OU_c <- length(OU_adeq_passed)
 OU_mov_opt_anc_c <- length(OU_mov_opt_anc_adeq_passed)
 OU_mov_opt_c <- length(OU_mov_opt_adeq_passed)
@@ -976,10 +965,10 @@ URW_Stasis_c <- length(URW_Stasis_adeq_passed)
 # get percentage passed
 GRW_p <- (length(GRW_adeq_passed)/length(GRW_adeq))*100
 URW_p <- (length(URW_adeq_passed)/length(URW_adeq))*100
-stasis_p <- (length(stasis_adeq_passed)/length(stasis_adeq))*100
-strict_stasis_p <- (length(strict_stasis_adeq_passed)/length(strict_stasis_adeq))*100
-decel_p <- (length(decel_adeq_passed)/length(decel_adeq))*100
-accel_p <- (length(accel_adeq_passed)/length(accel_adeq))*100
+stasis_p <- (length(Stasis_adeq_passed)/length(stasis_adeq))*100
+strict_stasis_p <- (length(Strict_stasis_adeq_passed)/length(strict_stasis_adeq))*100
+decel_p <- (length(Decel_adeq_passed)/length(decel_adeq))*100
+accel_p <- (length(Accel_adeq_passed)/length(accel_adeq))*100
 OU_p <- (length(OU_adeq_passed)/length(OU_adeq))*100
 OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_adeq))*100
 OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
@@ -1036,7 +1025,7 @@ paste("Percentage of time series which passed adequacy tests:", (Total_adeq_pass
 sink()
 
 # Save all the results
-save.image(file='./results_paleoTS_v0.6.1/Results_fit_adequacy_shiftmodels.RData')
+save.image(file='./results_paleoTS_v0.6.1/adeq_shift_passed.RData')
 
 
 #----------------------------------------------------
