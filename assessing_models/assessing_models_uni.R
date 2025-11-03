@@ -74,6 +74,16 @@ ln_data <- lapply(ln_data_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
+# Convert the time vector to unit length
+ln_data_meta <- lapply(ln_data_meta, function(x) {
+  x$tt <- x$tt/(max(x$tt))
+  x
+})
+ln_data <- lapply(ln_data, function(x) {
+  x$tt <- x$tt/(max(x$tt))
+  x
+})
+
 
 #-----------------------
 # FIT UNIVARIATE MODELS
