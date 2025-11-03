@@ -16,11 +16,11 @@
 rm(list = ls())
 
 # load packages
-library(evoTS) #github version 1.0.3
-library(adePEM)
+library(evoTS) # version 1.0.3
+library(adePEM) # version 1.1.1
 library(tidyverse)
 library(data.table)
-library(paleoTS) #version 0.6.1
+library(paleoTS) # version 0.6.1
 library(doParallel)
 
 # load functions
@@ -74,6 +74,16 @@ ln_data <- lapply(ln_data_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
+# Convert the time vector to unit length
+ln_data_meta <- lapply(ln_data_meta, function(x) {
+  x$tt <- x$tt/(max(x$tt))
+  x
+})
+ln_data <- lapply(ln_data, function(x) {
+  x$tt <- x$tt/(max(x$tt))
+  x
+})
+
 
 #-----------------------
 # FIT UNIVARIATE MODELS
@@ -93,6 +103,7 @@ ln_data = ln_data[-which(sapply(model_test, is.null))]
 ln_data_meta = ln_data_meta[-which(sapply(model_test, is.null))]
 model_test = model_test[-which(sapply(model_test, is.null))]
 
+# save data
 #save(model_test, file = "./model_test_uni.Rdata")
 #save(ln_data, file = "./ln_data_uni.Rdata")
 #save(ln_data_meta, file = "./ln_data_meta_uni.Rdata")
@@ -140,7 +151,7 @@ sink()
 #----------------------------
 
 
-# filter time series according to best AICc
+# filter time series according to best AICc (load data used in article below)
 data_aicc <- mapply(c, ln_data, aicc, SIMPLIFY = FALSE) #adds index of lowest AICc as column in ln_data
 
 GRW <- Filter(function(x) x[[10]] == 1, data_aicc)
@@ -197,11 +208,14 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
 })
 
-
+# save data
 #save(GRW, URW, stasis,
 #strict_stasis, decel,
 #accel, OU, OU_mov_opt, 
 #OU_mov_opt_anc, file = "aicc_uni_passed.Rdata")
+
+## load data used in article
+load("./aicc_uni_passed.Rdata")
 
 
 #--------------------------------
@@ -209,7 +223,7 @@ OU_mov_opt <- lapply(OU_mov_opt, function(x) {
 #--------------------------------
 
 
-# test adequacy
+# test adequacy (load data used in article below)
 
 GRW_adeq <- list()
 for(i in 1:length(GRW)){
@@ -255,10 +269,13 @@ save(file = "OU_uni_adeq.Rdata", OU_adeq)
 
 ## same approach for OU_mov_opt and OU_mov_opt_anc
 
-## load OU tests used in article
-load("OU_adeq_uni.Rdata")
-load("OU_mov_opt_adeq_uni.Rdata")
-load("OU_mov_opt_anc_adeq_uni.Rdata")
+## load OU tests and data used in article
+load("OU_uni_adeq.Rdata")
+load("OU_mov_opt_uni_adeq.Rdata")
+load("OU_mov_opt_anc_uni_adeq.Rdata")
+load("OU_uni.Rdata")
+load("OU_mov_opt_uni.Rdata")
+load("OU_mov_opt_anc_uni.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -271,12 +288,14 @@ OU_adeq_passed <- adequate2tests(OU_adeq)
 OU_mov_opt_anc_adeq_passed <- adequate2tests(OU_mov_opt_anc_adeq)
 OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
-
+# save data
 #save(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
 #strict_stasis_adeq_passed, decel_adeq_passed,
 #accel_adeq_passed, OU_adeq_passed, OU_mov_opt_adeq_passed, OU_mov_opt_anc_adeq_passed, 
 #file = "adeq_uni_passed.Rdata")
 
+## load all adequacy data used in article
+load("./adeq_uni_passed.Rdata")
 
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
@@ -300,7 +319,6 @@ OU_p <- (length(OU_adeq_passed)/length(OU_adeq))*100
 OU_mov_opt_anc_p <- (length(OU_mov_opt_anc_adeq_passed)/length(OU_mov_opt_anc_adeq))*100
 OU_mov_opt_p <- (length(OU_mov_opt_adeq_passed)/length(OU_mov_opt_adeq))*100
 
-
 # make output table
 total_count <- sum(GRW_c,URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c)
 adeq_table <- as.data.frame(c("GRW", "URW", "stasis", "strict stasis", "decel", "accel", "OU",
@@ -314,7 +332,7 @@ percent2 <- (sum(adeq_table$count_passed[4:9])/total_count)*100
 percent3 <- (sum(adeq_table$count_passed[5:9])/total_count)*100
 
 # write to file
-sink(file = "./results_paleoTS_v0.6.1//adequacy_uni_passed.txt")
+sink(file = "./results_paleoTS_v0.6.1/adequacy_uni_passed.txt")
 adeq_table
 paste("Total count:", total_count)
 paste("Percentage not URW, GRW or stasis:", percent2)
