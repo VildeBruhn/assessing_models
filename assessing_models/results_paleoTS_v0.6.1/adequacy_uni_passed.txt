@@ -1,13 +1,13 @@
                             model count_passed percentage_passed
-1                             GRW           48          90.56604
-2                             URW          169          88.48168
-3                          stasis           88          66.16541
-4                   strict stasis           85          79.43925
-5                           decel           13          56.52174
-6                           accel           11          47.82609
-7                              OU           43          93.47826
-8 OU mov. optm. (ancestral state)           26          89.65517
+1                             GRW            0               NaN
+2                             URW          166          88.77005
+3                          stasis           87          64.92537
+4                   strict stasis           83          77.57009
+5                           decel           15          62.50000
+6                           accel           14          58.33333
+7                              OU           41          89.13043
+8 OU mov. optm. (ancestral state)           25          92.59259
 9                   OU mov. optm.            3         100.00000
-[1] "Total count: 486"
-[1] "Percentage not URW, GRW or stasis: 37.2427983539095"
-[1] "Percentage not URW, GRW, stasis or strict stasis: 19.7530864197531"
+[1] "Total count: 434"
+[1] "Percentage not URW, GRW or stasis: 41.705069124424"
+[1] "Percentage not URW, GRW, stasis or strict stasis: 22.5806451612903"
