@@ -24,10 +24,10 @@ library(paleoTS) # version 0.6.1
 library(doParallel)
 
 # load functions
-source("/Users/markusof/Dropbox/Familiemappe/Vilde_jobb/assessing_models/assessing_models_uni_functions.R")
+source("/Users/vildebruhnkinneberg/Documents/GitHub/assessing_models_evolution/assessing_models/assessing_models_uni_functions.R")
 
 # set working directory
-setwd("/Users/markusof/Dropbox/Familiemappe/Vilde_jobb/assessing_models/")
+setwd("/Users/vildebruhnkinneberg/Documents/GitHub/assessing_models_evolution/assessing_models/")
 
 
 # -------------------------
@@ -338,7 +338,6 @@ paste("Total count:", total_count)
 paste("Percentage not URW, GRW or stasis:", percent2)
 paste("Percentage not URW, GRW, stasis or strict stasis:", percent3)
 sink()
-
 
 
 
