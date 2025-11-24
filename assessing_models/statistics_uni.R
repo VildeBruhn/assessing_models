@@ -251,53 +251,53 @@ plot_data2 <- plot_data
 plot_data2 <- plot_data2 %>% drop_na(model_adequate)
 
 # micro vs. macro
-micro_macro <- plot_data
+micro_macro <- plot_data2[c("model_adequate", "microfossil")]
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/micro_macro_aicc.pdf")
-ggplot(micro_macro, aes(x = factor(model_aicc, levels = level_order), fill = microfossil)) + geom_bar() +
+pdf("./results_paleoTS_v0.6.1/plot/micro_macro_adeq.pdf")
+ggplot(micro_macro, aes(x = factor(model_adequate, levels = level_order), fill = microfossil)) + geom_bar() +
   theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
   labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
   xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
 dev.off()
 
 # environment
-env <- plot_data
+env <- plot_data2[c("model_adequate", "environment")]
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/environment_aicc.pdf")
-ggplot(env, aes(x = factor(model_aicc, levels = level_order), fill = environment)) + geom_bar() +
+pdf("./results_paleoTS_v0.6.1/plot/environment_adeq.pdf")
+ggplot(env, aes(x = factor(model_adequate, levels = level_order), fill = environment)) + geom_bar() +
   theme_classic() + 
   scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Fluvial", "Lacustrine", "Marine",
-                                                                         "Terrestrial"), palette = col_val2) +
+  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Lacustrine", "Marine",
+                                                                         "Terrestrial"), palette = col_val2[2:4]) +
   xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
                                         legend.title = element_text(size = 12),
                                         axis.title = element_text(size = 12))
-dev.off()
+ dev.off()
 
 # interval MY
-intv_my <- plot_data[c("model_aicc", "interval_MY", "parameters")]
+intv_my <- plot_data2[c("model_adequate", "interval_MY", "parameters")]
 
 
 # stats
-intv_my_mean <- aggregate(intv_my[, 2], list(intv_my$model_aicc), mean)
+intv_my_mean <- aggregate(intv_my[, 2], list(intv_my$model_adequate), mean)
 intv_my_mean <- as.data.frame(intv_my_mean)
 names(intv_my_mean) <- c("model", "mean interval (MY)")
-intv_my_median <- aggregate(intv_my[, 2], list(intv_my$model_aicc), median)
+intv_my_median <- aggregate(intv_my[, 2], list(intv_my$model_adequate), median)
 intv_my_median <- as.data.frame(intv_my_median)
 names(intv_my_median) <- c("model", "median interval (MY)")
 
-sink(file = "./results_paleoTS_v0.6.1/interval_my_results_aicc.txt")
+sink(file = "./results_paleoTS_v0.6.1/interval_my_results_adeq.txt")
 intv_my_mean
 intv_my_median
 sink()
 
 # plot
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/interval_my_uni_aicc.pdf")
-intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_aicc, levels = level_order),
+level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
+pdf("./results_paleoTS_v0.6.1/plot/interval_my_uni_adeq.pdf")
+intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_adequate, levels = level_order),
                                  fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "GRW", "Accel.", "Decel.", 
+                                                                 "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) + 
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val2) +
@@ -308,27 +308,27 @@ intv_plot
 dev.off()
 
 # steps
-steps <- plot_data[c("model_aicc", "steps", "parameters")]
+steps <- plot_data2[c("model_adequate", "steps", "parameters")]
 
 # stats
-steps_mean <- aggregate(steps[, 2], list(steps$model_aicc), mean)
+steps_mean <- aggregate(steps[, 2], list(steps$model_adequate), mean)
 steps_mean <- as.data.frame(steps_mean)
 names(steps_mean) <- c("model", "mean steps")
-steps_median <- aggregate(steps[, 2], list(steps$model_aicc), median)
+steps_median <- aggregate(steps[, 2], list(steps$model_adequate), median)
 steps_median <- as.data.frame(steps_median)
 names(steps_median) <- c("model", "median steps")
 
-sink(file = "./results_paleoTS_v0.6.1/steps_uni_results_aicc.txt")
+sink(file = "./results_paleoTS_v0.6.1/steps_uni_results_adeq.txt")
 steps_mean
 steps_median
 sink()
 
 # plot
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/steps_uni_aicc.pdf")
-steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_aicc, levels = level_order), fill = parameters)) + 
+level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
+pdf("./results_paleoTS_v0.6.1/plot/steps_uni_adeq.pdf")
+steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_adequate, levels = level_order), fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "GRW", "Accel.", "Decel.", 
+                                                                 "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val2) +
@@ -339,28 +339,28 @@ steps_plot
 dev.off()
 
 # resolution
-res <- plot_data[c("model_aicc", "steps", "interval_MY", "parameters")]
+res <- plot_data2[c("model_adequate", "steps", "interval_MY", "parameters")]
 res$resolution <- res$steps/res$interval_MY
 
 # stats
-res_mean <- aggregate(res[, 5], list(res$model_aicc), mean)
+res_mean <- aggregate(res[, 5], list(res$model_adequate), mean)
 res_mean <- as.data.frame(res_mean)
 names(res_mean) <- c("model", "mean res")
-res_median <- aggregate(res[, 5], list(res$model_aicc), median)
+res_median <- aggregate(res[, 5], list(res$model_adequate), median)
 res_median <- as.data.frame(res_median)
 names(res_median) <- c("model", "median res")
 
-sink(file = "./results_paleoTS_v0.6.1/resolution_uni_results_aicc.txt")
+sink(file = "./results_paleoTS_v0.6.1/resolution_uni_results_adeq.txt")
 res_mean
 res_median
 sink()
 
 # plot
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_aicc.pdf")
-res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_aicc, levels = level_order), fill = parameters)) + 
+level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
+pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_adeq.pdf")
+res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_adequate, levels = level_order), fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "GRW", "Accel.", "Decel.", 
+                                                                 "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val2) +
@@ -373,7 +373,7 @@ dev.off()
 
 
 # put plots in same figure
-pdf(width = 15.0, height = 5.5, file = "[PATH_TO_RESULTS_FOLDER]/empirical.pdf")
+pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_adeq.pdf")
 grid.arrange(intv_plot,
              steps_plot,
              res_plot, nrow = 1)
