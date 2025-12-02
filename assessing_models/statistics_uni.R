@@ -98,7 +98,7 @@ plot_data$parameters <- replace(plot_data$parameters, plot_data$parameters == "O
 
 # remove time series with NA
 plot_data <- plot_data %>% drop_na(model_aicc)
-plot_data <- plot_data %>% drop_na(environment)
+#plot_data <- plot_data %>% drop_na(environment)
 
 # set colors
 col_val1 <- c("#85B7B9", "#DCCB4E")
@@ -112,28 +112,28 @@ col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E
 
 
 # micro vs. macro
-micro_macro <- plot_data
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/micro_macro_aicc.pdf")
-ggplot(micro_macro, aes(x = factor(model_aicc, levels = level_order), fill = microfossil)) + geom_bar() +
-  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
-  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
-dev.off()
+#micro_macro <- plot_data
+#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
+#pdf("./results_paleoTS_v0.6.1/plot/micro_macro_aicc.pdf")
+#ggplot(micro_macro, aes(x = factor(model_aicc, levels = level_order), fill = microfossil)) + geom_bar() +
+#  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+#  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
+#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
+#dev.off()
 
 # environment
-env <- plot_data
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/environment_aicc.pdf")
-ggplot(env, aes(x = factor(model_aicc, levels = level_order), fill = environment)) + geom_bar() +
-  theme_classic() + 
-  scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Fluvial", "Lacustrine", "Marine",
-                                                                         "Terrestrial"), palette = col_val2) +
-  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
-                                        legend.title = element_text(size = 12),
-                                        axis.title = element_text(size = 12))
-dev.off()
+#env <- plot_data
+#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
+#pdf("./results_paleoTS_v0.6.1/plot/environment_aicc.pdf")
+#ggplot(env, aes(x = factor(model_aicc, levels = level_order), fill = environment)) + geom_bar() +
+#  theme_classic() + 
+#  scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+#  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Fluvial", "Lacustrine", "Marine",
+#                                                                        "Terrestrial"), palette = col_val2) +
+#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
+#                                        legend.title = element_text(size = 12),
+#                                        axis.title = element_text(size = 12))
+#dev.off()
 
 # interval MY
 intv_my <- plot_data[c("model_aicc", "interval_MY", "parameters")]
@@ -234,7 +234,7 @@ dev.off()
 
 
 # put plots in same figure
-pdf(width = 15.0, height = 5.5, file = "[PATH_TO_RESULTS_FOLDER]/empirical.pdf")
+pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_aicc.pdf")
 grid.arrange(intv_plot,
              steps_plot,
              res_plot, nrow = 1)
@@ -251,28 +251,28 @@ plot_data2 <- plot_data
 plot_data2 <- plot_data2 %>% drop_na(model_adequate)
 
 # micro vs. macro
-micro_macro <- plot_data2[c("model_adequate", "microfossil")]
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/micro_macro_adeq.pdf")
-ggplot(micro_macro, aes(x = factor(model_adequate, levels = level_order), fill = microfossil)) + geom_bar() +
-  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
-  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
-dev.off()
+#micro_macro <- plot_data2[c("model_adequate", "microfossil")]
+#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
+#pdf("./results_paleoTS_v0.6.1/plot/micro_macro_adeq.pdf")
+#ggplot(micro_macro, aes(x = factor(model_adequate, levels = level_order), fill = microfossil)) + geom_bar() +
+#  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+#  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
+#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
+#dev.off()
 
 # environment
-env <- plot_data2[c("model_adequate", "environment")]
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/environment_adeq.pdf")
-ggplot(env, aes(x = factor(model_adequate, levels = level_order), fill = environment)) + geom_bar() +
-  theme_classic() + 
-  scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Lacustrine", "Marine",
-                                                                         "Terrestrial"), palette = col_val2[2:4]) +
-  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
-                                        legend.title = element_text(size = 12),
-                                        axis.title = element_text(size = 12))
- dev.off()
+#env <- plot_data2[c("model_adequate", "environment")]
+#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
+#pdf("./results_paleoTS_v0.6.1/plot/environment_adeq.pdf")
+#ggplot(env, aes(x = factor(model_adequate, levels = level_order), fill = environment)) + geom_bar() +
+#  theme_classic() + 
+#  scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+#  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Lacustrine", "Marine",
+#                                                                         "Terrestrial"), palette = col_val2[2:4]) +
+#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
+#                                        legend.title = element_text(size = 12),
+#                                        axis.title = element_text(size = 12))
+# dev.off()
 
 # interval MY
 intv_my <- plot_data2[c("model_adequate", "interval_MY", "parameters")]
