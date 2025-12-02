@@ -20,27 +20,24 @@ library(gridExtra)
 library(ggplot2)
 
 
-
-
 ########################
 # Models without shift #
 ########################
 
-#Import metadata and results of the test (only models with single processes, no adequacy)
+#Import results of the test (no models with double processes, no adequacy)
 load("./model_test_uni.Rdata")
-load("./ln_data_meta.Rdata")
-
 load("./adeq_uni_passed.Rdata")
 model_test_adeq = c(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed, strict_stasis_adeq_passed, 
-                     decel_adeq_passed, accel_adeq_passed, OU_adeq_passed, OU_mov_opt_anc_adeq_passed, 
-                     OU_mov_opt_adeq_passed)
+                    decel_adeq_passed, accel_adeq_passed, OU_adeq_passed, OU_mov_opt_anc_adeq_passed, 
+                    OU_mov_opt_adeq_passed)
 
 #Import metadata and extract the ones for time series tested
-ln_data_meta_adeq <- ln_data_meta[ln_data_meta$tsID %in% names(model_test_adeq), ] 
-ln_data_meta_adeq$tsID = as.character(ln_data_meta_adeq$tsID)
+metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
+metadata_model_test_adeq <- metadata[metadata$tsID %in% names(model_test_adeq), ] 
+metadata_model_test_adeq$tsID = as.character(metadata_model_test_adeq$tsID)
 
-# missing_ids <- setdiff(names(model_test_adeq), ln_data_meta_adeq$tsID)
-# model_test_adeq <- model_test_adeq[!names(model_test_adeq) %in% missing_ids]
+# missing_ids <- setdiff(names(model_test), metadata_model_test$tsID)
+# model_test <- model_test[!names(model_test) %in% missing_ids]
 
 #Add the model which has the minimal AICc for each time series to the metadata
 model_aicc_min <- lapply(model_test, function(aicc_min) {
@@ -49,10 +46,10 @@ model_aicc_min <- lapply(model_test, function(aicc_min) {
 
 model_aicc_min <- model_aicc_min[names(model_aicc_min) %in% names(model_test_adeq)] 
 
-ln_data_meta_adeq$best_model_numeric <- model_aicc_min[ln_data_meta_adeq$tsID]
+metadata_model_test_adeq$best_model_numeric <- model_aicc_min[metadata_model_test_adeq$tsID]
 
-ln_data_meta_adeq$best_model <- 0
-ln_data_meta_adeq <- ln_data_meta_adeq %>%
+metadata_model_test_adeq$best_model <- 0
+metadata_model_test_adeq <- metadata_model_test_adeq %>%
   mutate(best_model = case_when(
     best_model_numeric == 1 ~ 'GRW',
     best_model_numeric == 2 ~ 'URW',
@@ -71,21 +68,21 @@ ln_data_meta_adeq <- ln_data_meta_adeq %>%
 # Correlation between best model and number of steps 
 #-----------------------------------------------------
 
-lmm_model_steps <- lmer(steps ~ best_model + (1| popID), data = ln_data_meta_adeq)
+lmm_model_steps <- lmer(steps ~ best_model + (1| popID), data = metadata_model_test_adeq)
 summary(lmm_model_steps)
 
 model_order <- c("Stasis", "URW", "GRW", "Accel", "Decel", "OU", "OU_mov_opt")
-ln_data_meta_adeq$best_model <- factor(ln_data_meta_adeq$best_model, levels = model_order)
+metadata_model_test_adeq$best_model <- factor(metadata_model_test_adeq$best_model, levels = model_order)
 
 # Create the Boxplot
-boxplot_model_steps_adeq = ggplot(ln_data_meta_adeq, aes(x = best_model, y = steps, fill = best_model)) +
+boxplot_model_steps_adeq = ggplot(metadata_model_test_adeq, aes(x = best_model, y = steps, fill = best_model)) +
   geom_boxplot() +
   labs(title = "Comparison of time series resolution (number of steps) with their best model",
        x = "Best model",
        y = "Number of steps") +
   theme_classic() +
   scale_y_log10() +
-  scale_fill_manual(values = rainbow(length(unique(ln_data_meta_adeq$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(metadata_model_test_adeq$best_model)))) +
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
     plot.title = element_text(size = 38),
@@ -99,17 +96,17 @@ boxplot_model_steps_adeq = ggplot(ln_data_meta_adeq, aes(x = best_model, y = ste
 # Correlation between best model and total time interval 
 #--------------------------------------------------------
 
-lmm_model_time <- lmer(interval_MY ~ 1+ best_model + (1| popID), data = ln_data_meta_adeq)
+lmm_model_time <- lmer(interval_MY ~ 1+ best_model + (1| popID), data = metadata_model_test_adeq)
 summary(lmm_model_time)
 
 # Create the Boxplot
-boxplot_model_time_adeq = ggplot(ln_data_meta_adeq, aes(x = best_model, y = interval_MY, fill = best_model)) +
+boxplot_model_time_adeq = ggplot(metadata_model_test_adeq, aes(x = best_model, y = interval_MY, fill = best_model)) +
   geom_boxplot() +
   labs(title = "Comparison of time series length (total time interval) with their best model",
        x = "Best model",
        y = "Total time interval in MY") +
   theme_classic() +
-  scale_fill_manual(values = rainbow(length(unique(ln_data_meta_adeq$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(metadata_model_test_adeq$best_model)))) +
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
     plot.title = element_text(size = 38),
@@ -123,20 +120,20 @@ boxplot_model_time_adeq = ggplot(ln_data_meta_adeq, aes(x = best_model, y = inte
 # Correlation between best model and resolution
 #------------------------------------------------
 
-ln_data_meta_adeq$resolution = ln_data_meta_adeq$steps/ln_data_meta_adeq$interval_MY
+metadata_model_test_adeq$resolution = metadata_model_test_adeq$steps/metadata_model_test_adeq$interval_MY
 
-lmm_model_time <- lmer(resolution ~ 1+ best_model + (1| popID), data = ln_data_meta_adeq)
+lmm_model_time <- lmer(resolution ~ 1+ best_model + (1| popID), data = metadata_model_test_adeq)
 summary(lmm_model_time)
 
 # Create the Boxplot
-boxplot_model_resolution_adeq = ggplot(ln_data_meta_adeq, aes(x = best_model, y = resolution, fill = best_model)) +
+boxplot_model_resolution_adeq = ggplot(metadata_model_test_adeq, aes(x = best_model, y = resolution, fill = best_model)) +
   geom_boxplot() +
   labs(title = "Comparison of time series length (total time interval) with their best model",
        x = "Best model",
        y = "Resolution (step/interval)") +
   theme_classic() +
   scale_y_log10() +
-  scale_fill_manual(values = rainbow(length(unique(ln_data_meta_adeq$best_model)))) +
+  scale_fill_manual(values = rainbow(length(unique(metadata_model_test_adeq$best_model)))) +
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed", size = 0.5),
     plot.title = element_text(size = 38),
@@ -161,6 +158,9 @@ dev.off()
 load("./model_test_shift.Rdata")
 load("./ln_data_meta_shift.Rdata")
 load("./adeq_shift_passed.Rdata")
+
+#load("results_paleoTS_v0.6.1/Results_fit_shiftmodels.RData")
+#load("results_paleoTS_v0.6.1/Results_fit_adequacy_shiftmodels.RData")
 
 model_test_shift_adeq = c(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed, strict_stasis_adeq_passed, decel_adeq_passed,
 accel_adeq_passed, OU_adeq_passed, OU_mov_opt_anc_adeq_passed, OU_mov_opt_adeq_passed, Stasis_Stasis_adeq_passed,

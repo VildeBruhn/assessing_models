@@ -1,43 +1,3 @@
-
-OU_SUBSET = OU[1:2]
-
-OU_adeq <- vector("list", length(OU_SUBSET))
-if (length(OU_SUBSET) > 0) { 
-  OU_adeq <- foreach(i = seq_along(OU_SUBSET), .packages = c("adePEM")) %do% {
-    nm <- names(OU_SUBSET)[i]
-    res <- tryCatch(
-      fit3adequacy.OU(OU_SUBSET[[i]], plot = FALSE),
-      error = function(e) NA
-    )
-    names(res)[i] = nm 
-  }
-}
-
-OU_adeq <- vector("list", length(OU_SUBSET))
-if (length(OU_SUBSET) > 0) { 
-  OU_adeq <- foreach(i = seq_along(OU_SUBSET), .packages = c("adePEM")) %do% {
-    names(res)[i] <- names(OU_SUBSET[i])
-    res <- tryCatch(
-      fit3adequacy.OU(OU_SUBSET[[i]], plot = FALSE),
-      error = function(e) NA
-    )
-    
-  }
-}
-
-
-
-
-
-
-adeq_issues_OU_OU <- which(sapply(OU_adeq, function(x) is.na(x)[1]))
-adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_OU)
-OU_adeq <- Filter(function(x) !is.na(x)[1], OU_adeq)
-
-
-
-
-
 ##########################################################################
 ## Evolutionary rates and time series scaling with shift model included ##
 ##########################################################################
@@ -198,7 +158,7 @@ if (length(OU_OU_subset2) > 0) {
   }
 }
 names(OU_OU_subset2_adeq) <- names(OU_OU_subset2)
-adeq_issues_OU_GRW_subset1 <- which(sapply(OU_OU_subset2_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU_OU_subset2 <- which(sapply(OU_OU_subset2_adeq, function(x) is.na(x)[1]))
 adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_OU_subset2)
 OU_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], OU_OU_subset2_adeq)
 
@@ -218,7 +178,7 @@ OU_GRW_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_GRW_subset1_adeq)
 
 OU_URW_subset1_adeq <- vector("list", length(OU_URW_subset1))
 if (length(OU_URW_subset1) > 0) { 
-  OU_GRW_subset1_adeq <- foreach(i = seq_along(OU_URW_subset1), .packages = c("adePEM")) %do% {
+  OU_URW_subset1_adeq <- foreach(i = seq_along(OU_URW_subset1), .packages = c("adePEM")) %do% {
     res <- tryCatch(
       fit3adequacy.OU(OU_URW_subset1[[i]], plot = FALSE),
       error = function(e) NA

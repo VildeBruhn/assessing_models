@@ -25,7 +25,11 @@ library(ggplot2)
 
 #Import metadata and results of the test (only models with single processes, no adequacy)
 load("./model_test_uni.Rdata")
-load("./ln_data_meta.Rdata")
+
+#Import metadata and extract the ones for time series tested
+metadata <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
+ln_data_meta <- metadata[metadata$tsID %in% names(model_test), ] 
+ln_data_meta$tsID = as.character(metadata_model_test$tsID)
 
 # missing_ids <- setdiff(names(model_test), ln_data_meta$tsID)
 # model_test <- model_test[!names(model_test) %in% missing_ids]
@@ -79,7 +83,6 @@ dev.off()
 #-----------------------------------------------------
 # Correlation between best model and number of steps 
 #-----------------------------------------------------
-
 lmm_model_steps <- lmer(steps ~ best_model + (1| popID), data = ln_data_meta)
 summary(lmm_model_steps)
 
@@ -291,3 +294,99 @@ boxplot_shiftmodel_resolution = ggplot(ln_data_meta_shift, aes(x = shift, y = re
 png("./results_paleoTS_v0.6.1/plot/boxplot_shiftmodel.png", width = 6000, height = 1500)
 grid.arrange(boxplot_shiftmodel_steps, boxplot_shiftmodel_time, boxplot_shiftmodel_resolution, nrow = 1)
 dev.off()
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#--------------
+# IMPORT FILES
+#--------------
+
+
+# load data
+load("./ln_data_meta_uni.Rdata")
+load("./ln_data_uni.Rdata")
+
+# load relative fit time series
+load("./aicc_uni_passed.Rdata")
+
+# load adequate time series 
+load("./adeq_uni_passed.Rdata")
+
+
+#--------------
+# PREPARE DATA
+#--------------
+
+
+# get aicc model info into metadata
+ln_data_meta <- model_aicc(ln_data_meta, GRW, "GRW")
+ln_data_meta <- model_aicc(ln_data_meta, URW, "URW")
+ln_data_meta <- model_aicc(ln_data_meta, stasis, "stasis")
+ln_data_meta <- model_aicc(ln_data_meta, strict_stasis, "strict stasis")
+ln_data_meta <- model_aicc(ln_data_meta, decel, "decel")
+ln_data_meta <- model_aicc(ln_data_meta, accel, "accel")
+ln_data_meta <- model_aicc(ln_data_meta, OU, "OU")
+ln_data_meta <- model_aicc(ln_data_meta, OU_mov_opt_anc, "OU mov opt anc")
+ln_data_meta <- model_aicc(ln_data_meta, OU_mov_opt, "OU mov opt")
+
+# get adequate model info into metadata
+ln_data_meta <- model_adeq(ln_data_meta, GRW_adeq_passed, "GRW")
+ln_data_meta <- model_adeq(ln_data_meta, URW_adeq_passed, "URW")
+ln_data_meta <- model_adeq(ln_data_meta, stasis_adeq_passed, "stasis")
+ln_data_meta <- model_adeq(ln_data_meta, strict_stasis_adeq_passed, "strict stasis")
+ln_data_meta <- model_adeq(ln_data_meta, decel_adeq_passed, "decel")
+ln_data_meta <- model_adeq(ln_data_meta, accel_adeq_passed, "accel")
+ln_data_meta <- model_adeq(ln_data_meta, OU_adeq_passed, "OU")
+ln_data_meta <- model_adeq(ln_data_meta, OU_mov_opt_anc_adeq_passed, "OU mov opt anc")
+ln_data_meta <- model_adeq(ln_data_meta, OU_mov_opt_adeq_passed, "OU mov opt")
+
+# bind data to dataframe
+unit_list <- c("popID", "total_N", "steps", "interval_MY", "trait_type", "microfossil",
+               "lat", "lon", "sediment", "model_aicc", "model_adequate", 
+               "environment")
+plot_data <- bind(ln_data_meta, unit_list)
+
+# collapse strict stasis to stasis
+plot_data$model_aicc <- replace(plot_data$model_aicc, plot_data$model_aicc == "strict stasis", "stasis")
+plot_data$model_adequate <- replace(plot_data$model_adequate, plot_data$model_adequate == "strict stasis", "stasis")
+
+# collapse OU mov opt anc to OU mov opt
+plot_data$model_aicc <- replace(plot_data$model_aicc, plot_data$model_aicc == "OU mov opt anc", "OU mov opt")
+plot_data$model_adequate <- replace(plot_data$model_adequate, plot_data$model_adequate == "OU mov opt anc", "OU mov opt")
+
+# remove time series with NA
+plot_data <- plot_data %>% drop_na(model_aicc)
+
+# stasis is the intercept
+plot_data$model_aicc <- factor(plot_data$model_aicc)
+plot_data$model_aicc <- relevel(plot_data$model_aicc, ref = "stasis")
+
+
+#-----------------------------------------------------
+# Correlation between best model and number of steps 
+#-----------------------------------------------------
+lmm_model_steps <- lmer(steps ~ model_aicc + (1| popID), data = plot_data)
+lmm_model_steps <- lm(steps ~ model_aicc, data = plot_data)
+summary(lmm_model_steps)
+
+
+#--------------------------------------------------------
+# Correlation between best model and total time interval 
+#--------------------------------------------------------
+lmm_model_time <- lmer(interval_MY ~ 1+ model_aicc + (1| popID), data = plot_data)
+lmm_model_time <- lm(interval_MY ~ model_aicc, data = plot_data)
+summary(lmm_model_time)
+
+
+#------------------------------------------------
+# Correlation between best model and resolution
+#------------------------------------------------
+plot_data$resolution = plot_data$steps/plot_data$interval_MY
+lmm_model_resolution <- lm(resolution ~ model_aicc, data = plot_data)
+summary(lmm_model_resolution)
+
+
+plot_data$resolution = plot_data$interval_MY/plot_data$steps
+lmm_model_resolution <- lm(resolution ~ model_aicc, data = plot_data)
+summary(lmm_model_resolution)
