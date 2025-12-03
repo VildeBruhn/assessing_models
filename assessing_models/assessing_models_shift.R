@@ -251,6 +251,10 @@ model_noshift_results <- model_noshift_results[names(model_noshift_results) %in%
 ln_data_shift = ln_data_shift[names(ln_data_shift) %in% model_shift_results_TS]
 ln_data_meta_shift = ln_data_meta_shift[names(ln_data_meta_shift) %in% model_shift_results_TS]
 
+# Save the dataset used for the analysis with mode shift
+save(ln_data_shift, file = "ln_data_shift.RData")
+save(ln_data_meta_shift, file = "ln_data_meta_shift.RData")
+
 # Extract AICcs for the models without shift
 aicc_noshift <- lapply(model_noshift_results, function(x) x[(names(x) %in% c("AICc"))]) #USE model_noshift_results_clean if those time series are still problematic
 
@@ -258,7 +262,7 @@ aicc_noshift <- lapply(model_noshift_results, function(x) x[(names(x) %in% c("AI
 aicc_shift_extraction <- lapply(model_shift_results, function(TS) { 
   sapply(TS, function(result) result$AICc)
 })
-modelshift_names <- sapply(model_shift_results_subsample2[1:16], `[[`, "modelName")
+modelshift_names <- sapply(model_shift_results[[1]], function(model) model$modelName)
 aicc_shift_extraction <- lapply(aicc_shift_extraction, function(TS) {
   names(TS) <- modelshift_names
   return(TS)
@@ -297,8 +301,6 @@ for (i in 1:length(aicc_noshift)) {
 aicc_min <- lapply(aicc, function(x) {
   which.min(as.numeric(unlist(x)))
 })
-# Save the data
-save(aicc_min, file = "./results_paleoTS_v0.6.1/AICc_shift_results.RData")
 
 # get percentage
 aicc_unlist <- unlist(aicc_min)
@@ -402,6 +404,16 @@ for (i in 1:length(categories)) {
   assign(paste(category, sep = ""), filtered_data)
 }
 
+# Save the data
+save(GRW, URW, Stasis,
+     Strict_stasis, Decel, Accel, 
+     OU, OU_mov_opt, OU_mov_opt_anc, 
+     Stasis_Stasis, Stasis_URW, Stasis_GRW, Stasis_OU, 
+     URW_URW, URW_GRW, URW_OU,
+     GRW_GRW, GRW_OU, 
+     OU_OU, OU_GRW, OU_URW, OU_Stasis, 
+     GRW_URW, GRW_Stasis, URW_Stasis,
+     file = "./aicc_shift_passed.RData")
                           
 #-----------------------------------------------------------------------
 # Splitting the time series best described by models with a shift models
@@ -902,8 +914,6 @@ adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_O
 
 
 
-
-
 # TEMPORARY FIX - NEED TO RERUN THE OU adequacy WITH NEW DATA TO PERMANENTLY FIX THIS
 OU_adeq <- OU_adeq[names(OU_adeq) %in% names(OU)]
 OU_mov_opt_anc_adeq <- OU_mov_opt_anc_adeq[names(OU_mov_opt_anc_adeq) %in% names(OU_mov_opt_anc)]
@@ -1055,6 +1065,17 @@ GRW_Stasis_list_adequate <- names(GRW_Stasis_adeq_passed)
 GRW_Stasis_adeq_list <- GRW_Stasis[names(GRW_Stasis) %in% GRW_Stasis_list_adequate]
 URW_Stasis_list_adequate <- names(URW_Stasis_adeq_passed)
 URW_Stasis_adeq_list <- URW_Stasis[names(URW_Stasis) %in% URW_Stasis_list_adequate]
+
+# Save the time series which passed adequacy tests
+save(GRW_adeq_passed, URW_adeq_passed, Stasis_adeq_passed,
+     Strict_stasis_adeq_passed, Decel_adeq_passed, Accel_adeq_passed, 
+     OU_adeq_passed, OU_mov_opt_adeq_passed, OU_mov_opt_anc_adeq_passed, 
+     Stasis_Stasis_adeq_passed, Stasis_URW_adeq_passed, Stasis_GRW_adeq_passed, Stasis_OU_adeq_passed, 
+     URW_URW_adeq_passed, URW_GRW_adeq_passed, URW_OU_adeq_passed,
+     GRW_GRW_adeq_passed, GRW_OU_adeq_passed, 
+     OU_OU_adeq_passed, OU_GRW_adeq_passed, OU_URW_adeq_passed, OU_Stasis_adeq_passed, 
+     GRW_URW_adeq_passed, GRW_Stasis_adeq_passed, URW_Stasis_adeq_passed,
+file = "adeq_shift_passed.Rdata")
 
 
 #----------------------------------------------------
@@ -1241,8 +1262,6 @@ paste("Time series not explained by stasis, unbiased random walk, or general ran
 paste("Time series from which absolute fit could not be assessed    ", TS_noneval_adeq)
 sink()
 
-# Save all the results
-save.image(file='./results_paleoTS_v0.6.1/adeq_shift_passed.RData')
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
