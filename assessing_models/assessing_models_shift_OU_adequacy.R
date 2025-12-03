@@ -48,7 +48,7 @@ start_time <- Sys.time()
 #adePEM new models version
 #paleoTS version 0.6.2
 
-load('Results_OUsubsets_shiftmodels.RData')
+load('OU_shift.RData')
 
 
 OU_adeq <- vector("list", length(OU))
@@ -208,4 +208,4 @@ OU_Stasis_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_Stasis_subset1_ade
 
 save(adeq_issues_OU, OU_adeq, OU_mov_opt_anc_adeq, OU_mov_opt_adeq, Stasis_OU_subset2_adeq, 
      URW_OU_subset2_adeq, GRW_OU_subset2_adeq, OU_OU_subset1_adeq, OU_OU_subset2_adeq, 
-     OU_GRW_subset1_adeq, OU_URW_subset1_adeq, OU_Stasis_subset1_adeq, file="Results_OUadeq_shiftmodels.RData")
+     OU_GRW_subset1_adeq, OU_URW_subset1_adeq, OU_Stasis_subset1_adeq, file="OU_shift_adeq.RData")

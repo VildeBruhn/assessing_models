@@ -789,7 +789,7 @@ if (length(URW_Stasis) > 0) {
 # see assessing_models_shift_OU_adequacy.R for the code
 save(OU, OU_mov_opt_anc, OU_mov_opt, Stasis_OU_subset2, URW_OU_subset2, GRW_OU_subset2,
      OU_OU_subset1, OU_OU_subset2, OU_GRW_subset1, OU_URW_subset1, OU_Stasis_subset1,
-     file = "./Results_OUsubsets_shiftmodels.RData")
+     file = "./OU_shift.RData")
 
 #------------------------------------
 # Testing the adequacy of the models
@@ -909,7 +909,7 @@ names(URW_Stasis_subset1_adeq) = tsID_URW_Stasis
 names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 
 # Loading results of the OU adequacy (the OU models are not working in parallel)
-load("./Results_OUadeq_shiftmodels.RData")
+load("./OU_shift_adeq.RData")
 adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_OU)
 
 
