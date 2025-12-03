@@ -117,6 +117,17 @@ model_aicc <- function(data, aicc_results, model){
   })
 }
 
+model_type <- function(data, aicc_results, model){
+  data <- lapply(data, function(x){
+    if (any(names(aicc_results) == x$tsID[1]) == TRUE){
+      x$model_type <- model
+    } else {
+      data <- data
+    }
+    return(x)
+  })
+}
+
 model_adeq <- function(data, adeq_results, model){
   data <- lapply(data, function(x){
     if (any(names(adeq_results) == x$tsID[1]) == TRUE){
