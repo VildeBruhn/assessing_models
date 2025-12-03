@@ -1,0 +1,5 @@
+                   Estimate Std. Error t value Pr(>|t|)
+(Intercept)            1.86       0.18   10.06     0.00
+adequacyinadequate     0.36       0.34    1.06     0.29
+[1] "Total number of time series investigated: 623"
+[1] "Time series with DAICc <= 2:    367     58.908507223114 %"
