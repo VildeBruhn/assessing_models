@@ -269,21 +269,26 @@ dev.off()
 
 
 # put the output of the linear mixed effects models in the same table
-models = rownames(summary(lmm_model_time)$coefficients)
-interval = as.data.frame(summary(lmm_model_time)$coefficients)
-steps = as.data.frame(summary(lmm_model_steps)$coefficients)
-resolution = as.data.frame(summary(lmm_model_resolution)$coefficients)
+# put the output of the linear mixed effects models in the same table
+models <- rownames(summary(lmm_model_time)$coefficients)
+interval <- as.data.frame(summary(lmm_model_time)$coefficients)
+steps <- as.data.frame(summary(lmm_model_steps)$coefficients)
+resolution <- as.data.frame(summary(lmm_model_resolution)$coefficients)
 
 interval_df <- data.frame(term = models, i.Est = interval$Estimate,
                           i.SE = interval$"Std", i.p.value = interval$"Pr")
+interval_df$i.Est[2:nrow(interval_df)] <- interval_df$i.Est[1] + interval_df$i.Est[2:nrow(interval_df)]
 
 steps_df <- data.frame(s.Est = steps$Estimate,
                        s.SE = steps$"Std", s.p.value = steps$"Pr")
+steps_df$s.Est[2:nrow(steps_df)] <- steps_df$s.Est[1] + steps_df$s.Est[2:nrow(steps_df)]
 
 resolution_df <- data.frame(r.Est = resolution$Estimate,
                             r.SE = resolution$"Std", r.p.value = resolution$"Pr")
+resolution_df$r.Est[2:nrow(resolution_df)] <- resolution_df$r.Est[1] + resolution_df$r.Est[2:nrow(resolution_df)]
 
 lmm_result_table <- cbind(interval_df, steps_df, resolution_df)
+lmm_result_table[, -1] <- round(lmm_result_table[, -1], 3)
 
 write.csv(lmm_result_table, file = "./results_paleoTS_v0.6.1/table_lmm_uni.pdf", row.names = FALSE)
 
@@ -449,20 +454,86 @@ grid.arrange(intv_plot,
 dev.off()
 
 # put the output of the linear mixed effects models in the same table
-models2 = rownames(summary(lmm_model_time2)$coefficients)
-interval2 = as.data.frame(summary(lmm_model_time2)$coefficients)
-steps2 = as.data.frame(summary(lmm_model_steps2)$coefficients)
-resolution2 = as.data.frame(summary(lmm_model_resolution2)$coefficients)
+models2 <- rownames(summary(lmm_model_time2)$coefficients)
+interval2 <- as.data.frame(summary(lmm_model_time2)$coefficients)
+steps2 <- as.data.frame(summary(lmm_model_steps2)$coefficients)
+resolution2 <- as.data.frame(summary(lmm_model_resolution2)$coefficients)
 
-interval_df2 <- data.frame(term = models2, i.Est = interval2$Estimate,
-                          i.SE = interval2$"Std", i.p.value = interval2$"Pr")
+interval_df2 <- data.frame(term = models, i.Est = interval$Estimate,
+                          i.SE = interval$"Std", i.p.value = interval$"Pr")
+interval_df2$i.Est[2:nrow(interval_df2)] <- interval_df2$i.Est[1] + interval_df2$i.Est[2:nrow(interval_df2)]
 
-steps_df2 <- data.frame(s.Est = steps2$Estimate,
-                       s.SE = steps2$"Std", s.p.value = steps2$"Pr")
+steps_df2 <- data.frame(s.Est = steps$Estimate,
+                       s.SE = steps$"Std", s.p.value = steps$"Pr")
+steps_df2$s.Est[2:nrow(steps_df2)] <- steps_df2$s.Est[1] + steps_df2$s.Est[2:nrow(steps_df2)]
 
-resolution_df2 <- data.frame(r.Est = resolution2$Estimate,
-                            r.SE = resolution2$"Std", r.p.value = resolution2$"Pr")
+resolution_df2 <- data.frame(r.Est = resolution$Estimate,
+                            r.SE = resolution$"Std", r.p.value = resolution$"Pr")
+resolution_df2$r.Est[2:nrow(resolution_df2)] <- resolution_df2$r.Est[1] + resolution_df2$r.Est[2:nrow(resolution_df2)]
 
 lmm_result_table2 <- cbind(interval_df2, steps_df2, resolution_df2)
+lmm_result_table2[, -1] <- round(lmm_result_table2[, -1], 3)
 
 write.csv(lmm_result_table2, file = "./results_paleoTS_v0.6.1/table_lmm_uni_adeq.pdf", row.names = FALSE)
+
+
+###### DAICc gap ######
+# Extract the AICc results
+aicc <- lapply(model_test, function(x) x[(names(x) %in% c("AICc"))])
+
+# Extract the lowest AICc results for each model
+aicc_min <- lapply(aicc, function(x) {
+  which.min(as.numeric(unlist(x)))
+})
+
+# Calculate DeltaAICc between the best and second best model
+aicc_gap <- list()
+aicc_mingap <- list()
+for (i in 1:length(aicc)) {
+  for (j in 1:nrow(aicc[[1]][])) {
+    if (aicc[[i]][j,] != aicc[[i]][aicc_min[[i]],]) {
+      aicc_gap[[j]] = abs(aicc[[i]][j,] - aicc[[i]][aicc_min[[i]],])
+    } 
+  }
+  aicc_mingap[i] <- min(unlist(aicc_gap))
+  names(aicc_mingap)[i] <- names(aicc_min)[i]
+}
+
+plot_data$deltaAICc <- unlist(aicc_mingap[plot_data$data_frame])
+plot_data$adequacy <- ifelse(is.na(plot_data$model_adequate), "inadequate", "adequate")
+
+adequacy_order <- c("adequate", "inadequate")
+plot_data$adequacy <- factor(plot_data$adequacy, levels = adequacy_order)
+
+# stats
+#How many time series have a deltaAICc inferior or equal to 2
+TS_deltaAICc2_c <- sum(plot_data$deltaAICc <= 2)
+TS_deltaAICc2_p <- TS_deltaAICc2_c/nrow(plot_data)*100
+
+# LMM
+#lmm_model_deltaAICc <- lmer(deltaAICc ~ 1+ adequacy + (1| popID), data = plot_data)
+lmm_model_deltaAICc <- lm(deltaAICc ~ adequacy, data = plot_data)
+summary(lmm_model_deltaAICc)
+
+sink(file = "./results_paleoTS_v0.6.1/deltaAICc_uni_results_adeq.txt")
+round(summary(lmm_model_deltaAICc)$coefficient, 2)
+paste("Total number of time series investigated:", nrow(plot_data))
+paste("Time series with DAICc <= 2:   ", TS_deltaAICc2_c, "   ", TS_deltaAICc2_p, "%")
+sink()
+
+# plot
+pdf("./results_paleoTS_v0.6.1/plot/DAICc_uni_adeq.pdf")
+Daicc_plot = ggplot(plot_data, aes(x = adequacy, y = deltaAICc, fill = adequacy)) +
+  geom_boxplot() +
+  labs(x = "Adequacy status",
+       y = "deltaAICc gap (second best model - first best model)") +
+  theme_classic() +
+  scale_y_continuous(limits = c(0, 20)) +
+  scale_fill_manual(values = c("adequate" = "#ADC397", "inadequate" = "#E5A208")) +
+  theme(
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 10),
+    legend.text = element_text(size = 10))
+Daicc_plot
+dev.off()
+
