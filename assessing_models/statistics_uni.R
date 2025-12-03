@@ -103,11 +103,14 @@ plot_data$parameters <- replace(plot_data$parameters, plot_data$parameters == "O
 # remove time series with NA
 plot_data <- plot_data %>% drop_na(model_aicc)
 #plot_data <- plot_data %>% drop_na(environment)
+<<<<<<< HEAD
 
 # ordering the model according to the number of parameters
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
 plot_data$model_aicc <- factor(plot_data$model_aicc, levels = level_order)
 plot_data$model_aicc <- relevel(plot_data$model_aicc, ref = "stasis")
+=======
+>>>>>>> 15cd3634ef9dd1df70f22064c075a40aa283aa18
 
 # set colors
 col_val1 <- c("#85B7B9", "#DCCB4E")
@@ -129,6 +132,7 @@ col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E
 #  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
 #dev.off()
 
+<<<<<<< HEAD
 ###### environment ######
 #env <- plot_data
 #level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
@@ -143,6 +147,31 @@ col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E
 #                                        axis.title = element_text(size = 12))
 #dev.off()
 
+=======
+# micro vs. macro
+#micro_macro <- plot_data
+#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
+#pdf("./results_paleoTS_v0.6.1/plot/micro_macro_aicc.pdf")
+#ggplot(micro_macro, aes(x = factor(model_aicc, levels = level_order), fill = microfossil)) + geom_bar() +
+#  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+#  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
+#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
+#dev.off()
+
+# environment
+#env <- plot_data
+#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
+#pdf("./results_paleoTS_v0.6.1/plot/environment_aicc.pdf")
+#ggplot(env, aes(x = factor(model_aicc, levels = level_order), fill = environment)) + geom_bar() +
+#  theme_classic() + 
+#  scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
+#  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Fluvial", "Lacustrine", "Marine",
+#                                                                        "Terrestrial"), palette = col_val2) +
+#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
+#                                        legend.title = element_text(size = 12),
+#                                        axis.title = element_text(size = 12))
+#dev.off()
+>>>>>>> 15cd3634ef9dd1df70f22064c075a40aa283aa18
 
 ###### interval MY ######
 intv_my <- plot_data[c("model_aicc", "interval_MY", "parameters")]
@@ -259,7 +288,7 @@ dev.off()
 
 
 # put plots in same figure
-pdf(width = 15.0, height = 5.5, file = "[PATH_TO_RESULTS_FOLDER]/empirical.pdf")
+pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_aicc.pdf")
 grid.arrange(intv_plot,
              steps_plot,
              res_plot, nrow = 1)
@@ -297,11 +326,14 @@ write.csv(lmm_result_table, file = "./results_paleoTS_v0.6.1/table_lmm_uni.pdf",
 plot_data2 <- plot_data 
 plot_data2 <- plot_data2 %>% drop_na(model_adequate)
 
+<<<<<<< HEAD
 # ordering the model according to the number of parameters
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
 plot_data2$model_aicc <- factor(plot_data2$model_aicc, levels = level_order)
 plot_data2$model_aicc <- relevel(plot_data2$model_aicc, ref = "stasis")
 
+=======
+>>>>>>> 15cd3634ef9dd1df70f22064c075a40aa283aa18
 # micro vs. macro
 #micro_macro <- plot_data2[c("model_adequate", "microfossil")]
 #level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")

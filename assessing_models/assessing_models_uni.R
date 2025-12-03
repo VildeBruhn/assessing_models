@@ -223,8 +223,9 @@ load("./aicc_uni_passed.Rdata")
 #--------------------------------
 
 
-# test adequacy (load data used in article below)
+# TEST ADEQUACY
 
+# GRW
 GRW_adeq <- list()
 for(i in 1:length(GRW)){
   try(GRW_adeq[[i]] <- fit3adequacy.trend(GRW[[i]], plot = FALSE))
@@ -236,15 +237,44 @@ names(GRW_adeq) <- names_list
 GRW = GRW[-which(sapply(GRW_adeq, is.null))]
 GRW_adeq = GRW_adeq[-which(sapply(GRW_adeq, is.null))]
 
+# URW
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
 
-stasis_adeq <- mclapply(stasis, fit4adequacy.stasis, plot = FALSE) 
+# stasis
+stasis_adeq <- lapply(stasis, fit4adequacy.stasis, plot = FALSE) 
 
-strict_stasis_adeq <- mclapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
+# strict stasis
+strict_stasis_adeq <- list()
+for (i in 1:length(strict_stasis)){
+  try(strict_stasis_adeq[[i]] <- fit4adequacy.stasis(strict_stasis[[i]], plot = FALSE))
+}
+# add time series IDs
+names_list <- names(strict_stasis)
+names(strict_stasis_adeq) <- names_list
+# remove time series that cannot be processed by the loglikelihood function
+strict_stasis = strict_stasis[-which(sapply(strict_stasis_adeq, is.null))]
+strict_stasis_adeq = strict_stasis_adeq[-which(sapply(strict_stasis_adeq, is.null))]
 
+# decelerated
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
 
-accel_adeq <- mclapply(accel, fit3adequacy.RW, plot = FALSE)
+# accelerated
+
+# reverse accelerated to become decelerated
+accel_decel <- accel
+
+accel_decel <- lapply(accel_decel, function(x) {
+  x$mm <- rev(x$mm)
+  x$vv <- rev(x$vv)
+  x$nn <- rev(x$nn)
+  x$tt <- rev(x$tt)
+  for (i in 1:length(x$tt)){
+    x$tt[i] <- 1 - x$tt[i]
+  }
+  return(x)
+})
+
+accel_adeq <- mclapply(accel_decel, fit3adequacy.decel, plot = FALSE)
 
 # example of how to test adequacy for OU models (this will take time, 
 # load tests used in article below)
@@ -269,13 +299,6 @@ save(file = "OU_uni_adeq.Rdata", OU_adeq)
 
 ## same approach for OU_mov_opt and OU_mov_opt_anc
 
-## load OU tests and data used in article
-load("OU_uni_adeq.Rdata")
-load("OU_mov_opt_uni_adeq.Rdata")
-load("OU_mov_opt_anc_uni_adeq.Rdata")
-load("OU_uni.Rdata")
-load("OU_mov_opt_uni.Rdata")
-load("OU_mov_opt_anc_uni.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -290,12 +313,15 @@ OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
 # save data
 #save(GRW_adeq_passed, URW_adeq_passed, stasis_adeq_passed,
-#strict_stasis_adeq_passed, decel_adeq_passed,
-#accel_adeq_passed, OU_adeq_passed, OU_mov_opt_adeq_passed, OU_mov_opt_anc_adeq_passed, 
+#strict_stasis_adeq_passed, decel_adeq_passed, accel_adeq_passed, 
+#OU_adeq_passed, OU_mov_opt_adeq_passed, OU_mov_opt_anc_adeq_passed, 
 #file = "adeq_uni_passed.Rdata")
 
 ## load all adequacy data used in article
 load("./adeq_uni_passed.Rdata")
+load("./OU_uni.Rdata")
+load("./OU_mov_opt_uni.Rdata")
+load("./OU_mov_opt_anc_uni.Rdata") ### GONE! ###
 
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
