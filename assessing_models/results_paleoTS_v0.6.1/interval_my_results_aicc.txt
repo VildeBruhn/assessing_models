@@ -1,16 +1,16 @@
        model mean interval (MY)
 1     stasis           3.052108
-2      accel           3.910460
-3      decel           3.213833
-4        GRW           4.236892
-5         OU           3.483957
-6 OU mov opt           3.327494
-7        URW           3.192785
+2        URW           3.192785
+3        GRW           4.236892
+4      accel           3.910460
+5      decel           3.213833
+6         OU           3.483957
+7 OU mov opt           3.327494
        model median interval (MY)
 1     stasis             2.150000
-2      accel             1.055307
-3      decel             1.830000
-4        GRW             2.189500
-5         OU             1.634846
-6 OU mov opt             2.670750
-7        URW             2.288000
+2        URW             2.288000
+3        GRW             2.189500
+4      accel             1.055307
+5      decel             1.830000
+6         OU             1.634846
+7 OU mov opt             2.670750

@@ -20,6 +20,8 @@ library(ggplot2)
 library(lme4)
 library(lmerTest)
 library(dplyr)
+library(scales)
+library(deeptime)
 
 rm(list = ls())
 
@@ -268,7 +270,6 @@ dev.off()
 
 
 
-# put the output of the linear mixed effects models in the same table
 # put the output of the linear mixed effects models in the same table
 models <- rownames(summary(lmm_model_time)$coefficients)
 interval <- as.data.frame(summary(lmm_model_time)$coefficients)
@@ -537,3 +538,157 @@ Daicc_plot = ggplot(plot_data, aes(x = adequacy, y = deltaAICc, fill = adequacy)
 Daicc_plot
 dev.off()
 
+
+
+#---------------------------------
+# PLOT STATISTICS ON THE DATASET
+#---------------------------------
+
+# bind data to dataframe
+unit_list <- c("popID", "taxa", "period_start", "steps", "interval_MY")
+plot_dataset <- bind(ln_data_meta, unit_list)
+plot_dataset$resolution <- plot_dataset$steps/plot_dataset$interval_MY
+
+###### Taxa plot ###### 
+plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "foram", "foraminifera")
+plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "foraminifer", "foraminifera")
+plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "chondrichthyan", "fish")
+
+taxa_levels <- c(
+  "foraminifera", "coccolith", "radiolarian", "diatom",
+  "bryozoan", "bivalve", "gastropod", "cephalopod", "ostracod", "brachiopod", "trilobite", "echinoderm", "graptolite",
+  "mammal", "bird", "conodont", "fish"
+)
+
+taxa_cols <- c(
+# Protists
+  foraminifera = "#598B8C",
+  coccolith    = "#719EA0",
+  radiolarian  = "#99C0C2",
+  diatom       = "#BFE0E1",
+# Invertebrates
+  bryozoan    = "#968F2C",
+  bivalve     = "#A89F33",
+  gastropod   = "#B7AF3B",
+  cephalopod  = "#C6BF43",
+  ostracod    = "#DCCB4E",
+  brachiopod  = "#E3D460",
+  trilobite   = "#EADC72",
+  echinoderm  = "#F1E583",
+  graptolite  = "#F8EC95",
+# Vertebrates
+  mammal    = "#B84400",
+  bird     = "#DB6000",
+  conodont = "#F07C26",
+  fish      = "#FF983D"
+)
+
+plot_dataset %>%
+  filter(!is.na(taxa)) %>%
+  count(taxa, name = "n") %>%
+  mutate(
+    fraction = n / sum(n),
+    pct = percent(fraction),
+    ypos = cumsum(fraction) - fraction/2
+  ) -> df_taxa
+
+df_taxa <- df_taxa %>%
+  mutate(taxa = factor(taxa, levels = taxa_levels))   # taxa_levels is your desired order
+used_levels <- levels(df_taxa$taxa)                   # now returns the factor levels
+used_cols   <- taxa_cols[used_levels]
+
+taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
+  geom_col(width = 1, color = "black") +
+  coord_polar(theta = "y") +
+  geom_text(aes(x = 1.7, y = ypos, label = pct), color = "black", size = 4) +
+  scale_fill_manual(values = used_cols, na.value = "grey80") +
+  theme_void() +
+  labs(title = "Taxa", fill = "taxa")
+
+###### Age plot ###### 
+period_levels <- c(
+  "Cambrian", "Ordovician", "Silurian", "Devonian",
+  "Carboniferous", "Permian", "Triassic", "Jurassic", "Cretaceous",
+  "Paleogene", "Neogene", "Quaternary"
+)
+
+period_cols <- c(
+  "Cambrian"      = rgb(127, 160, 86, maxColorValue = 255),
+  "Ordovician"    = rgb(0, 146, 112, maxColorValue = 255),
+  "Silurian"      = rgb(179, 225, 182, maxColorValue = 255),
+  "Devonian"      = rgb(203, 140, 55, maxColorValue = 255),
+  "Carboniferous" = rgb(103, 165, 153, maxColorValue = 255),
+  "Permian"       = rgb(240, 64, 40, maxColorValue = 255),
+  "Triassic"      = rgb(129, 43, 146, maxColorValue = 255),
+  "Jurassic"      = rgb(52, 178, 201, maxColorValue = 255),
+  "Cretaceous"    = rgb(127, 198, 78, maxColorValue = 255),
+  "Paleogene"     = rgb(253, 154, 82, maxColorValue = 255),
+  "Neogene"       = rgb(255, 230, 25, maxColorValue = 255),
+  "Quaternary"    = rgb(249, 249, 127, maxColorValue = 255)
+)
+
+plot_dataset %>%
+  filter(!is.na(period_start)) %>%
+  mutate(period_start = factor(period_start, levels = period_levels)) %>%
+  count(period_start, name = "n") %>%
+  filter(!is.na(period_start)) %>%
+  mutate(
+    fraction = n / sum(n),
+    pct = percent(fraction),
+    ypos = cumsum(fraction) - fraction / 2
+  ) -> df_periods
+
+used_levels <- levels(df_periods$period_start)
+used_cols <- period_cols[used_levels]
+
+age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_start)) +
+  geom_col(width = 1, color = "black") +
+  coord_polar(theta = "y") +
+  geom_text(aes(x = 1.7, y = ypos, label = pct), color = "black", size = 4) +
+  scale_fill_manual(values = used_cols, na.value = "grey80") +
+  theme_void() +
+  labs(title = "Geological period", fill = "Period")
+
+###### interval plot ######
+intv_dataset_plot <- ggplot(plot_dataset, aes(x = interval_MY)) +
+  geom_histogram(bins = 20, color = "white", fill = "steelblue") +
+  scale_x_log10() +
+  labs(title = "Histogram of interval (log10 scale)",
+       x = "interval My (log10)",
+       y = "count") +
+  theme_minimal()
+
+###### steps plot ######
+steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
+  geom_histogram(bins = 20, color = "white", fill = "steelblue") +
+  scale_x_log10() +
+  labs(title = "Histogram of steps (log10 scale)",
+       x = "steps",
+       y = "count") +
+  theme_minimal()
+
+###### resolution plot ######
+res_dataset_plot <- ggplot(plot_dataset, aes(x = resolution)) +
+  geom_histogram(bins = 20, color = "white", fill = "steelblue") +
+  scale_x_log10() +
+  labs(title = "Histogram of resolution (log10 scale)",
+       x = "resolution (log10)",
+       y = "count") +
+  theme_minimal()
+
+# save the dataset figure
+plot_dataset_final = list(taxa_dataset_plot, age_dataset_plot, intv_dataset_plot, steps_dataset_plot, res_dataset_plot)
+ 
+plot_dataset_display = grid.arrange(
+grobs = plot_dataset_final,
+widths = c(1, 5, 5, 5, 5, 5, 5, 1),
+heights = c(1, 10, 1, 5, 1),
+layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
+                      c(NA, 1, 1, 1, 2, 2, 2, NA),
+                      c(NA, NA, NA, NA, NA, NA, NA, NA),
+                      c(NA, 3, 3, 4, 4, 5, 5, NA),
+                      c(NA, NA, NA, NA, NA, NA, NA, NA))
+)
+
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni.pdf", plot_dataset_display,
+       width = 11, height = 8.5, units = "in", dpi = 300)
