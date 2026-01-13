@@ -598,12 +598,16 @@ used_levels <- levels(df_taxa$taxa)                   # now returns the factor l
 used_cols   <- taxa_cols[used_levels]
 
 taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
-  geom_col(width = 1, color = "black") +
-  coord_polar(theta = "y") +
+  geom_col(width = 1, color = "black", linewidth = 0.2) +
+  coord_polar(theta = "y", direction = -1) +
   geom_text(aes(x = 1.7, y = ypos, label = pct), color = "black", size = 4) +
   scale_fill_manual(values = used_cols, na.value = "grey80") +
   theme_void() +
-  labs(title = "Taxa", fill = "taxa")
+  theme(
+      legend.key.spacing.y = unit(0.1, "cm"),
+  ) +
+  labs(title = "Taxa", fill = "taxa") +
+  guides(fill=guide_legend(ncol=2, byrow=FALSE))
 
 ###### Age plot ###### 
 period_levels <- c(
@@ -642,39 +646,38 @@ used_levels <- levels(df_periods$period_start)
 used_cols <- period_cols[used_levels]
 
 age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_start)) +
-  geom_col(width = 1, color = "black") +
-  coord_polar(theta = "y") +
+  geom_col(width = 1, color = "black", linewidth = 0.2) +
+  coord_polar(theta = "y", direction = -1) +
   geom_text(aes(x = 1.7, y = ypos, label = pct), color = "black", size = 4) +
   scale_fill_manual(values = used_cols, na.value = "grey80") +
   theme_void() +
+  theme(
+    legend.key.spacing.y = unit(0.1, "cm"),
+  ) +
   labs(title = "Geological period", fill = "Period")
 
 ###### interval plot ######
 intv_dataset_plot <- ggplot(plot_dataset, aes(x = interval_MY)) +
-  geom_histogram(bins = 20, color = "white", fill = "steelblue") +
-  scale_x_log10() +
-  labs(title = "Histogram of interval (log10 scale)",
-       x = "interval My (log10)",
-       y = "count") +
-  theme_minimal()
+  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  labs(x = "Interval (My)",
+       y = "Time series count") +
+  theme_classic()
 
 ###### steps plot ######
 steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
-  geom_histogram(bins = 20, color = "white", fill = "steelblue") +
+  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
   scale_x_log10() +
-  labs(title = "Histogram of steps (log10 scale)",
-       x = "steps",
-       y = "count") +
-  theme_minimal()
+  labs(x = "Steps",
+       y = "Time series count") +
+  theme_classic()
 
 ###### resolution plot ######
 res_dataset_plot <- ggplot(plot_dataset, aes(x = resolution)) +
-  geom_histogram(bins = 20, color = "white", fill = "steelblue") +
+  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
   scale_x_log10() +
-  labs(title = "Histogram of resolution (log10 scale)",
-       x = "resolution (log10)",
-       y = "count") +
-  theme_minimal()
+  labs(x = "Resolution",
+       y = "Time series count") +
+  theme_classic()
 
 # save the dataset figure
 plot_dataset_final = list(taxa_dataset_plot, age_dataset_plot, intv_dataset_plot, steps_dataset_plot, res_dataset_plot)
@@ -682,7 +685,7 @@ plot_dataset_final = list(taxa_dataset_plot, age_dataset_plot, intv_dataset_plot
 plot_dataset_display = grid.arrange(
 grobs = plot_dataset_final,
 widths = c(1, 5, 5, 5, 5, 5, 5, 1),
-heights = c(1, 10, 1, 5, 1),
+heights = c(1, 10, 1, 8, 1),
 layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
                       c(NA, 1, 1, 1, 2, 2, 2, NA),
                       c(NA, NA, NA, NA, NA, NA, NA, NA),
@@ -690,5 +693,5 @@ layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
                       c(NA, NA, NA, NA, NA, NA, NA, NA))
 )
 
-ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni.pdf", plot_dataset_display,
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v2.pdf", plot_dataset_display,
        width = 11, height = 8.5, units = "in", dpi = 300)
