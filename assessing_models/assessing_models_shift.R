@@ -99,7 +99,7 @@ ln_data_shift <- lapply(ln_data_shift, function(x) {
 # for paleoTS v0.6.2
 
 ###### MODEL FIT WAS RUN ON THE HPC IN TWO SUBSETS #######
-# Create two subsets ()to make analysis faster
+# Create two subsets to make analysis faster
 ln_data_shift_subset1 = ln_data_shift[0:(length(ln_data_shift)/2)] 
 ln_data_shift_subset2 = ln_data_shift[(length(ln_data_shift)/2 + 1):length(ln_data_shift)]
 
@@ -225,11 +225,13 @@ model_shift_results_subset2 <- foreach(i = seq_along(ln_data_shift_subset2),
 save(model_noshift_results_subset2, model_shift_results_subset2, file = "model_test_shift_subset2.RData")
 save(ln_data_shift_subset2, file = "ln_data_shift_subset2.RData")
 
-# Loading results from the HPC
+# Loading datasets and results from the HPC
+load("ln_data_shift_subset1.RData") 
+load("ln_data_shift_subset2.RData")
 load("model_test_shift_subset1.RData") 
 load("model_test_shift_subset2.RData") 
 
-# Merging the subsets
+# Merging the result subsets
 model_noshift_results = c(model_noshift_results_subset1, model_noshift_results_subset2)
 model_shift_results = c(model_shift_results_subset1, model_shift_results_subset2)
 
@@ -911,30 +913,6 @@ names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 # Loading results of the OU adequacy (the OU models are not working in parallel)
 load("./OU_shift_adeq.RData")
 adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_OU)
-
-
-
-# TEMPORARY FIX - NEED TO RERUN THE OU adequacy WITH NEW DATA TO PERMANENTLY FIX THIS
-OU_adeq <- OU_adeq[names(OU_adeq) %in% names(OU)]
-OU_mov_opt_anc_adeq <- OU_mov_opt_anc_adeq[names(OU_mov_opt_anc_adeq) %in% names(OU_mov_opt_anc)]
-OU_mov_opt_adeq <- OU_mov_opt_adeq[names(OU_mov_opt_adeq) %in% names(OU_mov_opt)]
-
-sum(length(GRW_adeq), length(URW_adeq), length(stasis_adeq), length(strict_stasis_adeq), length(decel_adeq), length(accel_adeq), length(OU_adeq), 
-    length(OU_mov_opt_anc_adeq), length(OU_mov_opt_adeq), length(Stasis_Stasis_subset1_adeq), length(Stasis_URW_subset1_adeq), length(Stasis_GRW_subset1_adeq), 
-    length(Stasis_OU_subset1_adeq), length(URW_URW_subset1_adeq), length(URW_GRW_subset1_adeq), length(URW_OU_subset1_adeq), length(GRW_GRW_subset1_adeq), length(GRW_OU_subset1_adeq), 
-    length(OU_OU_subset1_adeq), length(OU_GRW_subset1_adeq), length(OU_URW_subset1_adeq), length(OU_Stasis_subset1_adeq), length(GRW_URW_subset1_adeq), length(GRW_Stasis_subset1_adeq), 
-    length(URW_Stasis_subset1_adeq))
-
-sum(length(GRW), length(URW), length(Stasis), length(Strict_stasis), length(Decel), length(Accel), length(OU), 
-    length(OU_mov_opt_anc), length(OU_mov_opt), length(Stasis_Stasis_subset1), length(Stasis_URW_subset1), length(Stasis_GRW_subset1), 
-    length(Stasis_OU_subset1), length(URW_URW_subset1), length(URW_GRW_subset1), length(URW_OU_subset1), length(GRW_GRW_subset1), length(GRW_OU_subset1), 
-    length(OU_OU_subset1), length(OU_GRW_subset1), length(OU_URW_subset1), length(OU_Stasis_subset1), length(GRW_URW_subset1), length(GRW_Stasis_subset1), 
-    length(URW_Stasis_subset1))
-
-
-
-
-
 
 # get adequacy results for only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
