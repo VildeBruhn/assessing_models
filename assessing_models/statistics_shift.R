@@ -20,11 +20,12 @@ library(ggplot2)
 library(lme4)
 library(lmerTest)
 library(dplyr)
+library(scales)
 
 rm(list = ls())
 
 # set working directory
-setwd("/Users/vildebruhnkinneberg/Documents/GitHub/assessing_models_evolution/assessing_models/")
+setwd("C:/Users/marionth/OneDrive - Universitetet i Oslo/Skrivebord/PhD/Github/assessing_models_evolution/assessing_models")
 source("./assessing_models_uni_functions.R")
 
 
@@ -152,20 +153,16 @@ plot_data$model_type <- relevel(plot_data$model_type, ref = "no shift")
 intv_my <- plot_data[c("model_type", "interval_MY")]
 
 # LMM
-#lmm_model_time <- lmer(interval_MY ~ 1+ model_type + (1| popID), data = plot_data)
-lmm_model_time <- lm(interval_MY ~ model_type, data = plot_data)
+lmm_model_time <- lmer(interval_MY ~ model_type + (1| popID), data = plot_data)
+#lmm_model_time <- lm(interval_MY ~ model_type, data = plot_data)
 summary(lmm_model_time)
 
 # plot
-pdf("./results_paleoTS_v0.6.1/plot/interval_my_uni_aicc.pdf")
-intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_aicc, levels = level_order),
-                                 fill = parameters)) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "GRW", "Accel.", "Decel.", 
-                                                                 "OU", "OU mov. opt.")) + 
-  scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
-  xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 10),
+pdf("./results_paleoTS_v0.6.1/plot/interval_my_shift_aicc.pdf")
+intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order),
+                                 )) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
                                                 axis.title = element_text(size = 13),
                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 intv_plot
@@ -175,52 +172,45 @@ dev.off()
 steps <- plot_data[c("model_type", "steps")]
 
 # LMM
-#lmm_model_steps <- lmer(steps ~ model_aicc + (1| popID), data = plot_data)
-lmm_model_steps <- lm(steps ~ model_type, data = plot_data)
+lmm_model_steps <- lmer(steps ~ model_type + (1| popID), data = plot_data)
+#lmm_model_steps <- lm(steps ~ model_type, data = plot_data)
 summary(lmm_model_steps)
 
 # plot
-pdf("./results_paleoTS_v0.6.1/plot/steps_uni_aicc.pdf")
-steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_aicc, levels = level_order), fill = parameters)) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "GRW", "Accel.", "Decel.", 
-                                                                 "OU", "OU mov. opt.")) +
-  scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
-  xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                            axis.title = element_text(size = 13),
-                                            axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+pdf("./results_paleoTS_v0.6.1/plot/steps_shift_aicc.pdf")
+steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order),
+)) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  xlab("ln(Steps)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+                                                     axis.title = element_text(size = 13),
+                                                     axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
 
 ###### resolution ######
-res <- plot_data[c("model_aicc", "steps", "interval_MY")]
+res <- plot_data[c("model_type", "steps", "interval_MY")]
 res$resolution <- res$steps/res$interval_MY
 
 # LMM
 plot_data$resolution = plot_data$steps/plot_data$interval_MY
-#lmm_model_resolution <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = plot_data)
-lmm_model_resolution <- lm(resolution ~ model_type, data = plot_data)
+lmm_model_resolution <- lmer(resolution ~ model_type + (1| popID), data = plot_data)
+#lmm_model_resolution <- lm(resolution ~ model_type, data = plot_data)
 summary(lmm_model_resolution)
 
 # plot
-pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_aicc.pdf")
-res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_aicc, levels = level_order), fill = parameters)) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "GRW", "Accel.", "Decel.", 
-                                                                 "OU", "OU mov. opt.")) +
-  scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
-  xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
+pdf("./results_paleoTS_v0.6.1/plot/resolution_shift_aicc.pdf")
+res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order),
+)) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  xlab("ln(Resolution)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
                                                  axis.title = element_text(size = 13),
                                                  axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 res_plot
 dev.off()
 
 
-
 # put plots in same figure
-pdf(width = 15.0, height = 5.5, file = "[PATH_TO_RESULTS_FOLDER]/empirical.pdf")
+pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_shift_aicc.pdf")
 grid.arrange(intv_plot,
              steps_plot,
              res_plot, nrow = 1)
@@ -249,7 +239,7 @@ resolution_df$r.Est[2:nrow(resolution_df)] <- resolution_df$r.Est[1] + resolutio
 lmm_result_table <- cbind(interval_df, steps_df, resolution_df)
 lmm_result_table[, -1] <- round(lmm_result_table[, -1], 3)
 
-write.csv(lmm_result_table, file = "./results_paleoTS_v0.6.1/table_lmm_shift.pdf", row.names = FALSE)
+write.csv(lmm_result_table, file = "./results_paleoTS_v0.6.1/table_lmm_shift.csv", row.names = FALSE)
 
 
 
@@ -269,54 +259,45 @@ plot_data$model_type <- relevel(plot_data$model_type, ref = "no shift")
 
 
 ###### interval MY ######
-intv_my <- plot_data2[c("model_adequate", "interval_MY", "parameters")]
+intv_my <- plot_data2[c("model_type", "interval_MY")]
 
 # LMM
-#lmm_model_time2 <- lmer(interval_MY ~ 1+ model_type + (1| popID), data = plot_data2)
-lmm_model_time2 <- lm(interval_MY ~ model_type, data = plot_data2)
+lmm_model_time2 <- lmer(interval_MY ~ model_type + (1| popID), data = plot_data2)
+#lmm_model_time2 <- lm(interval_MY ~ model_type, data = plot_data2)
 summary(lmm_model_time2)
 
 # plot
-level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/interval_my_uni_adeq.pdf")
-intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_adequate, levels = level_order),
-                                 fill = parameters)) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "Accel.", "Decel.", 
-                                                                 "OU", "OU mov. opt.")) + 
-  scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
-  xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                                axis.title = element_text(size = 13),
-                                                axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+pdf("./results_paleoTS_v0.6.1/plot/interval_my_shift_adeq.pdf")
+intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order),
+)) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+                                                     axis.title = element_text(size = 13),
+                                                     axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 intv_plot
 dev.off()
 
 ###### steps ######
-steps <- plot_data2[c("model_adequate", "steps", "parameters")]
+steps <- plot_data2[c("model_type", "steps")]
 
 # LMM
-#lmm_model_steps2 <- lmer(steps ~ model_type + (1| popID), data = plot_data2)
-lmm_model_steps2 <- lm(steps ~ model_type, data = plot_data2)
+lmm_model_steps2 <- lmer(steps ~ model_type + (1| popID), data = plot_data2)
+#lmm_model_steps2 <- lm(steps ~ model_type, data = plot_data2)
 summary(lmm_model_steps2)
 
 # plot
-level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/steps_uni_adeq.pdf")
-steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_adequate, levels = level_order), fill = parameters)) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "Accel.", "Decel.", 
-                                                                 "OU", "OU mov. opt.")) +
-  scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
-  xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                            axis.title = element_text(size = 13),
-                                            axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+pdf("./results_paleoTS_v0.6.1/plot/steps_shift_adeq.pdf")
+steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order),
+)) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  xlab("ln(Steps)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+                                                 axis.title = element_text(size = 13),
+                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
 
 ###### resolution ######
-res <- plot_data2[c("model_adequate", "steps", "interval_MY", "parameters")]
+res <- plot_data2[c("model_type", "steps", "interval_MY")]
 res$resolution <- res$steps/res$interval_MY
 
 # LMM
@@ -326,24 +307,20 @@ lmm_model_resolution2 <- lm(resolution ~ model_type, data = plot_data2)
 summary(lmm_model_resolution2)
 
 # plot
-level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_adeq.pdf")
-res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_adequate, levels = level_order), fill = parameters)) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
-                                                                 "Accel.", "Decel.", 
-                                                                 "OU", "OU mov. opt.")) +
-  scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
-  xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                                 axis.title = element_text(size = 13),
-                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+pdf("./results_paleoTS_v0.6.1/plot/resolution_shift_adeq.pdf")
+res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order),
+)) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  xlab("ln(Resolution)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+                                                      axis.title = element_text(size = 13),
+                                                      axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 res_plot
 dev.off()
 
 
 
 # put plots in same figure
-pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_adeq.pdf")
+pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_shift_adeq.pdf")
 grid.arrange(intv_plot,
              steps_plot,
              res_plot, nrow = 1)
@@ -365,7 +342,165 @@ resolution_df2 <- data.frame(r.Est = resolution2$Estimate,
                              r.SE = resolution2$"Std", r.p.value = resolution2$"Pr")
 
 lmm_result_table2 <- cbind(interval_df2, steps_df2, resolution_df2)
+lmm_result_table2[, -1] <- round(lmm_result_table2[, -1], 3)
 
-write.csv(lmm_result_table2, file = "./results_paleoTS_v0.6.1/table_lmm_shift_adeq.pdf", row.names = FALSE)
+write.csv(lmm_result_table2, file = "./results_paleoTS_v0.6.1/table_lmm_shift_adeq.csv", row.names = FALSE)
 
+
+
+#---------------------------------
+# PLOT STATISTICS ON THE DATASET
+#---------------------------------
+
+# bind data to dataframe
+unit_list <- c("popID", "taxa", "period_start", "steps", "interval_MY")
+plot_dataset <- bind(ln_data_meta_shift, unit_list)
+plot_dataset$resolution <- plot_dataset$steps/plot_dataset$interval_MY
+
+###### Taxa plot ###### 
+plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "chondrichthyan", "fish")
+
+taxa_levels <- c(
+  "foraminifer", "coccolith", "radiolarian", "diatom",
+  "bryozoan", "bivalve", "gastropod", "ostracod", "brachiopod", "trilobite", "echinoderm", "graptolite",
+  "mammal", "conodont", "fish"
+)
+
+taxa_cols <- c(
+  # Protists
+  foraminifer = "#598B8C",
+  coccolith    = "#719EA0",
+  radiolarian  = "#99C0C2",
+  diatom       = "#BFE0E1",
+  # Invertebrates
+  bryozoan    = "#968F2C",
+  bivalve     = "#A89F33",
+  gastropod   = "#B7AF3B",
+  ostracod    = "#DCCB4E",
+  brachiopod  = "#E3D460",
+  trilobite   = "#EADC72",
+  echinoderm  = "#F1E583",
+  graptolite  = "#F8EC95",
+  # Vertebrates
+  mammal    = "#B84400",
+  conodont = "#F07C26",
+  fish      = "#FF983D"
+)
+
+plot_dataset %>%
+  filter(!is.na(taxa)) %>%
+  count(taxa, name = "n") %>%
+  mutate(
+    fraction = n / sum(n),
+    pct = percent(fraction),
+    ypos = cumsum(fraction) - fraction/2
+  ) -> df_taxa
+
+df_ ###########ROUND TO 2 NUMBERS 
+
+df_taxa <- df_taxa %>%
+  mutate(taxa = factor(taxa, levels = taxa_levels))  
+used_levels <- levels(df_taxa$taxa)                   
+used_cols   <- taxa_cols[used_levels]
+
+percentages <- setNames(df_taxa$pct, df_taxa$taxa)
+legend_labels <- paste0(used_levels, " (", percentages[used_levels], ")")
+
+taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
+  geom_col(width = 1, color = "black", linewidth = 0.2) +
+  coord_polar(theta = "y", direction = -1) +
+  scale_fill_manual(values = used_cols, labels = legend_labels) +
+  theme_void() +
+  theme(
+    legend.key.spacing.y = unit(0.1, "cm"),
+  ) +
+  labs(title = "Taxa", fill = "taxa") +
+  guides(fill=guide_legend(ncol=2, byrow=FALSE))
+
+###### Age plot ###### 
+period_levels <- c(
+  "Cambrian", "Ordovician", "Silurian", "Devonian",
+  "Carboniferous", "Jurassic", "Cretaceous",
+  "Paleogene", "Neogene", "Quaternary"
+)
+
+period_cols <- c(
+  "Cambrian"      = rgb(127, 160, 86, maxColorValue = 255),
+  "Ordovician"    = rgb(0, 146, 112, maxColorValue = 255),
+  "Silurian"      = rgb(179, 225, 182, maxColorValue = 255),
+  "Devonian"      = rgb(203, 140, 55, maxColorValue = 255),
+  "Carboniferous" = rgb(103, 165, 153, maxColorValue = 255),
+  "Jurassic"      = rgb(52, 178, 201, maxColorValue = 255),
+  "Cretaceous"    = rgb(127, 198, 78, maxColorValue = 255),
+  "Paleogene"     = rgb(253, 154, 82, maxColorValue = 255),
+  "Neogene"       = rgb(255, 230, 25, maxColorValue = 255),
+  "Quaternary"    = rgb(249, 249, 127, maxColorValue = 255)
+)
+
+plot_dataset %>%
+  filter(!is.na(period_start)) %>%
+  mutate(period_start = factor(period_start, levels = period_levels)) %>%
+  count(period_start, name = "n") %>%
+  filter(!is.na(period_start)) %>%
+  mutate(
+    fraction = n / sum(n),
+    pct = percent(fraction),
+    ypos = cumsum(fraction) - fraction / 2
+  ) -> df_periods
+
+used_levels <- levels(df_periods$period_start)
+used_cols <- period_cols[used_levels]
+
+percentages <- setNames(df_periods$pct, df_periods$period_start)
+legend_labels <- paste0(used_levels, " (", percentages[used_levels], ")")
+
+age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_start)) +
+  geom_col(width = 1, color = "black", linewidth = 0.2) +
+  coord_polar(theta = "y", direction = -1) +
+  scale_fill_manual(values = used_cols, labels = legend_labels) +
+  theme_void() +
+  theme(
+    legend.key.spacing.y = unit(0.1, "cm"),
+  ) +
+  labs(title = "Geological period", fill = "Period")
+
+###### interval plot ######
+intv_dataset_plot <- ggplot(plot_dataset, aes(x = interval_MY)) +
+  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  labs(x = "Interval (My)",
+       y = "Time series count") +
+  theme_classic()
+
+###### steps plot ######
+steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
+  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  scale_x_log10() +
+  labs(x = "Steps",
+       y = "Time series count") +
+  theme_classic()
+
+###### resolution plot ######
+res_dataset_plot <- ggplot(plot_dataset, aes(x = resolution)) +
+  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  scale_x_log10() +
+  labs(x = "Resolution",
+       y = "Time series count") +
+  theme_classic()
+
+# save the dataset figure
+plot_dataset_final = list(taxa_dataset_plot, age_dataset_plot, intv_dataset_plot, steps_dataset_plot, res_dataset_plot)
+
+plot_dataset_display = grid.arrange(
+  grobs = plot_dataset_final,
+  widths = c(1, 5, 5, 5, 5, 5, 5, 1),
+  heights = c(1, 10, 1, 8, 1),
+  layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
+                        c(NA, 1, 1, 1, 2, 2, 2, NA),
+                        c(NA, NA, NA, NA, NA, NA, NA, NA),
+                        c(NA, 3, 3, 4, 4, 5, 5, NA),
+                        c(NA, NA, NA, NA, NA, NA, NA, NA))
+)
+
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_shift_v1.pdf", plot_dataset_display,
+       width = 11, height = 8.5, units = "in", dpi = 300)
 

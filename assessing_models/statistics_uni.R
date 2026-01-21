@@ -291,7 +291,7 @@ resolution_df$r.Est[2:nrow(resolution_df)] <- resolution_df$r.Est[1] + resolutio
 lmm_result_table <- cbind(interval_df, steps_df, resolution_df)
 lmm_result_table[, -1] <- round(lmm_result_table[, -1], 3)
 
-write.csv(lmm_result_table, file = "./results_paleoTS_v0.6.1/table_lmm_uni.pdf", row.names = FALSE)
+write.csv(lmm_result_table, file = "./results_paleoTS_v0.6.1/table_lmm_uni.csv", row.names = FALSE)
 
 
 
@@ -475,7 +475,7 @@ resolution_df2$r.Est[2:nrow(resolution_df2)] <- resolution_df2$r.Est[1] + resolu
 lmm_result_table2 <- cbind(interval_df2, steps_df2, resolution_df2)
 lmm_result_table2[, -1] <- round(lmm_result_table2[, -1], 3)
 
-write.csv(lmm_result_table2, file = "./results_paleoTS_v0.6.1/table_lmm_uni_adeq.pdf", row.names = FALSE)
+write.csv(lmm_result_table2, file = "./results_paleoTS_v0.6.1/table_lmm_uni_adeq.csv", row.names = FALSE)
 
 
 ###### DAICc gap ######
@@ -549,20 +549,18 @@ unit_list <- c("popID", "taxa", "period_start", "steps", "interval_MY")
 plot_dataset <- bind(ln_data_meta, unit_list)
 plot_dataset$resolution <- plot_dataset$steps/plot_dataset$interval_MY
 
-###### Taxa plot ###### 
-plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "foram", "foraminifera")
-plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "foraminifer", "foraminifera")
+###### Taxa plot ######
 plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "chondrichthyan", "fish")
 
 taxa_levels <- c(
-  "foraminifera", "coccolith", "radiolarian", "diatom",
+  "foraminifer", "coccolith", "radiolarian", "diatom",
   "bryozoan", "bivalve", "gastropod", "cephalopod", "ostracod", "brachiopod", "trilobite", "echinoderm", "graptolite",
   "mammal", "bird", "conodont", "fish"
 )
 
 taxa_cols <- c(
 # Protists
-  foraminifera = "#598B8C",
+  foraminifer = "#598B8C",
   coccolith    = "#719EA0",
   radiolarian  = "#99C0C2",
   diatom       = "#BFE0E1",
@@ -597,11 +595,13 @@ df_taxa <- df_taxa %>%
 used_levels <- levels(df_taxa$taxa)                   # now returns the factor levels
 used_cols   <- taxa_cols[used_levels]
 
+percentages <- setNames(df_taxa$pct, df_taxa$taxa)
+legend_labels <- paste0(used_levels, " (", percentages[used_levels], ")")
+
 taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
   geom_col(width = 1, color = "black", linewidth = 0.2) +
   coord_polar(theta = "y", direction = -1) +
-  geom_text(aes(x = 1.7, y = ypos, label = pct), color = "black", size = 4) +
-  scale_fill_manual(values = used_cols, na.value = "grey80") +
+  scale_fill_manual(values = used_cols, labels = legend_labels) +
   theme_void() +
   theme(
       legend.key.spacing.y = unit(0.1, "cm"),
@@ -648,8 +648,7 @@ used_cols <- period_cols[used_levels]
 age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_start)) +
   geom_col(width = 1, color = "black", linewidth = 0.2) +
   coord_polar(theta = "y", direction = -1) +
-  geom_text(aes(x = 1.7, y = ypos, label = pct), color = "black", size = 4) +
-  scale_fill_manual(values = used_cols, na.value = "grey80") +
+  scale_fill_manual(values = used_cols, labels = legend_labels) +
   theme_void() +
   theme(
     legend.key.spacing.y = unit(0.1, "cm"),

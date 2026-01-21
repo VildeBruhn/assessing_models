@@ -815,7 +815,21 @@ adeq_issues_stasis <- which(sapply(strict_stasis_adeq, function(x) is.na(x)[1]))
 strict_stasis_adeq <- Filter(function(x) !is.na(x)[1], strict_stasis_adeq)
 
 decel_adeq <- mclapply(Decel, fit3adequacy.decel, plot = FALSE)
-accel_adeq <- mclapply(Accel, fit3adequacy.RW, plot = FALSE)
+
+# reverse accelerated to become decelerated
+Accel_Decel <- Accel
+Accel_Decel <- lapply(Accel_Decel, function(x) {
+  x$mm <- rev(x$mm)
+  x$vv <- rev(x$vv)
+  x$nn <- rev(x$nn)
+  x$tt <- rev(x$tt)
+  for (i in 1:length(x$tt)){
+    x$tt[i] <- 1 - x$tt[i]
+  }
+  return(x)
+})
+accel_adeq <- mclapply(Accel_Decel, fit3adequacy.decel, plot = FALSE)
+
 #OU_adeq <- mclapply(OU, fit3adequacy.OU, plot = FALSE)
 #OU_mov_opt_anc_adeq <- mclapply(OU_mov_opt_anc, fit3adequacy.OU, plot = FALSE)
 #OU_mov_opt_adeq <- mclapply(OU_mov_opt, fit3adequacy.OU, plot = FALSE)
