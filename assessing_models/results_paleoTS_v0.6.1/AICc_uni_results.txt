@@ -1,13 +1,13 @@
                             model count percentage
-1                             GRW    55   8.828250
-2                             URW   187  30.016051
-3                          Stasis   134  21.508828
-4                   Strict stasis   107  17.174960
-5                           Decel    24   3.852327
-6                           Accel    24   3.852327
-7                              OU    56   8.988764
-8 OU mov. optm. (ancestral state)    28   4.494382
-9                   OU mov. optm.     8   1.284109
-[1] "Total count: 623"
-[1] "Percentage not URW, GRW or stasis: 39.6468699839486"
-[1] "Percentage not URW, GRW, stasis or strict stasis: 22.4719101123596"
+1                             GRW    55   9.259259
+2                             URW   173  29.124579
+3                          Stasis   135  22.727273
+4                   Strict stasis    97  16.329966
+5                           Decel    23   3.872054
+6                           Accel    23   3.872054
+7                              OU    55   9.259259
+8 OU mov. optm. (ancestral state)    26   4.377104
+9                   OU mov. optm.     7   1.178451
+[1] "Total count: 594"
+[1] "Percentage not URW, GRW or stasis: 38.8888888888889"
+[1] "Percentage not URW, GRW, stasis or strict stasis: 22.5589225589226"

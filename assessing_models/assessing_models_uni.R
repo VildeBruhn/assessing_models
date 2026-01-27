@@ -65,6 +65,9 @@ df <- subset(df, steps >= 7)
 # remove modern time series
 df <- subset(df, period_start != "Present")
 
+# remove Syverson
+df <- subset(df, URL != "https://doi.org/10.1017/pab.2024.37")
+
 # make list based on ID
 df <- lapply(split(df,df$tsID), function(x) as.list(x))
 
@@ -231,11 +234,11 @@ for(i in 1:length(GRW)){
   try(GRW_adeq[[i]] <- fit3adequacy.trend(GRW[[i]], plot = FALSE))
 }
 # add time series IDs
-names_list <- names(GRW)
-names(GRW_adeq) <- names_list
+#names_list <- names(GRW)
+#names(GRW_adeq) <- names_list
 # remove time series that cannot be processed by the loglikelihood function
-GRW = GRW[-which(sapply(GRW_adeq, is.null))]
-GRW_adeq = GRW_adeq[-which(sapply(GRW_adeq, is.null))]
+#GRW = GRW[-which(sapply(GRW_adeq, is.null))]
+#GRW_adeq = GRW_adeq[-which(sapply(GRW_adeq, is.null))]
 
 # URW
 URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
@@ -249,11 +252,11 @@ for (i in 1:length(strict_stasis)){
   try(strict_stasis_adeq[[i]] <- fit4adequacy.stasis(strict_stasis[[i]], plot = FALSE))
 }
 # add time series IDs
-names_list <- names(strict_stasis)
-names(strict_stasis_adeq) <- names_list
+#names_list <- names(strict_stasis)
+#names(strict_stasis_adeq) <- names_list
 # remove time series that cannot be processed by the loglikelihood function
-strict_stasis = strict_stasis[-which(sapply(strict_stasis_adeq, is.null))]
-strict_stasis_adeq = strict_stasis_adeq[-which(sapply(strict_stasis_adeq, is.null))]
+#strict_stasis = strict_stasis[-which(sapply(strict_stasis_adeq, is.null))]
+#strict_stasis_adeq = strict_stasis_adeq[-which(sapply(strict_stasis_adeq, is.null))]
 
 # decelerated
 decel_adeq <- mclapply(decel, fit3adequacy.decel, plot = FALSE)
@@ -299,6 +302,13 @@ save(file = "OU_uni_adeq.Rdata", OU_adeq)
 
 ## same approach for OU_mov_opt and OU_mov_opt_anc
 
+# load OU data run on hpc HPC
+load("./OU_uni.Rdata")
+load("./OU_mov_opt_uni.Rdata")
+load("./OU_mov_opt_anc_uni.Rdata")
+#load("./OU_uni_adeq.Rdata")
+#load("./OU_mov_opt_uni_adeq.Rdata")
+#load("./OU_mov_opt_anc_uni_adeq.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -319,9 +329,7 @@ OU_mov_opt_adeq_passed <- adequate2tests(OU_mov_opt_adeq)
 
 ## load all adequacy data used in article
 load("./adeq_uni_passed.Rdata")
-load("./OU_uni.Rdata")
-load("./OU_mov_opt_uni.Rdata")
-load("./OU_mov_opt_anc_uni.Rdata") ### GONE! ###
+
 
 # get counts passed
 GRW_c <- length(GRW_adeq_passed)
