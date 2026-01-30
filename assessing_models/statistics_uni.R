@@ -554,7 +554,7 @@ plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "chondricht
 
 taxa_levels <- c(
   "foraminifer", "coccolith", "radiolarian", "diatom",
-  "bryozoan", "bivalve", "gastropod", "cephalopod", "ostracod", "brachiopod", "trilobite", "echinoderm", "graptolite",
+  "bryozoan", "bivalve", "gastropod", "cephalopod", "ostracod", "brachiopod", "trilobite", "graptolite",
   "mammal", "bird", "conodont", "fish"
 )
 
@@ -572,7 +572,6 @@ taxa_cols <- c(
   ostracod    = "#DCCB4E",
   brachiopod  = "#E3D460",
   trilobite   = "#EADC72",
-  echinoderm  = "#F1E583",
   graptolite  = "#F8EC95",
 # Vertebrates
   mammal    = "#B84400",
@@ -586,13 +585,13 @@ plot_dataset %>%
   count(taxa, name = "n") %>%
   mutate(
     fraction = n / sum(n),
-    pct = percent(fraction),
+    pct = percent(fraction, accuracy = 0.1),
     ypos = cumsum(fraction) - fraction/2
   ) -> df_taxa
 
 df_taxa <- df_taxa %>%
-  mutate(taxa = factor(taxa, levels = taxa_levels))   # taxa_levels is your desired order
-used_levels <- levels(df_taxa$taxa)                   # now returns the factor levels
+  mutate(taxa = factor(taxa, levels = taxa_levels))   
+used_levels <- levels(df_taxa$taxa)                   
 used_cols   <- taxa_cols[used_levels]
 
 percentages <- setNames(df_taxa$pct, df_taxa$taxa)
@@ -607,12 +606,12 @@ taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
       legend.key.spacing.y = unit(0.1, "cm"),
   ) +
   labs(title = "Taxa", fill = "taxa") +
-  guides(fill=guide_legend(ncol=2, byrow=FALSE))
+  guides(fill=guide_legend(ncol=1, byrow=FALSE))
 
 ###### Age plot ###### 
 period_levels <- c(
   "Cambrian", "Ordovician", "Silurian", "Devonian",
-  "Carboniferous", "Permian", "Triassic", "Jurassic", "Cretaceous",
+  "Carboniferous", "Jurassic", "Cretaceous",
   "Paleogene", "Neogene", "Quaternary"
 )
 
@@ -622,8 +621,6 @@ period_cols <- c(
   "Silurian"      = rgb(179, 225, 182, maxColorValue = 255),
   "Devonian"      = rgb(203, 140, 55, maxColorValue = 255),
   "Carboniferous" = rgb(103, 165, 153, maxColorValue = 255),
-  "Permian"       = rgb(240, 64, 40, maxColorValue = 255),
-  "Triassic"      = rgb(129, 43, 146, maxColorValue = 255),
   "Jurassic"      = rgb(52, 178, 201, maxColorValue = 255),
   "Cretaceous"    = rgb(127, 198, 78, maxColorValue = 255),
   "Paleogene"     = rgb(253, 154, 82, maxColorValue = 255),
@@ -638,12 +635,15 @@ plot_dataset %>%
   filter(!is.na(period_start)) %>%
   mutate(
     fraction = n / sum(n),
-    pct = percent(fraction),
+    pct = percent(fraction, accuracy = 0.1),
     ypos = cumsum(fraction) - fraction / 2
   ) -> df_periods
 
 used_levels <- levels(df_periods$period_start)
 used_cols <- period_cols[used_levels]
+
+percentages <- setNames(df_periods$pct, df_periods$period_start)
+legend_labels <- paste0(used_levels, " (", percentages[used_levels], ")")
 
 age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_start)) +
   geom_col(width = 1, color = "black", linewidth = 0.2) +
@@ -692,5 +692,57 @@ layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
                       c(NA, NA, NA, NA, NA, NA, NA, NA))
 )
 
-ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v2.pdf", plot_dataset_display,
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v1.pdf", plot_dataset_display,
        width = 11, height = 8.5, units = "in", dpi = 300)
+
+
+###### trait type (for the material section, in the text) ######
+# bind data to dataframe
+unit_list <- c("popID", "taxa", "trait_type")
+trait_plot_dataset <- bind(ln_data_meta, unit_list)
+unique(trait_plot_dataset$trait_type)
+
+# classify trait types into main categories
+trait_plot_dataset$trait_type <- replace(trait_plot_dataset$trait_type, trait_plot_dataset$trait_type == "linear", "size")
+trait_plot_dataset$trait_type <- replace(trait_plot_dataset$trait_type, trait_plot_dataset$trait_type == "area", "size")
+trait_plot_dataset$trait_type <- replace(trait_plot_dataset$trait_type, trait_plot_dataset$trait_type == "volume", "size")
+trait_plot_dataset$trait_type <- replace(trait_plot_dataset$trait_type, trait_plot_dataset$trait_type == "angle", "shape")
+trait_plot_dataset$trait_type <- replace(trait_plot_dataset$trait_type, trait_plot_dataset$trait_type == "ratio", "shape")
+trait_plot_dataset$trait_type <- replace(trait_plot_dataset$trait_type, trait_plot_dataset$trait_type == "percent", "complex")
+
+trait_levels <- c("size", "shape", "count", "complex")
+
+trait_cols <- c(
+  size = "#719EA0",
+  shape = "#C6BF43",
+  count = "#E5A208",
+  complex = "#F11B00"
+)
+
+trait_plot_dataset %>%
+  filter(!is.na(trait_type)) %>%
+  count(trait_type, name = "n") %>%
+  mutate(
+    fraction = n / sum(n),
+    pct = percent(fraction, accuracy = 0.1),
+    ypos = cumsum(fraction) - fraction/2
+  ) -> df_trait
+
+df_trait <- df_trait %>%
+  mutate(trait_type = factor(trait_type, levels = trait_levels))   
+used_levels <- levels(df_trait$trait_type)                   
+used_cols   <- trait_cols[used_levels]
+
+percentages <- setNames(df_trait$pct, df_trait$trait_type)
+legend_labels <- paste0(used_levels, " (", percentages[used_levels], ")")
+
+trait_dataset_plot <- ggplot(df_trait, aes(x = 1, y = fraction, fill = trait_type)) +
+  geom_col(width = 1, color = "black", linewidth = 0.2) +
+  coord_polar(theta = "y", direction = -1) +
+  scale_fill_manual(values = used_cols, labels = legend_labels) +
+  theme_void() +
+  theme(
+    legend.key.spacing.y = unit(0.1, "cm"),
+  ) +
+  labs(title = "trait", fill = "trait") +
+  guides(fill=guide_legend(ncol=1, byrow=FALSE))

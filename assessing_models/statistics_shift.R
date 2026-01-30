@@ -396,8 +396,6 @@ plot_dataset %>%
     ypos = cumsum(fraction) - fraction/2
   ) -> df_taxa
 
-df_ ###########ROUND TO 2 NUMBERS 
-
 df_taxa <- df_taxa %>%
   mutate(taxa = factor(taxa, levels = taxa_levels))  
 used_levels <- levels(df_taxa$taxa)                   
