@@ -1,14 +1,14 @@
        model  mean res
-1      accel 135.22773
-2      decel  52.42507
-3         OU  54.74545
-4 OU mov opt 140.71244
-5     stasis 100.51172
-6        URW  68.05897
+1      accel 152.55242
+2      decel  59.43520
+3         OU  53.67289
+4 OU mov opt 156.37873
+5     stasis 155.90587
+6        URW  72.63129
        model median res
-1      accel  13.896896
-2      decel   9.508022
-3         OU  15.980146
-4 OU mov opt  35.046729
-5     stasis   4.651163
+1      accel  28.193809
+2      decel  10.791367
+3         OU  16.386513
+4 OU mov opt  35.514019
+5     stasis   4.869142
 6        URW   4.210526

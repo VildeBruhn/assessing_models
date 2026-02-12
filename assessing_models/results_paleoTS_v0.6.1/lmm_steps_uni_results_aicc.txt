@@ -1,0 +1,37 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: steps ~ model_aicc + (1 | popID)
+   Data: plot_data
+
+REML criterion at convergence: 4277.7
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.9556 -0.1314 -0.0195  0.1809  4.6910 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ popID    (Intercept) 1230.58  35.080  
+ Residual               23.17   4.813  
+Number of obs: 594, groups:  popID, 152
+
+Fixed effects:
+                     Estimate Std. Error       df t value Pr(>|t|)    
+(Intercept)           23.6726     2.8897 153.6950   8.192 9.30e-14 ***
+model_aiccURW          0.6740     0.7050 438.5506   0.956     0.34    
+model_aiccGRW         -1.5594     1.0021 439.5711  -1.556     0.12    
+model_aiccaccel        0.1405     1.4022 438.0074   0.100     0.92    
+model_aiccdecel        5.6010     1.3651 437.7469   4.103 4.86e-05 ***
+model_aiccOU           4.0510     0.9742 437.3120   4.158 3.86e-05 ***
+model_aiccOU mov opt   6.5880     1.3049 440.3711   5.049 6.52e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) md_URW md_GRW mdl_ccc mdl_ccd mdl_OU
+model_ccURW -0.115                                     
+model_ccGRW -0.097  0.367                              
+model_ccccl -0.062  0.252  0.178                       
+model_ccdcl -0.064  0.224  0.201  0.159                
+model_accOU -0.080  0.267  0.260  0.145   0.268        
+mdl_ccOUmvo -0.078  0.249  0.266  0.160   0.192   0.253
