@@ -88,10 +88,6 @@ plot_data$model_adequate <- replace(plot_data$model_adequate, plot_data$model_ad
 plot_data$model_aicc <- replace(plot_data$model_aicc, plot_data$model_aicc == "OU mov opt anc", "OU mov opt")
 plot_data$model_adequate <- replace(plot_data$model_adequate, plot_data$model_adequate == "OU mov opt anc", "OU mov opt")
 
-# collapse all marine into one
-#plot_data$environment <- replace(plot_data$environment, plot_data$environment == "marine benthic", "marine")
-#plot_data$environment <- replace(plot_data$environment, plot_data$environment == "marine pelagic", "marine")
-#plot_data$environment <- replace(plot_data$environment, plot_data$environment == "marine planktic", "marine")
 
 # add parameters column
 plot_data$parameters <- plot_data$model_aicc
@@ -105,7 +101,6 @@ plot_data$parameters <- replace(plot_data$parameters, plot_data$parameters == "O
 
 # remove time series with NA
 plot_data <- plot_data %>% drop_na(model_aicc)
-#plot_data <- plot_data %>% drop_na(environment)
 
 # ordering the model according to the number of parameters
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
@@ -122,34 +117,18 @@ col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E
 # PLOT RELATIVE FIT
 #-------------------
 
-###### micro vs. macro ######
-#micro_macro <- plot_data
-#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-#pdf("./results_paleoTS_v0.6.1/plot/micro_macro_aicc.pdf")
-#ggplot(micro_macro, aes(x = factor(model_aicc, levels = level_order), fill = microfossil)) + geom_bar() +
-#  theme_classic() + scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-#  labs(fill = "") + scale_fill_discrete(name = "", labels = c("Macrofossils", "Microfossils"), palette = col_val1) +
-#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 15))
-#dev.off()
-
-###### environment ######
-#env <- plot_data
-#level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-#pdf("./results_paleoTS_v0.6.1/plot/environment_aicc.pdf")
-#ggplot(env, aes(x = factor(model_aicc, levels = level_order), fill = environment)) + geom_bar() +
-#  theme_classic() + 
-#  scale_x_discrete(labels = c("Stasis", "URW", "GRW", "Accel.", "Decel.", "OU", "OU mov. opt.")) +
-#  labs(fill = "") + scale_fill_discrete(name = "Environment", labels = c("Fluvial", "Lacustrine", "Marine",
-#                                                                         "Terrestrial"), palette = col_val2) +
-#  xlab("Model") + ylab("Count") + theme(legend.text = element_text(size = 10), 
-#                                        legend.title = element_text(size = 12),
-#                                        axis.title = element_text(size = 12))
-#dev.off()
-
 
 ###### interval MY ######
 intv_my <- plot_data[c("model_aicc", "interval_MY", "parameters")]
 
+# remove 508 404
+intv_my_test <- plot_data[-c(508, 404),]
+lmm_model_time_test <- lmer(interval_MY ~ 1 + model_aicc + (1| popID), data = intv_my_test)
+summary(lmm_model_time_test)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_interval_uni_results_aicc_noOutliers.txt")
+summary(lmm_model_time_test)
+sink()
 
 # stats 
 intv_my_mean <- aggregate(intv_my[, 2], list(intv_my$model_aicc), mean)
@@ -165,9 +144,13 @@ intv_my_median
 sink()
 
 # LMM
-#lmm_model_time <- lmer(interval_MY ~ 1+ model_aicc + (1| popID), data = plot_data)
-lmm_model_time <- lm(interval_MY ~ model_aicc, data = plot_data)
+lmm_model_time <- lmer(interval_MY ~ 1 + model_aicc + (1| popID), data = plot_data)
+#lmm_model_time <- lm(interval_MY ~ model_aicc, data = plot_data)
 summary(lmm_model_time)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_interval_uni_results_aicc.txt")
+summary(lmm_model_time)
+sink()
 
 # plot
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
@@ -202,9 +185,13 @@ steps_median
 sink()
 
 # LMM
-#lmm_model_steps <- lmer(steps ~ model_aicc + (1| popID), data = plot_data)
-lmm_model_steps <- lm(steps ~ model_aicc, data = plot_data)
+lmm_model_steps <- lmer(steps ~ model_aicc + (1| popID), data = plot_data)
+#lmm_model_steps <- lm(steps ~ model_aicc, data = plot_data)
 summary(lmm_model_steps)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_steps_uni_results_aicc.txt")
+summary(lmm_model_steps)
+sink()
 
 # plot
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
@@ -224,6 +211,17 @@ dev.off()
 ###### resolution ######
 res <- plot_data[c("model_aicc", "steps", "interval_MY", "parameters")]
 res$resolution <- res$steps/res$interval_MY
+res <- res[-c(523,524),]
+
+# remove 523 524
+plot_data$resolution = plot_data$steps/plot_data$interval_MY
+res_test <- plot_data[-c(523, 524),]
+lmm_model_res_test <- lmer(resolution ~ 1 + model_aicc + (1| popID), data = res_test)
+summary(lmm_model_res_test)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_res_uni_results_aicc_noOutliers.txt")
+summary(lmm_model_res_test)
+sink()
 
 # stats
 res_mean <- aggregate(res[, 5], list(res$model_aicc), mean)
@@ -240,9 +238,13 @@ sink()
 
 # LMM
 plot_data$resolution = plot_data$steps/plot_data$interval_MY
-#lmm_model_resolution <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = plot_data)
-lmm_model_resolution <- lm(resolution ~ model_aicc, data = plot_data)
+lmm_model_resolution <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = plot_data)
+#lmm_model_resolution <- lm(resolution ~ model_aicc, data = plot_data)
 summary(lmm_model_resolution)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_res_uni_results_aicc.txt")
+summary(lmm_model_resolution)
+sink()
 
 # plot
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
@@ -351,9 +353,13 @@ intv_my_median
 sink()
 
 # LMM
-#lmm_model_time2 <- lmer(interval_MY ~ 1+ model_aicc + (1| popID), data = plot_data2)
-lmm_model_time2 <- lm(interval_MY ~ model_aicc, data = plot_data2)
+lmm_model_time2 <- lmer(interval_MY ~ 1+ model_aicc + (1| popID), data = plot_data2)
+#lmm_model_time2 <- lm(interval_MY ~ model_aicc, data = plot_data2)
 summary(lmm_model_time2)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_interval_adeq_uni_results_aicc.txt")
+summary(lmm_model_time2)
+sink()
 
 # plot
 level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
@@ -388,9 +394,13 @@ steps_median
 sink()
 
 # LMM
-#lmm_model_steps2 <- lmer(steps ~ model_aicc + (1| popID), data = plot_data2)
-lmm_model_steps2 <- lm(steps ~ model_aicc, data = plot_data2)
+lmm_model_steps2 <- lmer(steps ~ model_aicc + (1| popID), data = plot_data2)
+#lmm_model_steps2 <- lm(steps ~ model_aicc, data = plot_data2)
 summary(lmm_model_steps2)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_steps_adeq_uni_results_aicc.txt")
+summary(lmm_model_steps2)
+sink()
 
 # plot
 level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
@@ -426,9 +436,13 @@ sink()
 
 # LMM
 plot_data2$resolution = plot_data2$steps/plot_data2$interval_MY
-#lmm_model_resolution2 <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = plot_data2)
-lmm_model_resolution2 <- lm(resolution ~ model_aicc, data = plot_data2)
+lmm_model_resolution2 <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = plot_data2)
+#lmm_model_resolution2 <- lm(resolution ~ model_aicc, data = plot_data2)
 summary(lmm_model_resolution2)
+
+sink(file = "./results_paleoTS_v0.6.1/lmm_res_adeq_uni_results_aicc.txt")
+summary(lmm_model_resolution2)
+sink()
 
 # plot
 level_order <- c("stasis", "URW", "accel", "decel", "OU", "OU mov opt")
@@ -460,16 +474,16 @@ interval2 <- as.data.frame(summary(lmm_model_time2)$coefficients)
 steps2 <- as.data.frame(summary(lmm_model_steps2)$coefficients)
 resolution2 <- as.data.frame(summary(lmm_model_resolution2)$coefficients)
 
-interval_df2 <- data.frame(term = models, i.Est = interval$Estimate,
-                          i.SE = interval$"Std", i.p.value = interval$"Pr")
+interval_df2 <- data.frame(term = models2, i.Est = interval2$Estimate,
+                          i.SE = interval2$"Std", i.p.value = interval2$"Pr")
 interval_df2$i.Est[2:nrow(interval_df2)] <- interval_df2$i.Est[1] + interval_df2$i.Est[2:nrow(interval_df2)]
 
-steps_df2 <- data.frame(s.Est = steps$Estimate,
-                       s.SE = steps$"Std", s.p.value = steps$"Pr")
+steps_df2 <- data.frame(s.Est = steps2$Estimate,
+                       s.SE = steps2$"Std", s.p.value = steps2$"Pr")
 steps_df2$s.Est[2:nrow(steps_df2)] <- steps_df2$s.Est[1] + steps_df2$s.Est[2:nrow(steps_df2)]
 
-resolution_df2 <- data.frame(r.Est = resolution$Estimate,
-                            r.SE = resolution$"Std", r.p.value = resolution$"Pr")
+resolution_df2 <- data.frame(r.Est = resolution2$Estimate,
+                            r.SE = resolution2$"Std", r.p.value = resolution2$"Pr")
 resolution_df2$r.Est[2:nrow(resolution_df2)] <- resolution_df2$r.Est[1] + resolution_df2$r.Est[2:nrow(resolution_df2)]
 
 lmm_result_table2 <- cbind(interval_df2, steps_df2, resolution_df2)
@@ -512,8 +526,8 @@ TS_deltaAICc2_c <- sum(plot_data$deltaAICc <= 2)
 TS_deltaAICc2_p <- TS_deltaAICc2_c/nrow(plot_data)*100
 
 # LMM
-#lmm_model_deltaAICc <- lmer(deltaAICc ~ 1+ adequacy + (1| popID), data = plot_data)
-lmm_model_deltaAICc <- lm(deltaAICc ~ adequacy, data = plot_data)
+lmm_model_deltaAICc <- lmer(deltaAICc ~ 1+ adequacy + (1| popID), data = plot_data)
+#lmm_model_deltaAICc <- lm(deltaAICc ~ adequacy, data = plot_data)
 summary(lmm_model_deltaAICc)
 
 sink(file = "./results_paleoTS_v0.6.1/deltaAICc_uni_results_adeq.txt")
