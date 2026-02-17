@@ -483,18 +483,17 @@ paste("Time series with DAICc <= 2:   ", TS_deltaAICc2_c, "   ", TS_deltaAICc2_p
 sink()
 
 # plot
-pdf("./results_paleoTS_v0.6.1/plot/DAICc_uni_adeq.pdf")
+pdf(width = 5.0 , height = 4.5, file = "./results_paleoTS_v0.6.1/plot/DAICc_uni_adeq.pdf")
 Daicc_plot = ggplot(plot_data, aes(x = adequacy, y = deltaAICc, fill = adequacy)) +
   geom_boxplot() +
-  labs(x = "Adequacy status",
-       y = "deltaAICc gap (second best model - first best model)") +
-  theme_classic() +
-  scale_y_continuous(limits = c(0, 20)) +
-  scale_fill_manual(values = c("adequate" = "#ADC397", "inadequate" = "#E5A208")) +
+  labs(x = expression(bold("Adequacy status"))) +
+  theme_classic() + ylab(~ paste(bold(Delta), bold(" AICc gap"), " (second best model - first best model)")) +
+  scale_y_continuous(limits = c(0, 8)) +
+  scale_fill_manual(values = c("adequate" = "#ADC397", "inadequate" = "#E5A208"), name = "") +
   theme(
-    axis.title = element_text(size = 10),
-    axis.text = element_text(size = 10),
-    legend.text = element_text(size = 10))
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 11),
+    legend.text = element_text(size = 11))
 Daicc_plot
 dev.off()
 
@@ -566,7 +565,7 @@ taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
   theme(
       legend.key.spacing.y = unit(0.1, "cm"),
   ) +
-  labs(title = "Taxa", fill = "taxa") +
+  labs(title = "Taxa", fill = "") +
   guides(fill=guide_legend(ncol=2, byrow=FALSE))
 
 ###### Age plot ###### 
@@ -613,29 +612,29 @@ age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_st
   theme(
     legend.key.spacing.y = unit(0.1, "cm"),
   ) +
-  labs(title = "Geological period", fill = "Period")
+  labs(title = "Geological period", fill = "")
 
 ###### interval plot ######
 intv_dataset_plot <- ggplot(plot_dataset, aes(x = interval_MY)) +
-  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  geom_histogram(bins = 20, color = "black", fill = "#8D8680", linewidth = 0.2) +
   labs(x = "Interval (My)",
        y = "Time series count") +
   theme_classic()
 
 ###### steps plot ######
 steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
-  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  geom_histogram(bins = 20, color = "black", fill = "#8D8680", linewidth = 0.2) +
   scale_x_log10() +
   labs(x = "Steps",
-       y = "Time series count") +
+       y = "") +
   theme_classic()
 
 ###### resolution plot ######
 res_dataset_plot <- ggplot(plot_dataset, aes(x = resolution)) +
-  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  geom_histogram(bins = 20, color = "black", fill = "#8D8680" , linewidth = 0.2) +
   scale_x_log10() +
   labs(x = "Resolution",
-       y = "Time series count") +
+       y = "") +
   theme_classic()
 
 # save the dataset figure
@@ -652,5 +651,5 @@ layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
                       c(NA, NA, NA, NA, NA, NA, NA, NA))
 )
 
-ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v2.pdf", plot_dataset_display,
-       width = 11, height = 8.5, units = "in", dpi = 300)
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v3.pdf", plot_dataset_display,
+       width = 9, height = 6, units = "in", dpi = 300)

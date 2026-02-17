@@ -1,5 +1,5 @@
                    Estimate Std. Error     df t value Pr(>|t|)
-(Intercept)            1.96       0.31 142.28    6.25     0.00
-adequacyinadequate     0.29       0.32 554.48    0.89     0.37
+(Intercept)            1.99       0.28 111.01    6.99     0.00
+adequacyinadequate     0.43       0.38 545.19    1.14     0.25
 [1] "Total number of time series investigated: 594"
 [1] "Time series with DAICc <= 2:    358     60.2693602693603 %"
