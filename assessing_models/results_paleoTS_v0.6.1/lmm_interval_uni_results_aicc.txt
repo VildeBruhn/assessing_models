@@ -1,7 +1,6 @@
-Linear mixed model fit by REML. t-tests use Satterthwaite's method [
-lmerModLmerTest]
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
 Formula: interval_MY ~ 1 + model_aicc + (1 | popID)
-   Data: plot_data
+   Data: intv_my
 
 REML criterion at convergence: 2631.7
 
