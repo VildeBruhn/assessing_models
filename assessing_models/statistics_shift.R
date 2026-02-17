@@ -391,10 +391,11 @@ plot_dataset %>%
   filter(!is.na(taxa)) %>%
   count(taxa, name = "n") %>%
   mutate(
-    fraction = n / sum(n),
+    fraction = round(n / sum(n), 3),
     pct = percent(fraction),
     ypos = cumsum(fraction) - fraction/2
   ) -> df_taxa
+
 
 df_taxa <- df_taxa %>%
   mutate(taxa = factor(taxa, levels = taxa_levels))  
@@ -499,6 +500,6 @@ plot_dataset_display = grid.arrange(
                         c(NA, NA, NA, NA, NA, NA, NA, NA))
 )
 
-ggsave("./results_paleoTS_v0.6.1/plot/dataset_shift_v1.pdf", plot_dataset_display,
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_shift_v2.pdf", plot_dataset_display,
        width = 11, height = 8.5, units = "in", dpi = 300)
 
