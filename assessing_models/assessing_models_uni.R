@@ -229,10 +229,12 @@ load("./aicc_uni_passed.Rdata")
 # TEST ADEQUACY
 
 # GRW
-GRW_adeq <- list()
-for(i in 1:length(GRW)){
-  try(GRW_adeq[[i]] <- fit3adequacy.trend(GRW[[i]], plot = FALSE))
-}
+GRW_adeq <- lapply(GRW, fit3adequacy.trend, plot = FALSE)
+
+#GRW_adeq <- list()
+#for(i in 1:length(GRW)){
+#  try(GRW_adeq[[i]] <- fit3adequacy.trend(GRW[[i]], plot = FALSE))
+#}
 # add time series IDs
 #names_list <- names(GRW)
 #names(GRW_adeq) <- names_list
@@ -247,10 +249,12 @@ URW_adeq <- mclapply(URW, fit3adequacy.RW, plot = FALSE)
 stasis_adeq <- lapply(stasis, fit4adequacy.stasis, plot = FALSE) 
 
 # strict stasis
-strict_stasis_adeq <- list()
-for (i in 1:length(strict_stasis)){
-  try(strict_stasis_adeq[[i]] <- fit4adequacy.stasis(strict_stasis[[i]], plot = FALSE))
-}
+strict_stasis_adeq <- lapply(strict_stasis, fit4adequacy.stasis, plot = FALSE)
+
+#strict_stasis_adeq <- list()
+#for (i in 1:length(strict_stasis)){
+#  try(strict_stasis_adeq[[i]] <- fit4adequacy.stasis(strict_stasis[[i]], plot = FALSE))
+#}
 # add time series IDs
 #names_list <- names(strict_stasis)
 #names(strict_stasis_adeq) <- names_list
@@ -306,9 +310,9 @@ save(file = "OU_uni_adeq.Rdata", OU_adeq)
 load("./OU_uni.Rdata")
 load("./OU_mov_opt_uni.Rdata")
 load("./OU_mov_opt_anc_uni.Rdata")
-#load("./OU_uni_adeq.Rdata")
-#load("./OU_mov_opt_uni_adeq.Rdata")
-#load("./OU_mov_opt_anc_uni_adeq.Rdata")
+load("./OU_uni_adeq.Rdata")
+load("./OU_mov_opt_uni_adeq.Rdata")
+load("./OU_mov_opt_anc_uni_adeq.Rdata")
 
 # get only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)

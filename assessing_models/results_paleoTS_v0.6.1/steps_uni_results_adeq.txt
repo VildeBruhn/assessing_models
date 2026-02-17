@@ -1,14 +1,16 @@
-       model mean steps
-1      accel   19.84211
-2      decel   32.69231
-3         OU   27.92857
-4 OU mov opt   76.36000
-5     stasis   17.97701
-6        URW   13.41935
-       model median steps
-1      accel           15
-2      decel           28
-3         OU           25
-4 OU mov opt           50
-5     stasis           15
-6        URW           11
+       model mean steps2
+1     stasis    53.38272
+2        URW    66.43137
+3        GRW    63.70000
+4      accel    45.26316
+5      decel    71.61538
+6         OU    72.64286
+7 OU mov opt    61.40000
+       model median steps2
+1     stasis          43.0
+2        URW          52.0
+3        GRW          65.5
+4      accel          44.0
+5      decel          74.0
+6         OU          74.0
+7 OU mov opt          54.0

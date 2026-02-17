@@ -1,7 +1,7 @@
                             model count_passed percentage_passed
 1                             GRW           50          90.90909
-2                             URW          155          89.59538
-3                          stasis           87          64.44444
+2                             URW          153          88.43931
+3                          stasis           89          65.92593
 4                   strict stasis           73          75.25773
 5                           decel           13          56.52174
 6                           accel           19          82.60870

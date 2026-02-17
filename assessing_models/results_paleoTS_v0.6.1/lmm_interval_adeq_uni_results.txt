@@ -1,0 +1,36 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: interval_MY ~ 1 + model_adequate + (1 | popID)
+   Data: intv_my2
+
+REML criterion at convergence: 1878.6
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-10.7977  -0.0632  -0.0033   0.0715   7.2706 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ popID    (Intercept) 41.0002  6.4031  
+ Residual              0.8009  0.8949  
+Number of obs: 464, groups:  popID, 139
+
+Fixed effects:
+                          Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)                4.00592    0.55555 145.58423   7.211 2.80e-11 ***
+model_adequateURW          0.12849    0.15854 323.52277   0.810    0.418    
+model_adequateGRW          0.07619    0.21536 324.57705   0.354    0.724    
+model_adequateaccel        0.21004    0.29650 321.49479   0.708    0.479    
+model_adequatedecel        0.18333    0.31804 320.63650   0.576    0.565    
+model_adequateOU           0.31495    0.23003 323.24686   1.369    0.172    
+model_adequateOU mov opt   1.28061    0.32464 327.56496   3.945 9.77e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) md_URW md_GRW mdl_dqtc mdl_dqtd mdl_OU
+modl_dqtURW -0.157                                       
+modl_dqtGRW -0.134  0.478                                
+modl_dqtccl -0.078  0.293  0.217                         
+modl_dqtdcl -0.079  0.252  0.257  0.176                  
+model_dqtOU -0.114  0.380  0.336  0.189    0.324         
+mdl_dqtOUmo -0.099  0.271  0.254  0.172    0.207    0.270

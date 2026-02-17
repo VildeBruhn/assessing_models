@@ -1,36 +1,36 @@
 Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
 Formula: steps ~ model_aicc + (1 | popID)
-   Data: plot_data
+   Data: steps
 
-REML criterion at convergence: 4277.7
+REML criterion at convergence: 4206.7
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--4.9556 -0.1314 -0.0195  0.1809  4.6910 
+-5.6859 -0.0665 -0.0036  0.1102  5.1686 
 
 Random effects:
  Groups   Name        Variance Std.Dev.
- popID    (Intercept) 1230.58  35.080  
- Residual               23.17   4.813  
-Number of obs: 594, groups:  popID, 152
+ popID    (Intercept) 1241.64  35.237  
+ Residual               19.06   4.365  
+Number of obs: 594, groups:  popID, 154
 
 Fixed effects:
                      Estimate Std. Error       df t value Pr(>|t|)    
-(Intercept)           23.8131     3.1331 209.7483   7.601 9.68e-13 ***
-model_aiccdecel        5.4605     1.7948 437.5940   3.042  0.00249 ** 
-model_aiccGRW         -1.6999     1.5715 438.5680  -1.082  0.27997    
-model_aiccOU           3.9105     1.5875 437.9460   2.463  0.01415 *  
-model_aiccOU mov opt   6.4475     1.7556 438.7742   3.672  0.00027 ***
-model_aiccstasis      -0.1405     1.4022 438.0074  -0.100  0.92022    
-model_aiccURW          0.5335     1.4020 437.8922   0.381  0.70373    
+(Intercept)           23.8548     2.8775 155.4953   8.290 4.99e-14 ***
+model_aiccURW          0.3231     0.6474 435.7517   0.499 0.617939    
+model_aiccGRW         -1.5940     0.9318 437.1002  -1.711 0.087859 .  
+model_aiccaccel       -0.1964     1.2702 435.2840  -0.155 0.877195    
+model_aiccdecel        5.1901     1.1972 433.7230   4.335 1.81e-05 ***
+model_aiccOU           3.2692     0.9157 435.8949   3.570 0.000397 ***
+model_aiccOU mov opt   4.7575     1.2397 438.5332   3.838 0.000142 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Correlation of Fixed Effects:
-            (Intr) mdl_ccd md_GRW mdl_OU m_OUmo mdl_ccs
-model_ccdcl -0.296                                     
-model_ccGRW -0.355  0.598                              
-model_accOU -0.351  0.639   0.710                      
-mdl_ccOUmvo -0.312  0.543   0.642  0.645               
-modl_ccstss -0.391  0.660   0.779  0.795  0.680        
-model_ccURW -0.387  0.647   0.784  0.765  0.672  0.874 
+            (Intr) md_URW md_GRW mdl_ccc mdl_ccd mdl_OU
+model_ccURW -0.111                                     
+model_ccGRW -0.094  0.404                              
+model_ccccl -0.060  0.271  0.210                       
+model_ccdcl -0.061  0.257  0.243  0.178                
+model_accOU -0.080  0.292  0.267  0.149   0.294        
+mdl_ccOUmvo -0.077  0.284  0.277  0.183   0.202   0.254
