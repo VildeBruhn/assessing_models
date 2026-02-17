@@ -75,9 +75,7 @@ ln_data_meta <- model_adeq(ln_data_meta, OU_mov_opt_anc_adeq_passed, "OU mov opt
 ln_data_meta <- model_adeq(ln_data_meta, OU_mov_opt_adeq_passed, "OU mov opt")
 
 # bind data to dataframe
-unit_list <- c("popID", "total_N", "steps", "interval_MY", "trait_type", "microfossil",
-               "lat", "lon", "sediment", "model_aicc", "model_adequate", 
-               "environment")
+unit_list <- c("stID", "popID", "species", "description", "total_N", "steps", "interval_MY", "model_aicc", "model_adequate")
 plot_data <- bind(ln_data_meta, unit_list)
 
 # collapse strict stasis to stasis
@@ -99,13 +97,10 @@ plot_data$parameters <- replace(plot_data$parameters, plot_data$parameters == "d
 plot_data$parameters <- replace(plot_data$parameters, plot_data$parameters == "OU", 4)
 plot_data$parameters <- replace(plot_data$parameters, plot_data$parameters == "OU mov opt", 5)
 
-# remove time series with NA
-plot_data <- plot_data %>% drop_na(model_aicc)
-
 # ordering the model according to the number of parameters
 level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
 plot_data$model_aicc <- factor(plot_data$model_aicc, levels = level_order)
-plot_data$model_aicc <- relevel(plot_data$model_aicc, ref = "stasis")
+
 
 # set colors
 col_val1 <- c("#85B7B9", "#DCCB4E")
@@ -119,22 +114,22 @@ col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E
 
 
 ###### interval MY ######
-intv_my <- plot_data[c("model_aicc", "interval_MY", "parameters")]
+intv_my <- plot_data
 
-# remove 508 404
-intv_my_test <- plot_data[-c(508, 404),]
-lmm_model_time_test <- lmer(interval_MY ~ 1 + model_aicc + (1| popID), data = intv_my_test)
-summary(lmm_model_time_test)
+# LMM
+lmm_intv <- lm(interval_MY ~ 1 + model_aicc, data = intv_my)
+lmm_intv <- lmer(interval_MY ~ 1 + model_aicc + (1| popID), data = intv_my)
+summary(lmm_intv)
 
-sink(file = "./results_paleoTS_v0.6.1/lmm_interval_uni_results_aicc_noOutliers.txt")
-summary(lmm_model_time_test)
+sink(file = "./results_paleoTS_v0.6.1/lmm_interval_uni_results_aicc.txt")
+summary(lmm_intv)
 sink()
 
 # stats 
-intv_my_mean <- aggregate(intv_my[, 2], list(intv_my$model_aicc), mean)
+intv_my_mean <- aggregate(intv_my$interval_MY, list(intv_my$model_aicc), mean)
 intv_my_mean <- as.data.frame(intv_my_mean)
 names(intv_my_mean) <- c("model", "mean interval (MY)")
-intv_my_median <- aggregate(intv_my[, 2], list(intv_my$model_aicc), median)
+intv_my_median <- aggregate(intv_my$interval_MY, list(intv_my$model_aicc), median)
 intv_my_median <- as.data.frame(intv_my_median)
 names(intv_my_median) <- c("model", "median interval (MY)")
 
@@ -143,19 +138,9 @@ intv_my_mean
 intv_my_median
 sink()
 
-# LMM
-lmm_model_time <- lmer(interval_MY ~ 1 + model_aicc + (1| popID), data = plot_data)
-#lmm_model_time <- lm(interval_MY ~ model_aicc, data = plot_data)
-summary(lmm_model_time)
-
-sink(file = "./results_paleoTS_v0.6.1/lmm_interval_uni_results_aicc.txt")
-summary(lmm_model_time)
-sink()
-
 # plot
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
-pdf("./results_paleoTS_v0.6.1/plot/interval_my_uni_aicc.pdf")
-intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_aicc, levels = level_order),
+pdf("./results_paleoTS_v0.6.1/plot/interval_my_uni_aicc_noOutliers.pdf")
+intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = model_aicc,
                     fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
                                                                  "GRW", "Accel.", "Decel.", 
@@ -169,13 +154,13 @@ intv_plot
 dev.off()
 
 ###### steps ######
-steps <- plot_data[c("model_aicc", "steps", "parameters")]
+steps <- plot_data
 
 # stats
-steps_mean <- aggregate(steps[, 2], list(steps$model_aicc), mean)
+steps_mean <- aggregate(steps$interval_MY, list(steps$model_aicc), mean)
 steps_mean <- as.data.frame(steps_mean)
 names(steps_mean) <- c("model", "mean steps")
-steps_median <- aggregate(steps[, 2], list(steps$model_aicc), median)
+steps_median <- aggregate(steps$interval_MY, list(steps$model_aicc), median)
 steps_median <- as.data.frame(steps_median)
 names(steps_median) <- c("model", "median steps")
 
@@ -186,7 +171,6 @@ sink()
 
 # LMM
 lmm_model_steps <- lmer(steps ~ model_aicc + (1| popID), data = plot_data)
-#lmm_model_steps <- lm(steps ~ model_aicc, data = plot_data)
 summary(lmm_model_steps)
 
 sink(file = "./results_paleoTS_v0.6.1/lmm_steps_uni_results_aicc.txt")
@@ -194,9 +178,8 @@ summary(lmm_model_steps)
 sink()
 
 # plot
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
 pdf("./results_paleoTS_v0.6.1/plot/steps_uni_aicc.pdf")
-steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_aicc, levels = level_order), fill = parameters)) + 
+steps_plot <- ggplot(steps, aes(x = log(steps), y = model_aicc, fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
@@ -209,45 +192,31 @@ steps_plot
 dev.off()
 
 ###### resolution ######
-res <- plot_data[c("model_aicc", "steps", "interval_MY", "parameters")]
+res <- plot_data
 res$resolution <- res$steps/res$interval_MY
-res <- res[-c(523,524),]
 
-# remove 523 524
-plot_data$resolution = plot_data$steps/plot_data$interval_MY
-res_test <- plot_data[-c(523, 524),]
-lmm_model_res_test <- lmer(resolution ~ 1 + model_aicc + (1| popID), data = res_test)
-summary(lmm_model_res_test)
+# LMM
+lmm_model_res <- lmer(resolution ~ 1 + model_aicc + (1| popID), data = res)
+summary(lmm_model_res)
 
 sink(file = "./results_paleoTS_v0.6.1/lmm_res_uni_results_aicc_noOutliers.txt")
-summary(lmm_model_res_test)
+summary(lmm_model_res)
 sink()
 
 # stats
-res_mean <- aggregate(res[, 5], list(res$model_aicc), mean)
+res_mean <- aggregate(res$resolution, list(res$model_aicc), mean)
 res_mean <- as.data.frame(res_mean)
 names(res_mean) <- c("model", "mean res")
-res_median <- aggregate(res[, 5], list(res$model_aicc), median)
+res_median <- aggregate(res$resolution, list(res$model_aicc), median)
 res_median <- as.data.frame(res_median)
 names(res_median) <- c("model", "median res")
 
-sink(file = "./results_paleoTS_v0.6.1/resolution_uni_results_aicc.txt")
+sink(file = "./results_paleoTS_v0.6.1/resolution_uni_results_aicc_noOutliers.txt")
 res_mean
 res_median
 sink()
 
-# LMM
-plot_data$resolution = plot_data$steps/plot_data$interval_MY
-lmm_model_resolution <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = plot_data)
-#lmm_model_resolution <- lm(resolution ~ model_aicc, data = plot_data)
-summary(lmm_model_resolution)
-
-sink(file = "./results_paleoTS_v0.6.1/lmm_res_uni_results_aicc.txt")
-summary(lmm_model_resolution)
-sink()
-
 # plot
-level_order <- c("stasis", "URW", "GRW", "accel", "decel", "OU", "OU mov opt")
 pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_aicc.pdf")
 res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_aicc, levels = level_order), fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 

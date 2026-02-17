@@ -1,37 +1,36 @@
-Linear mixed model fit by REML. t-tests use Satterthwaite's method [
-lmerModLmerTest]
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
 Formula: resolution ~ 1 + model_aicc + (1 | popID)
-   Data: res_test
+   Data: res
 
-REML criterion at convergence: 6817.5
+REML criterion at convergence: 10926.6
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--3.9086 -0.0635 -0.0007  0.0814 10.4861 
+-8.3978 -0.0167 -0.0011  0.0566 16.7868 
 
 Random effects:
- Groups   Name        Variance Std.Dev.
- popID    (Intercept) 425990   652.68  
- Residual               1103    33.21  
-Number of obs: 592, groups:  popID, 151
+ Groups   Name        Variance  Std.Dev.
+ popID    (Intercept) 433291404 20816   
+ Residual               1169556  1081   
+Number of obs: 594, groups:  popID, 152
 
 Fixed effects:
-                     Estimate Std. Error      df t value Pr(>|t|)    
-(Intercept)           171.130     53.228 150.914   3.215   0.0016 ** 
-model_aiccURW           6.541      4.887 435.900   1.339   0.1814    
-model_aiccGRW          29.659      6.996 435.994   4.240 2.74e-05 ***
-model_aiccaccel         8.501      9.702 435.818   0.876   0.3814    
-model_aiccdecel         4.919      9.444 435.782   0.521   0.6027    
-model_aiccOU           -7.960      6.738 435.720  -1.181   0.2381    
-model_aiccOU mov opt    6.458      9.040 436.146   0.714   0.4753    
+                     Estimate Std. Error       df t value Pr(>|t|)  
+(Intercept)          1892.039   1714.029  159.462   1.104   0.2713  
+model_aiccdecel        43.925    404.274  436.361   0.109   0.9135  
+model_aiccGRW         647.231    354.136  436.503   1.828   0.0683 .
+model_aiccOU           40.816    357.653  436.411   0.114   0.9092  
+model_aiccOU mov opt   95.933    395.676  436.532   0.242   0.8085  
+model_aiccstasis       -9.762    315.914  436.420  -0.031   0.9754  
+model_aiccURW        -195.109    315.848  436.404  -0.618   0.5371  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Correlation of Fixed Effects:
-            (Intr) md_URW md_GRW mdl_ccc mdl_ccd mdl_OU
-model_ccURW -0.043                                     
-model_ccGRW -0.036  0.356                              
-model_ccccl -0.023  0.251  0.177                       
-model_ccdcl -0.024  0.223  0.200  0.159                
-model_accOU -0.030  0.266  0.260  0.144   0.269        
-mdl_ccOUmvo -0.029  0.247  0.266  0.161   0.193   0.253
+            (Intr) mdl_ccd md_GRW mdl_OU m_OUmo mdl_ccs
+model_ccdcl -0.122                                     
+model_ccGRW -0.146  0.598                              
+model_accOU -0.144  0.639   0.710                      
+mdl_ccOUmvo -0.129  0.543   0.641  0.645               
+modl_ccstss -0.161  0.660   0.778  0.795  0.679        
+model_ccURW -0.160  0.647   0.783  0.765  0.671  0.874 
