@@ -302,8 +302,8 @@ res$resolution <- res$steps/res$interval_MY
 
 # LMM
 plot_data2$resolution = plot_data2$steps/plot_data2$interval_MY
-#lmm_model_resolution2 <- lmer(resolution ~ 1+ model_type + (1| popID), data = plot_data2)
-lmm_model_resolution2 <- lm(resolution ~ model_type, data = plot_data2)
+lmm_model_resolution2 <- lmer(resolution ~ model_type + (1| popID), data = plot_data2)
+#lmm_model_resolution2 <- lm(resolution ~ model_type, data = plot_data2)
 summary(lmm_model_resolution2)
 
 # plot
@@ -334,18 +334,20 @@ resolution2 = as.data.frame(summary(lmm_model_resolution2)$coefficients)
 
 interval_df2 <- data.frame(term = models2, i.Est = interval2$Estimate,
                            i.SE = interval2$"Std", i.p.value = interval2$"Pr")
+interval_df2$i.Est[2:nrow(interval_df2)] <- interval_df2$i.Est[1] + interval_df2$i.Est[2:nrow(interval_df2)]
 
 steps_df2 <- data.frame(s.Est = steps2$Estimate,
                         s.SE = steps2$"Std", s.p.value = steps2$"Pr")
+steps_df2$s.Est[2:nrow(steps_df2)] <- steps_df2$s.Est[1] + steps_df2$s.Est[2:nrow(steps_df2)]
 
 resolution_df2 <- data.frame(r.Est = resolution2$Estimate,
                              r.SE = resolution2$"Std", r.p.value = resolution2$"Pr")
+resolution_df2$r.Est[2:nrow(resolution_df2)] <- resolution_df2$r.Est[1] + resolution_df2$r.Est[2:nrow(resolution_df2)]
 
 lmm_result_table2 <- cbind(interval_df2, steps_df2, resolution_df2)
 lmm_result_table2[, -1] <- round(lmm_result_table2[, -1], 3)
 
 write.csv(lmm_result_table2, file = "./results_paleoTS_v0.6.1/table_lmm_shift_adeq.csv", row.names = FALSE)
-
 
 
 #---------------------------------
