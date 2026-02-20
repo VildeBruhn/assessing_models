@@ -363,7 +363,7 @@ steps_plot2 <- ggplot(steps2, aes(x = log(steps), y = model_adequate, fill = par
   xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                             axis.title = element_text(size = 13),
                                             axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
-steps_plot
+steps_plot2
 dev.off()
 
 ###### resolution ######
@@ -393,7 +393,7 @@ sink()
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_adeq.pdf")
-res_plot <- ggplot(res2, aes(x = log(resolution), y = model_adequate, fill = parameters)) + 
+res_plot2 <- ggplot(res2, aes(x = log(resolution), y = model_adequate, fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
@@ -402,16 +402,16 @@ res_plot <- ggplot(res2, aes(x = log(resolution), y = model_adequate, fill = par
   xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                                  axis.title = element_text(size = 13),
                                                  axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
-res_plot
+res_plot2
 dev.off()
 
 
 
 # put plots in same figure
 pdf(width = 15.0, height = 5.5, file = "./results_paleoTS_v0.6.1/plot/interval_steps_res_adeq.pdf")
-grid.arrange(intv_plot,
-             steps_plot,
-             res_plot, nrow = 1)
+grid.arrange(intv_plot2,
+             steps_plot2,
+             res_plot2, nrow = 1)
 dev.off()
 
 # put the output of the linear mixed effects models in the same table
