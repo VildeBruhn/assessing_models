@@ -35,7 +35,7 @@ source("./assessing_models_uni_functions.R")
 #--------------
 df <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
 
-# remove time series with less than 10 steps
+# remove time series with less than 7 steps
 df <- subset(df, steps >= 7)
 
 # remove modern time series
@@ -508,9 +508,11 @@ plot_dataset$resolution <- plot_dataset$steps/plot_dataset$interval_MY
 ###### Taxa plot ######
 plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "chondrichthyan", "fish")
 
+unique(plot_dataset$taxa) #no echinoderms
+
 taxa_levels <- c(
   "foraminifer", "coccolith", "radiolarian", "diatom",
-  "bryozoan", "bivalve", "gastropod", "cephalopod", "ostracod", "brachiopod", "trilobite", "echinoderm", "graptolite",
+  "bryozoan", "bivalve", "gastropod", "cephalopod", "ostracod", "brachiopod", "trilobite", "graptolite",
   "mammal", "bird", "conodont", "fish"
 )
 
@@ -528,7 +530,7 @@ taxa_cols <- c(
   ostracod    = "#DCCB4E",
   brachiopod  = "#E3D460",
   trilobite   = "#EADC72",
-  echinoderm  = "#F1E583",
+  #echinoderm  = "#F1E583",
   graptolite  = "#F8EC95",
 # Vertebrates
   mammal    = "#B84400",
@@ -563,12 +565,14 @@ taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
       legend.key.spacing.y = unit(0.1, "cm"),
   ) +
   labs(title = "Taxa", fill = "") +
-  guides(fill=guide_legend(ncol=2, byrow=FALSE))
+  guides(fill=guide_legend(ncol=1, byrow=FALSE))
 
 ###### Age plot ###### 
+unique(df_periods$period_start) #no permian and no triassic
+
 period_levels <- c(
   "Cambrian", "Ordovician", "Silurian", "Devonian",
-  "Carboniferous", "Permian", "Triassic", "Jurassic", "Cretaceous",
+  "Carboniferous", "Jurassic", "Cretaceous",
   "Paleogene", "Neogene", "Quaternary"
 )
 
@@ -578,8 +582,8 @@ period_cols <- c(
   "Silurian"      = rgb(179, 225, 182, maxColorValue = 255),
   "Devonian"      = rgb(203, 140, 55, maxColorValue = 255),
   "Carboniferous" = rgb(103, 165, 153, maxColorValue = 255),
-  "Permian"       = rgb(240, 64, 40, maxColorValue = 255),
-  "Triassic"      = rgb(129, 43, 146, maxColorValue = 255),
+  #"Permian"       = rgb(240, 64, 40, maxColorValue = 255),
+  #"Triassic"      = rgb(129, 43, 146, maxColorValue = 255),
   "Jurassic"      = rgb(52, 178, 201, maxColorValue = 255),
   "Cretaceous"    = rgb(127, 198, 78, maxColorValue = 255),
   "Paleogene"     = rgb(253, 154, 82, maxColorValue = 255),
@@ -600,6 +604,9 @@ plot_dataset %>%
 
 used_levels <- levels(df_periods$period_start)
 used_cols <- period_cols[used_levels]
+
+percentages <- setNames(df_periods$pct, df_periods$period_start)
+legend_labels <- paste0(used_levels, " (", percentages[used_levels], ")")
 
 age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_start)) +
   geom_col(width = 1, color = "black", linewidth = 0.2) +
@@ -648,5 +655,5 @@ layout_matrix = rbind(c(NA, NA, NA, NA, NA, NA, NA, NA),
                       c(NA, NA, NA, NA, NA, NA, NA, NA))
 )
 
-ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v3.pdf", plot_dataset_display,
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_uni_v1.pdf", plot_dataset_display,
        width = 9, height = 6, units = "in", dpi = 300)

@@ -32,16 +32,24 @@ source("./assessing_models_uni_functions.R")
 #--------------
 # IMPORT FILES
 #--------------
+ln_data_meta_shift <- read_delim("./timeseries/metadata.txt", col_names = TRUE, delim = "\t")
+
+# remove time series with less than 14 steps
+ln_data_meta_shift <- subset(ln_data_meta_shift, steps >= 14)
+
+# remove modern time series
+ln_data_meta_shift <- subset(ln_data_meta_shift, period_start != "Present")
+
+# remove Syverson
+ln_data_meta_shift <- subset(ln_data_meta_shift, URL != "https://doi.org/10.1017/pab.2024.37")
+
+# make list based on ID
+ln_data_meta_shift <- lapply(split(ln_data_meta_shift,ln_data_meta_shift$tsID), function(x) as.list(x))
 
 
-# load data
-load("./ln_data_meta_shift.Rdata")
+# load data from analyses
 load("./ln_data_shift.Rdata")
-
-# load relative fit time series
 load("./aicc_shift_passed.Rdata")
-
-# load adequate time series 
 load("./adeq_shift_passed.Rdata")
 
 
@@ -362,11 +370,13 @@ plot_dataset$resolution <- plot_dataset$steps/plot_dataset$interval_MY
 ###### Taxa plot ###### 
 plot_dataset$taxa <- replace(plot_dataset$taxa, plot_dataset$taxa == "chondrichthyan", "fish")
 
+unique(plot_dataset$taxa) #no cephalopod, no echinoderm, no bird
+
 taxa_levels <- c(
   "foraminifer", "coccolith", "radiolarian", "diatom",
-  "bryozoan", "bivalve", "gastropod", "ostracod", "brachiopod", "trilobite", "echinoderm", "graptolite",
+  "bryozoan", "bivalve", "gastropod", "ostracod", "brachiopod", "trilobite", "graptolite",
   "mammal", "conodont", "fish"
-)
+) 
 
 taxa_cols <- c(
   # Protists
@@ -378,13 +388,15 @@ taxa_cols <- c(
   bryozoan    = "#968F2C",
   bivalve     = "#A89F33",
   gastropod   = "#B7AF3B",
+  #cephalopod  = "#C6BF43",
   ostracod    = "#DCCB4E",
   brachiopod  = "#E3D460",
   trilobite   = "#EADC72",
-  echinoderm  = "#F1E583",
+  #echinoderm  = "#F1E583",
   graptolite  = "#F8EC95",
   # Vertebrates
   mammal    = "#B84400",
+  #bird     = "#DB6000",
   conodont = "#F07C26",
   fish      = "#FF983D"
 )
@@ -419,6 +431,8 @@ taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
   guides(fill=guide_legend(ncol=2, byrow=FALSE))
 
 ###### Age plot ###### 
+unique(plot_dataset$period_start) #no permian, no triassic
+
 period_levels <- c(
   "Cambrian", "Ordovician", "Silurian", "Devonian",
   "Carboniferous", "Jurassic", "Cretaceous",
@@ -431,6 +445,8 @@ period_cols <- c(
   "Silurian"      = rgb(179, 225, 182, maxColorValue = 255),
   "Devonian"      = rgb(203, 140, 55, maxColorValue = 255),
   "Carboniferous" = rgb(103, 165, 153, maxColorValue = 255),
+  #"Permian"       = rgb(240, 64, 40, maxColorValue = 255),
+  #"Triassic"      = rgb(129, 43, 146, maxColorValue = 255),
   "Jurassic"      = rgb(52, 178, 201, maxColorValue = 255),
   "Cretaceous"    = rgb(127, 198, 78, maxColorValue = 255),
   "Paleogene"     = rgb(253, 154, 82, maxColorValue = 255),
@@ -467,14 +483,14 @@ age_dataset_plot <- ggplot(df_periods, aes(x = 1, y = fraction, fill = period_st
 
 ###### interval plot ######
 intv_dataset_plot <- ggplot(plot_dataset, aes(x = interval_MY)) +
-  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  geom_histogram(bins = 20, color = "black", fill = "#8D8680", linewidth = 0.2) +
   labs(x = "Interval (My)",
        y = "Time series count") +
   theme_classic()
 
 ###### steps plot ######
 steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
-  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  geom_histogram(bins = 20, color = "black", fill = "#8D8680", linewidth = 0.2) +
   scale_x_log10() +
   labs(x = "Steps",
        y = "Time series count") +
@@ -482,7 +498,7 @@ steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
 
 ###### resolution plot ######
 res_dataset_plot <- ggplot(plot_dataset, aes(x = resolution)) +
-  geom_histogram(bins = 20, color = "black", fill = "grey", linewidth = 0.2) +
+  geom_histogram(bins = 20, color = "black", fill = "#8D8680", linewidth = 0.2) +
   scale_x_log10() +
   labs(x = "Resolution",
        y = "Time series count") +
@@ -503,5 +519,5 @@ plot_dataset_display = grid.arrange(
 )
 
 ggsave("./results_paleoTS_v0.6.1/plot/dataset_shift_v2.pdf", plot_dataset_display,
-       width = 11, height = 8.5, units = "in", dpi = 300)
+       width = 9, height = 6, units = "in", dpi = 300)
 
