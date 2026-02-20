@@ -489,15 +489,12 @@ Daicc_plot = ggplot(plot_data, aes(x = adequacy, y = deltaAICc, fill = adequacy)
   labs(x = expression(bold("Adequacy status"))) +
   theme_classic() + ylab(~ paste(bold(Delta), bold(" AICc gap"), " (second best model - first best model)")) +
   scale_y_continuous(limits = c(0, 8)) +
+  scale_x_discrete(labels = c("", ""), ) +
   scale_fill_manual(values = c("adequate" = "#ADC397", "inadequate" = "#E5A208"), name = "") +
-  theme(
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 11),
-    legend.text = element_text(size = 11))
+  theme(axis.title = element_text(size = 12), axis.text.y = element_text(size = 11), 
+        axis.text.x = element_text(size = 3), legend.text = element_text(size = 11))
 Daicc_plot
 dev.off()
-
-
 
 #---------------------------------
 # PLOT STATISTICS ON THE DATASET
