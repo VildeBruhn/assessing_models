@@ -47,7 +47,6 @@ df <- subset(df, URL != "https://doi.org/10.1017/pab.2024.37")
 # make list based on ID
 df <- lapply(split(df,df$tsID), function(x) as.list(x))
 
-
 # load data from analyses
 load("./aicc_uni_passed.Rdata")
 load("./model_test_uni.Rdata")
@@ -114,9 +113,12 @@ plot_data$model_aicc <- factor(plot_data$model_aicc, levels = level_order)
 
 
 # set colors
-col_val1 <- c("#85B7B9", "#DCCB4E")
-col_val2 <- c("#F11B00","#E5A208", "#ADC397", "#3A9AB2")
-col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E04", "#F11B00")
+#col_val1 <- c("#85B7B9", "#DCCB4E")
+#col_val2 <- c("#F11B00","#E5A208", "#ADC397", "#3A9AB2")
+#col_val_extra <- c("#3A9AB2", "#85B7B9", "#ADC397", "#DCCB4E", "#E5A208", "#ED6E04", "#F11B00")
+
+# set colors
+col_val1 <- c("#B7AF3B", "#BFE0E1", "#EADC72", "#B84400")
 
 
 #---------------
@@ -156,7 +158,7 @@ intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = model_aicc,
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) + 
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
+                                                      "5"), palette = col_val1) +
   xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                                 axis.title = element_text(size = 13),
                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
@@ -194,12 +196,13 @@ steps_plot <- ggplot(steps, aes(x = log(steps), y = model_aicc, fill = parameter
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
+                                                      "5"), palette = col_val1) +
   xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                         axis.title = element_text(size = 13),
                                         axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
+
 
 ###### resolution ######
 res <- plot_data
@@ -233,7 +236,7 @@ res_plot <- ggplot(res, aes(x = log(resolution), y = model_aicc, fill = paramete
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
+                                                      "5"), palette = col_val1) +
   xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                                         axis.title = element_text(size = 13),
                                                         axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
@@ -321,7 +324,7 @@ intv_plot2 <- ggplot(intv_my2, aes(x = interval_MY, y = model_adequate,
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) + 
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
+                                                      "5"), palette = col_val1) +
   xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                                 axis.title = element_text(size = 13),
                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
@@ -359,7 +362,7 @@ steps_plot2 <- ggplot(steps2, aes(x = log(steps), y = model_adequate, fill = par
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
+                                                      "5"), palette = col_val1) +
   xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                             axis.title = element_text(size = 13),
                                             axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
@@ -398,7 +401,7 @@ res_plot2 <- ggplot(res2, aes(x = log(resolution), y = model_adequate, fill = pa
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
-                                                      "5"), palette = col_val2) +
+                                                      "5"), palette = col_val1) +
   xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
                                                  axis.title = element_text(size = 13),
                                                  axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
@@ -484,15 +487,13 @@ sink()
 
 # plot
 pdf(width = 5.0 , height = 4.5, file = "./results_paleoTS_v0.6.1/plot/DAICc_uni_adeq.pdf")
-Daicc_plot = ggplot(plot_data, aes(x = adequacy, y = deltaAICc, fill = adequacy)) +
-  geom_boxplot() +
-  labs(x = expression(bold("Adequacy status"))) +
-  theme_classic() + ylab(~ paste(bold(Delta), bold(" AICc gap"), " (second best model - first best model)")) +
-  scale_y_continuous(limits = c(0, 8)) +
-  scale_x_discrete(labels = c("", ""), ) +
-  scale_fill_manual(values = c("adequate" = "#ADC397", "inadequate" = "#E5A208"), name = "") +
+Daicc_plot = ggplot(plot_data, aes(x = adequacy, y = deltaAICc, fill = adequacy)) + 
+  geom_boxplot() + labs(x = "") + theme_classic() + ylab(~ paste(bold(Delta), " AICc gap")) +
+  scale_y_continuous(limits = c(0, 8)) + scale_x_discrete(labels = c("Adequate", "Inadequate"), ) +
+  scale_fill_manual(values = c("#99C0C2", "#F1E583")) + guides(fill="none") +
+  #scale_fill_manual(values = c("adequate" = "#99C0C2", "inadequate" = "#F1E583"), name = "") +
   theme(axis.title = element_text(size = 12), axis.text.y = element_text(size = 11), 
-        axis.text.x = element_text(size = 3), legend.text = element_text(size = 11))
+        axis.text.x = element_text(size = 12), legend.text = element_text(size = 11))
 Daicc_plot
 dev.off()
 
