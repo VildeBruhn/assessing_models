@@ -1,5 +1,5 @@
 ##############################################################
-##   Assessing models of evolution (mode shift included)    ##
+##   Assessing models of evolution (mode-shift included)    ##
 ##                       STATISTICS                         ##
 ##############################################################
 
@@ -86,31 +86,31 @@ ln_data_meta_shift <- model_aicc(ln_data_meta_shift, GRW_Stasis, "GRW-Stasis")
 ln_data_meta_shift <- model_aicc(ln_data_meta_shift, URW_Stasis, "URW-Stasis")
 
 # get the type of model (without or with shift) info into metadata
-ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, URW, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Strict_stasis, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Decel, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Accel, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_mov_opt_anc, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_mov_opt, "no shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_Stasis, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_URW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_GRW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_OU, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_URW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_GRW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_OU, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_GRW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_OU, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_OU, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_GRW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_URW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_Stasis, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_URW, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_Stasis, "mode shift")
-ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_Stasis, "mode shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, URW, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Strict_stasis, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Decel, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Accel, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_mov_opt_anc, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_mov_opt, "single-mode")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_Stasis, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_URW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_GRW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, Stasis_OU, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_URW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_GRW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_OU, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_GRW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_OU, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_OU, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_GRW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_URW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, OU_Stasis, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_URW, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, GRW_Stasis, "mode-shift")
+ln_data_meta_shift <- model_type(ln_data_meta_shift, URW_Stasis, "mode-shift")
 
 # get adequate model info into metadata
 ln_data_meta_shift <- model_adeq(ln_data_meta_shift, GRW_adeq_passed, "GRW")
@@ -148,9 +148,9 @@ plot_data <- bind(ln_data_meta_shift, unit_list)
 plot_data <- plot_data %>% drop_na(model_aicc)
 
 # ordering the model according to the number of parameters
-level_order <- c("no shift", "mode shift")
+level_order <- c("single-mode", "mode-shift")
 plot_data$model_type <- factor(plot_data$model_type, levels = level_order)
-plot_data$model_type <- relevel(plot_data$model_type, ref = "no shift")
+plot_data$model_type <- relevel(plot_data$model_type, ref = "single-mode")
 
 
 #--------------------
@@ -167,10 +167,12 @@ summary(lmm_model_time)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/interval_my_shift_aicc.pdf")
-intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order),
+intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order), fill = model_type
                                  )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") +
   xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+                                                legend.position = "none",
                                                 axis.title = element_text(size = 13),
                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 intv_plot
@@ -186,11 +188,14 @@ summary(lmm_model_steps)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/steps_shift_aicc.pdf")
-steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order),
+steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
-  xlab("ln(Steps)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
+  xlab("ln(Steps)") + ylab("") + theme(axis.text = element_text(size = 10),
+                                                     legend.position = "none",
                                                      axis.title = element_text(size = 13),
+                                                     axis.title.y = element_blank(),
                                                      axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
@@ -207,11 +212,14 @@ summary(lmm_model_resolution)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/resolution_shift_aicc.pdf")
-res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order),
+res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
-  xlab("ln(Resolution)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
+  xlab("ln(Resolution)") + ylab("") + theme(axis.text = element_text(size = 10),
+                                                 legend.position = "none",
                                                  axis.title = element_text(size = 13),
+                                                 axis.title.y = element_blank(),
                                                  axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 res_plot
 dev.off()
@@ -261,9 +269,9 @@ plot_data2 <- plot_data
 plot_data2 <- plot_data2 %>% drop_na(model_adequate)
 
 # ordering the model according to the number of parameters
-level_order <- c("no shift", "mode shift")
+level_order <- c("single-mode", "mode-shift")
 plot_data$model_type <- factor(plot_data$model_type, levels = level_order)
-plot_data$model_type <- relevel(plot_data$model_type, ref = "no shift")
+plot_data$model_type <- relevel(plot_data$model_type, ref = "single-mode")
 
 
 ###### interval MY ######
@@ -276,10 +284,12 @@ summary(lmm_model_time2)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/interval_my_shift_adeq.pdf")
-intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order),
+intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
   xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+                                                     legend.position = "none",
                                                      axis.title = element_text(size = 13),
                                                      axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 intv_plot
@@ -295,11 +305,14 @@ summary(lmm_model_steps2)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/steps_shift_adeq.pdf")
-steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order),
+steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
-  xlab("ln(Steps)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
+  xlab("ln(Steps)") + ylab("") + theme(axis.text = element_text(size = 10),
+                                                 legend.position = "none",
                                                  axis.title = element_text(size = 13),
+                                                 axis.title.y = element_blank(),
                                                  axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
@@ -316,11 +329,14 @@ summary(lmm_model_resolution2)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/resolution_shift_adeq.pdf")
-res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order),
+res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("no shift", "mode shift")) + 
-  xlab("ln(Resolution)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
+  xlab("ln(Resolution)") + ylab("") + theme(axis.text = element_text(size = 10),
+                                                      legend.position = "none",
                                                       axis.title = element_text(size = 13),
+                                                      axis.title.y = element_blank(),
                                                       axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
 res_plot
 dev.off()
