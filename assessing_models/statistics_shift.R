@@ -169,12 +169,12 @@ summary(lmm_model_time)
 pdf("./results_paleoTS_v0.6.1/plot/interval_my_shift_aicc.pdf")
 intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order), fill = model_type
                                  )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  geom_boxplot(alpha = 0.7) + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
   scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") +
-  xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+  xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 14),
                                                 legend.position = "none",
-                                                axis.title = element_text(size = 13),
-                                                axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+                                                axis.title = element_text(size = 18),
+                                                axis.title.x = element_text(margin = margin(t = 18, r = 0, b = 0, l = 0)))
 intv_plot
 dev.off()
 
@@ -190,13 +190,13 @@ summary(lmm_model_steps)
 pdf("./results_paleoTS_v0.6.1/plot/steps_shift_aicc.pdf")
 steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  geom_boxplot(alpha = 0.7) + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
   scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
-  xlab("ln(Steps)") + ylab("") + theme(axis.text = element_text(size = 10),
+  xlab("ln(Steps)") + ylab("") + theme(axis.text = element_text(size = 14),
                                                      legend.position = "none",
-                                                     axis.title = element_text(size = 13),
+                                                     axis.title = element_text(size = 18),
                                                      axis.title.y = element_blank(),
-                                                     axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+                                                     axis.title.x = element_text(margin = margin(t = 18, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
 
@@ -214,13 +214,13 @@ summary(lmm_model_resolution)
 pdf("./results_paleoTS_v0.6.1/plot/resolution_shift_aicc.pdf")
 res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  geom_boxplot(alpha = 0.7) + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
   scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
-  xlab("ln(Resolution)") + ylab("") + theme(axis.text = element_text(size = 10),
+  xlab("ln(Resolution)") + ylab("") + theme(axis.text = element_text(size = 14),
                                                  legend.position = "none",
-                                                 axis.title = element_text(size = 13),
+                                                 axis.title = element_text(size = 18),
                                                  axis.title.y = element_blank(),
-                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+                                                 axis.title.x = element_text(margin = margin(t = 18, r = 0, b = 0, l = 0)))
 res_plot
 dev.off()
 
@@ -286,12 +286,12 @@ summary(lmm_model_time2)
 pdf("./results_paleoTS_v0.6.1/plot/interval_my_shift_adeq.pdf")
 intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  geom_boxplot(alpha = 0.7) + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
   scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
-  xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 10),
+  xlab("Interval (MY)") + ylab("Model type") + theme(axis.text = element_text(size = 14),
                                                      legend.position = "none",
-                                                     axis.title = element_text(size = 13),
-                                                     axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+                                                     axis.title = element_text(size = 18),
+                                                     axis.title.x = element_text(margin = margin(t = 18, r = 0, b = 0, l = 0)))
 intv_plot
 dev.off()
 
@@ -307,13 +307,13 @@ summary(lmm_model_steps2)
 pdf("./results_paleoTS_v0.6.1/plot/steps_shift_adeq.pdf")
 steps_plot <- ggplot(steps, aes(x = log(steps), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  geom_boxplot(alpha = 0.7) + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
   scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
-  xlab("ln(Steps)") + ylab("") + theme(axis.text = element_text(size = 10),
+  xlab("ln(Steps)") + ylab("") + theme(axis.text = element_text(size = 14),
                                                  legend.position = "none",
-                                                 axis.title = element_text(size = 13),
+                                                 axis.title = element_text(size = 18),
                                                  axis.title.y = element_blank(),
-                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+                                                 axis.title.x = element_text(margin = margin(t = 18, r = 0, b = 0, l = 0)))
 steps_plot
 dev.off()
 
@@ -331,13 +331,13 @@ summary(lmm_model_resolution2)
 pdf("./results_paleoTS_v0.6.1/plot/resolution_shift_adeq.pdf")
 res_plot <- ggplot(res, aes(x = log(resolution), y = factor(model_type, levels = level_order), fill = model_type
 )) + 
-  geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
+  geom_boxplot(alpha = 0.7) + theme_classic() + scale_y_discrete(labels = c("single-mode", "mode-shift")) + 
   scale_fill_manual(values = c("mode-shift" = "#B84400", "single-mode" = "#B7AF3B"), name = "Model type") + 
-  xlab("ln(Resolution)") + ylab("") + theme(axis.text = element_text(size = 10),
+  xlab("ln(Resolution)") + ylab("") + theme(axis.text = element_text(size = 14),
                                                       legend.position = "none",
-                                                      axis.title = element_text(size = 13),
+                                                      axis.title = element_text(size = 18),
                                                       axis.title.y = element_blank(),
-                                                      axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+                                                      axis.title.x = element_text(margin = margin(t = 18, r = 0, b = 0, l = 0)))
 res_plot
 dev.off()
 

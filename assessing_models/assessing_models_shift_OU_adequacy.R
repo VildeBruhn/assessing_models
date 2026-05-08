@@ -5,7 +5,6 @@
 #paleoTS.v.0.5.3
 #evoTS GitHub version
 
-
 .libPaths("/cluster/home/marionth/R")
 
 
@@ -53,21 +52,21 @@ load('OU_shift.RData')
 
 OU_adeq <- vector("list", length(OU))
 if (length(OU) > 0) { 
-  OU_adeq <- foreach(i = seq_along(OU), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU)) {
+    OU_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU[[i]], plot = FALSE),
       error = function(e) NA
     )
   }
 }
 names(OU_adeq) <- names(OU)
-adeq_issues_OU <- which(sapply(OU_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU <- setdiff(names(OU), names(OU_adeq))
 OU_adeq <- Filter(function(x) !is.na(x)[1], OU_adeq)
 
 OU_mov_opt_anc_adeq <- vector("list", length(OU_mov_opt_anc))
 if (length(OU_mov_opt_anc) > 0) { 
-  OU_mov_opt_anc_adeq <- foreach(i = seq_along(OU_mov_opt_anc), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_mov_opt_anc)) {
+    OU_mov_opt_anc_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_mov_opt_anc[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -80,8 +79,8 @@ OU_mov_opt_anc_adeq <- Filter(function(x) !is.na(x)[1], OU_mov_opt_anc_adeq)
 
 OU_mov_opt_adeq <- vector("list", length(OU_mov_opt))
 if (length(OU_mov_opt) > 0) { 
-  OU_mov_opt_adeq <- foreach(i = seq_along(OU_mov_opt), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_mov_opt)) {
+    OU_mov_opt_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_mov_opt[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -94,8 +93,8 @@ OU_mov_opt_adeq <- Filter(function(x) !is.na(x)[1], OU_mov_opt_adeq)
 
 Stasis_OU_subset2_adeq <- vector("list", length(Stasis_OU_subset2))
 if (length(Stasis_OU_subset2) > 0) { 
-  Stasis_OU_subset2_adeq <- foreach(i = seq_along(Stasis_OU_subset2), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(Stasis_OU_subset2)) {
+    Stasis_OU_subset2_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(Stasis_OU_subset2[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -108,8 +107,8 @@ Stasis_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], Stasis_OU_subset2_ade
 
 URW_OU_subset2_adeq <- vector("list", length(URW_OU_subset2))
 if (length(URW_OU_subset2) > 0) { 
-  URW_OU_subset2_adeq <- foreach(i = seq_along(URW_OU_subset2), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(URW_OU_subset2)) {
+    URW_OU_subset2_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(URW_OU_subset2[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -122,8 +121,8 @@ URW_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], URW_OU_subset2_adeq)
 
 GRW_OU_subset2_adeq <- vector("list", length(GRW_OU_subset2))
 if (length(GRW_OU_subset2) > 0) { 
-  GRW_OU_subset2_adeq <- foreach(i = seq_along(GRW_OU_subset2), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(GRW_OU_subset2)) {
+    GRW_OU_subset2_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(GRW_OU_subset2[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -136,8 +135,8 @@ GRW_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], GRW_OU_subset2_adeq)
 
 OU_OU_subset1_adeq <- vector("list", length(OU_OU_subset1))
 if (length(OU_OU_subset1) > 0) { 
-  OU_OU_subset1_adeq <- foreach(i = seq_along(OU_OU_subset1), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_OU_subset1)) {
+    OU_OU_subset1_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_OU_subset1[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -150,8 +149,8 @@ OU_OU_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_OU_subset1_adeq)
 
 OU_OU_subset2_adeq <- vector("list", length(OU_OU_subset2))
 if (length(OU_OU_subset2) > 0) { 
-  OU_OU_subset2_adeq <- foreach(i = seq_along(OU_OU_subset2), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_OU_subset2)) {
+    OU_OU_subset2_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_OU_subset2[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -164,8 +163,8 @@ OU_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], OU_OU_subset2_adeq)
 
 OU_GRW_subset1_adeq <- vector("list", length(OU_GRW_subset1))
 if (length(OU_GRW_subset1) > 0) { 
-  OU_GRW_subset1_adeq <- foreach(i = seq_along(OU_GRW_subset1), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_GRW_subset1)) {
+    OU_GRW_subset1_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_GRW_subset1[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -178,8 +177,8 @@ OU_GRW_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_GRW_subset1_adeq)
 
 OU_URW_subset1_adeq <- vector("list", length(OU_URW_subset1))
 if (length(OU_URW_subset1) > 0) { 
-  OU_URW_subset1_adeq <- foreach(i = seq_along(OU_URW_subset1), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_URW_subset1)) {
+    OU_URW_subset1_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_URW_subset1[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -192,8 +191,8 @@ OU_URW_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_URW_subset1_adeq)
 
 OU_Stasis_subset1_adeq <- vector("list", length(OU_Stasis_subset1))
 if (length(OU_Stasis_subset1) > 0) { 
-  OU_Stasis_subset1_adeq <- foreach(i = seq_along(OU_Stasis_subset1), .packages = c("adePEM")) %do% {
-    res <- tryCatch(
+  for (i in seq_along(OU_Stasis_subset1)) {
+    OU_Stasis_subset1_adeq[[i]] <- tryCatch(
       fit3adequacy.OU(OU_Stasis_subset1[[i]], plot = FALSE),
       error = function(e) NA
     )
@@ -203,8 +202,6 @@ names(OU_Stasis_subset1_adeq) <- names(OU_Stasis_subset1)
 adeq_issues_OU_Stasis_subset1 <- which(sapply(OU_Stasis_subset1_adeq, function(x) is.na(x)[1]))
 adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_Stasis_subset1)
 OU_Stasis_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_Stasis_subset1_adeq)
-
-
 
 save(adeq_issues_OU, OU_adeq, OU_mov_opt_anc_adeq, OU_mov_opt_adeq, Stasis_OU_subset2_adeq, 
      URW_OU_subset2_adeq, GRW_OU_subset2_adeq, OU_OU_subset1_adeq, OU_OU_subset2_adeq, 

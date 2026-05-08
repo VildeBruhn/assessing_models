@@ -384,9 +384,8 @@ for (i in 1:length(ln_data_shift)) {
 
 categories <- c("GRW", "URW", "Stasis", "Strict_stasis", "Decel", "Accel", "OU",
                 "OU_mov_opt_anc", "OU_mov_opt", "Stasis_Stasis", 
-                "Stasis_URW", "Stasis_GRW", "Stasis_OU", "URW_URW", "URW_GRW", "URW_OU",
-                "GRW_GRW", "GRW_OU", "OU_OU", "OU_GRW", "OU_URW", "OU_Stasis", "GRW_URW",
-                "GRW_Stasis", "URW_Stasis")
+                "Stasis_URW", "Stasis_GRW", "Stasis_OU", "URW_Stasis", "URW_URW", "URW_GRW", "URW_OU",
+                "GRW_Stasis","GRW_URW","GRW_GRW", "GRW_OU","OU_Stasis","OU_URW","OU_GRW", "OU_OU")
 
 # Create a list to store the results
 result_list <- list()
@@ -910,9 +909,19 @@ adeq_issues_OU_Stasis_subset2 <- which(sapply(OU_Stasis_subset2_adeq, function(x
 OU_Stasis_subset2_adeq <- Filter(function(x) !is.na(x)[1], OU_Stasis_subset2_adeq)
 
 GRW_URW_subset1_adeq <- mclapply(GRW_URW_subset1, fit3adequacy.trend, plot = FALSE)
-GRW_URW_subset2_adeq <- mclapply(GRW_URW_subset2, fit3adequacy.RW, plot = FALSE)
 names(GRW_URW_subset1_adeq) = tsID_GRW_URW
+GRW_URW_subset2_adeq <- mclapply(
+  GRW_URW_subset2,
+  function(x) {
+    tryCatch(
+      fit3adequacy.RW(x, plot = FALSE),
+      error = function(e) NA
+    )
+  }
+)
 names(GRW_URW_subset2_adeq) = tsID_GRW_URW
+adeq_issues_GRW_URW_subset2 <- which(sapply(GRW_URW_subset2_adeq, function(x) is.na(x)[1]))
+GRW_URW_subset2_adeq <- Filter(function(x) !is.na(x)[1], GRW_URW_subset2_adeq)
 
 GRW_Stasis_subset1_adeq <- mclapply(GRW_Stasis_subset1, fit3adequacy.trend, plot = FALSE)
 GRW_Stasis_subset2_adeq <- mclapply(GRW_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
@@ -926,7 +935,7 @@ names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 
 # Loading results of the OU adequacy (the OU models are not working in parallel)
 load("./OU_shift_adeq.RData")
-adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_OU)
+adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_GRW_URW_subset2, adeq_issues_OU)
 
 # get adequacy results for only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -1208,13 +1217,7 @@ GRW_Stasis_p <- (length(GRW_Stasis_adeq_passed)/length(GRW_Stasis_subset1_adeq))
 URW_Stasis_p <- (length(URW_Stasis_adeq_passed)/length(URW_Stasis_subset1_adeq))*100
 
 # Time series which could not be evaluated in the adequacy tests
-TS_eval_adeq = sum(length(GRW_adeq), length(URW_adeq), length(stasis_adeq), length(strict_stasis_adeq), length(decel_adeq), length(accel_adeq), length(OU_adeq), 
-    length(OU_mov_opt_anc_adeq), length(OU_mov_opt_adeq), length(Stasis_Stasis_subset1_adeq), length(Stasis_URW_subset1_adeq), length(Stasis_GRW_subset1_adeq), 
-    length(Stasis_OU_subset1_adeq), length(URW_URW_subset1_adeq), length(URW_GRW_subset1_adeq), length(URW_OU_subset1_adeq), length(GRW_GRW_subset1_adeq), length(GRW_OU_subset1_adeq), 
-    length(OU_OU_subset1_adeq), length(OU_GRW_subset1_adeq), length(OU_URW_subset1_adeq), length(OU_Stasis_subset1_adeq), length(GRW_URW_subset1_adeq), length(GRW_Stasis_subset1_adeq), 
-    length(URW_Stasis_subset1_adeq))
-
-TS_noneval_adeq = total_rc - TS_eval_adeq
+TS_noneval_adeq = length(adeq_issues)
 
 # make output table
 adeq_table <- data.frame(
@@ -1223,27 +1226,23 @@ adeq_table <- data.frame(
   
   relative_count = c(GRW_rc, URW_rc, stasis_rc, strict_stasis_rc, decel_rc, accel_rc, OU_rc, 
                       OU_mov_opt_anc_rc, OU_mov_opt_rc, Stasis_Stasis_rc, Stasis_URW_rc, Stasis_GRW_rc, 
-                      Stasis_OU_rc, URW_URW_rc, URW_GRW_rc, URW_OU_rc, GRW_GRW_rc, GRW_OU_rc, 
-                      OU_OU_rc, OU_GRW_rc, OU_URW_rc, OU_Stasis_rc, GRW_URW_rc, GRW_Stasis_rc, 
-                      URW_Stasis_rc),
+                      Stasis_OU_rc, URW_Stasis_rc, URW_URW_rc, URW_GRW_rc, URW_OU_rc, GRW_Stasis_rc, 
+                      GRW_URW_rc, GRW_GRW_rc, GRW_OU_rc, OU_Stasis_rc, OU_URW_rc, OU_GRW_rc, OU_OU_rc),
   
   relative_percentage = c(GRW_rp, URW_rp, stasis_rp, strict_stasis_rp, decel_rp, accel_rp, OU_rp, 
                           OU_mov_opt_anc_rp, OU_mov_opt_rp, Stasis_Stasis_rp, Stasis_URW_rp, Stasis_GRW_rp, 
-                          Stasis_OU_rp, URW_URW_rp, URW_GRW_rp, URW_OU_rp, GRW_GRW_rp, GRW_OU_rp, 
-                          OU_OU_rp, OU_GRW_rp, OU_URW_rp, OU_Stasis_rp, GRW_URW_rp, GRW_Stasis_rp, 
-                          URW_Stasis_rp),
+                          Stasis_OU_rp, URW_Stasis_rp, URW_URW_rp, URW_GRW_rp, URW_OU_rp, GRW_Stasis_rp, 
+                          GRW_URW_rp, GRW_GRW_rp, GRW_OU_rp, OU_Stasis_rp, OU_URW_rp, OU_GRW_rp, OU_OU_rp),
   
   count_passed = c(GRW_c, URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, 
                    OU_mov_opt_anc_c, OU_mov_opt_c, Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, 
-                   Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c, GRW_OU_c, 
-                   OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, 
-                   URW_Stasis_c),
+                   Stasis_OU_c, URW_Stasis_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_Stasis_c, 
+                   GRW_URW_c, GRW_GRW_c, GRW_OU_c, OU_Stasis_c, OU_URW_c, OU_GRW_c, OU_OU_c),
   
   percentage_passed = c(GRW_p, URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, 
-                        OU_mov_opt_anc_p, OU_mov_opt_p, Stasis_Stasis_p, Stasis_URW_p, 
-                        Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p, 
-                        GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, 
-                        GRW_Stasis_p, URW_Stasis_p))
+                        OU_mov_opt_anc_p, OU_mov_opt_p, Stasis_Stasis_p, Stasis_URW_p, Stasis_GRW_p, 
+                        Stasis_OU_p, URW_Stasis_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_Stasis_p, 
+                        GRW_URW_p, GRW_GRW_p, GRW_OU_p, OU_Stasis_p, OU_URW_p, OU_GRW_p, OU_OU_p))
 
 
 # write to file
