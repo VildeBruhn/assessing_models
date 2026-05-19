@@ -444,7 +444,7 @@ taxa_dataset_plot <- ggplot(df_taxa, aes(x = 1, y = fraction, fill = taxa)) +
     legend.key.spacing.y = unit(0.1, "cm"),
   ) +
   labs(title = "Taxa", fill = "taxa") +
-  guides(fill=guide_legend(ncol=2, byrow=FALSE))
+  guides(fill=guide_legend(ncol=1, byrow=FALSE))
 
 ###### Age plot ###### 
 unique(plot_dataset$period_start) #no permian, no triassic
@@ -515,8 +515,8 @@ steps_dataset_plot <- ggplot(plot_dataset, aes(x = steps)) +
 ###### resolution plot ######
 res_dataset_plot <- ggplot(plot_dataset, aes(x = resolution)) +
   geom_histogram(bins = 20, color = "black", fill = "#8D8680", linewidth = 0.2) +
-  scale_x_log10() +
-  labs(x = "Resolution",
+  scale_x_log10(labels = label_number()) +
+  labs(x = "Resolution (steps/My)",
        y = "Time series count") +
   theme_classic()
 
@@ -534,6 +534,6 @@ plot_dataset_display = grid.arrange(
                         c(NA, NA, NA, NA, NA, NA, NA, NA))
 )
 
-ggsave("./results_paleoTS_v0.6.1/plot/dataset_shift_v2.pdf", plot_dataset_display,
+ggsave("./results_paleoTS_v0.6.1/plot/dataset_shift_v1.pdf", plot_dataset_display,
        width = 9, height = 6, units = "in", dpi = 300)
 
