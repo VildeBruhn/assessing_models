@@ -28,3 +28,8 @@ __Files__
 _data –_ this folder conatins data loaded in the scripts used for analyses.
 
 _scripts –_ this folder conatins scripts used to performe analyses. All scripts are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article.
+<ul>
+  <li>Coffee</li>
+  <li>Tea</li>
+  <li>Milk</li>
+</ul>
