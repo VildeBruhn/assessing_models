@@ -159,9 +159,10 @@ intv_plot <- ggplot(intv_my, aes(x = interval_MY, y = model_aicc,
                                                                  "OU", "OU mov. opt.")) + 
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val1) +
-  xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                                axis.title = element_text(size = 13),
-                                                axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+  xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 14),
+                                                axis.title = element_text(size = 18),
+                                                axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)),
+                                                legend.title = element_text(size = 14), legend.text = element_text(size = 14))
 intv_plot
 dev.off()
 
@@ -197,9 +198,10 @@ steps_plot <- ggplot(steps, aes(x = log(steps), y = model_aicc, fill = parameter
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val1) +
-  xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                        axis.title = element_text(size = 13),
-                                        axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+  xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 14),
+                                        axis.title = element_text(size = 18),
+                                        axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)),
+                                        legend.title = element_text(size = 14), legend.text = element_text(size = 14))
 steps_plot
 dev.off()
 
@@ -216,6 +218,12 @@ sink(file = "./results_paleoTS_v0.6.1/lmm_res_uni_results_aicc.txt")
 summary(lmm_res)
 sink()
 
+# LMM remove outliers GRW
+res_no <- res[-c(519,520),]
+lmm_res_no <- lmer(resolution ~ 1 + model_aicc + (1| popID), data = res_no)
+lm_res_no <- lm(resolution ~ 1 + model_aicc, data = res_no)
+summary(lm_res_no)
+
 # stats
 res_mean <- aggregate(res$resolution, list(res$model_aicc), mean)
 res_mean <- as.data.frame(res_mean)
@@ -231,15 +239,16 @@ sink()
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_aicc.pdf")
-res_plot <- ggplot(res, aes(x = log(resolution), y = model_aicc, fill = parameters)) + 
+res_plot <- ggplot(res_no, aes(x = log(resolution), y = model_aicc, fill = parameters)) + 
   geom_boxplot() + theme_classic() + scale_y_discrete(labels = c("Stasis", "URW", 
                                                                  "GRW", "Accel.", "Decel.", 
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val1) +
-  xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                                        axis.title = element_text(size = 13),
-                                                        axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+  xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 14),
+                                                        axis.title = element_text(size = 18),
+                                                        axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)),
+                                                        legend.title = element_text(size = 14), legend.text = element_text(size = 14))
 res_plot
 dev.off()
 
@@ -325,9 +334,10 @@ intv_plot2 <- ggplot(intv_my2, aes(x = interval_MY, y = model_adequate,
                                                                  "OU", "OU mov. opt.")) + 
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val1) +
-  xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                                axis.title = element_text(size = 13),
-                                                axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+  xlab("Interval (MY)") + ylab("Model") + theme(axis.text = element_text(size = 14),
+                                                axis.title = element_text(size = 18),
+                                                axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)),
+                                                legend.title = element_text(size = 14), legend.text = element_text(size = 14))
 intv_plot2
 dev.off()
 
@@ -363,9 +373,10 @@ steps_plot2 <- ggplot(steps2, aes(x = log(steps), y = model_adequate, fill = par
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val1) +
-  xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                            axis.title = element_text(size = 13),
-                                            axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+  xlab("ln(Steps)") + ylab("Model") + theme(axis.text = element_text(size = 14),
+                                            axis.title = element_text(size = 18),
+                                            axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)),
+                                            legend.title = element_text(size = 14), legend.text = element_text(size = 14))
 steps_plot2
 dev.off()
 
@@ -388,11 +399,18 @@ sink()
 
 # LMM
 lmm_res2 <- lmer(resolution ~ 1+ model_aicc + (1| popID), data = res2)
-summary(lmm_res2)
+lm_res2 <- lm(resolution ~ 1 + model_aicc, data = res2_no)
+summary(lm_res2)
 
 sink(file = "./results_paleoTS_v0.6.1/lmm_res_adeq_uni_results.txt")
 summary(lmm_res2)
 sink()
+
+# LMM remove outliers GRW
+res2_no <- res2[-c(414,415),]
+lmm_res2_no <- lmer(resolution ~ 1 + model_aicc + (1| popID), data = res2_no)
+lm_res2_no <- lm(resolution ~ 1 + model_aicc, data = res2_no)
+summary(lm_res2_no)
 
 # plot
 pdf("./results_paleoTS_v0.6.1/plot/resolution_uni_adeq.pdf")
@@ -402,9 +420,11 @@ res_plot2 <- ggplot(res2, aes(x = log(resolution), y = model_adequate, fill = pa
                                                                  "OU", "OU mov. opt.")) +
   scale_fill_discrete(name = "Parameters", labels = c("2", "3", "4",
                                                       "5"), palette = col_val1) +
-  xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 10),
-                                                 axis.title = element_text(size = 13),
-                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)))
+  xlab("ln(Resolution)") + ylab("Model") + theme(axis.text = element_text(size = 14),
+                                                 axis.title = element_text(size = 18),
+                                                 axis.title.x = element_text(margin = margin(t = 17, r = 0, b = 0, l = 0)),
+                                                 legend.title = element_text(size = 14), legend.text = element_text(size = 14))
+                                                 
 res_plot2
 dev.off()
 
