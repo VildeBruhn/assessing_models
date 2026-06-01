@@ -29,7 +29,7 @@ _data –_ this folder conatins data loaded in the scripts used for analyses.
 
 _scripts –_ this folder conatins scripts used to performe analyses. All scripts are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article.
 <ul>
-  <li>single_mode.R _single_mode.R_ runs the analyses for the single-mode models section of the article.</li>
+  <li>single_mode.R runs the analyses for the single-mode models section of the article.</li>
   <li>stats_single_mode.R runs regression analyses and plotting on the single-mode data generated in single_mode.R.</li>
   <li>mode_shift.R _single_mode.R_ runs the analyses pluss summary statistics for the mode-shift models section of the article.</li>
   <li>stats_mode_shift.R runs regression analyses and plotting on the mode-shift data generated in mode_shift.R.</li>
