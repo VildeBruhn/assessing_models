@@ -25,8 +25,6 @@ __Responsibility:__ VBK and MT are responsible for writing and analyses of data.
 
 __Files__ 
 
-_folder_name –_ this folder conatins scripts and data used in the ... section of the article. The main script is called .... The script uses the rest of the scripts and data in the folder. ... is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
+_data –_ this folder conatins data loaded in the scripts used for analyses.
 
-_folder_name –_ this folder conatins scripts and data used in the ... section of the article. The main script is called .... The script uses the rest of the scripts and data in the folder. ... is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
-
-_supplementary_material_1 –_ The folder contains ... reffered to as SM1 in the article. The plots are produced in .... The results are stored as ....
+_scripts –_ this folder conatins scripts used to performe analyses. All scripts are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article.
