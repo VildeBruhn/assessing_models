@@ -1,3 +1,0 @@
-[1] "Total number of time series investigated: 334"
-[1] "Total number of time series described by more than one model (threshold = 2): 204"
-[1] "Percentage of time series filtered (threshold = 2): 61.0778443113772"
