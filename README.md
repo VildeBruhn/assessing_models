@@ -21,7 +21,7 @@ __Abstract:__ Models of phenotypic evolution help us interpret patterns and rate
 
 __Info:__ This repository contains scripts and data used for analyses in the publication.
 
-__Responsibility:__ VBK and MT are responsible for writing and analyses of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
+__Responsibility:__ VBK and MT are responsible for analyses of data. KLV has contributed with ideas and comments to the analyses. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
 
 __Files__ 
 
