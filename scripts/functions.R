@@ -1,9 +1,20 @@
-## packages are loaded in the main script "Assessing models of evolution - 
-## UNIVARIATE MODELS"
+####################################################
+##    Assessing models of phenotypic evolution    ##
+##                                                ##
+##                  FUNCTIONS                     ##
+##                                                ##
+##            Vilde Bruhn Kinneberg               ##
+##            Created 01.06.2026                  ##
+####################################################
 
-#------------------------
-# Data manipulation (dt)
-#------------------------
+
+## packages needed are loaded in scripts that load this script
+
+
+#----------------------
+# Data processing (dt)
+#----------------------
+
 
 dt <- function(df, tsID){
   
@@ -51,9 +62,11 @@ dt <- function(df, tsID){
   return(ln_data)
 }
 
-#---------------------------------------------------
-# Get timeseries that adequate
-#---------------------------------------------------
+
+#----------------------------------
+# Get timeseries that are adequate
+#----------------------------------
+
 
 adequate3tests <- function(data){
   
@@ -104,7 +117,11 @@ adequate2tests <- function(data){
   
 }
 
-### Add model info to metadata ###
+
+#----------------------------
+# Add model info to metadata
+#----------------------------
+
 
 model_aicc <- function(data, aicc_results, model){
   data <- lapply(data, function(x){
@@ -139,7 +156,12 @@ model_adeq <- function(data, adeq_results, model){
   })
 }
 
-### binding list to dataframe ###
+
+#------------------------
+# Bind list to data frame
+#------------------------
+
+
 bind <- function(data, unit_list){
   binded <- lapply(data, function(x) x[(names(x) %in% unit_list)])
   binded <- bind_rows(binded, .id="data_frame")
