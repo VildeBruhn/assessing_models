@@ -1,3 +1,0 @@
-[1] "Total number of time series investigated: 186"
-[1] "Total number of time series described by more than one model: 130"
-[1] "Percentage of time series filtered: 69.8924731182796"
