@@ -1,29 +1,29 @@
                                                           parameters relative_count relative_percentage count_passed percentage_passed
 GRW                                                                3             18           5.3892216           17          94.44444
-URW                                                                2             33           9.8802395           30          90.90909
-Stasis                                                             2             54          16.1676647           39          72.22222
-StrictStasis                                                       1             45          13.4730539           36          81.81818
+URW                                                                2             33           9.8802395           31          93.93939
+Stasis                                                             2             54          16.1676647           37          68.51852
+StrictStasis                                                       1             45          13.4730539           37          84.09091
 Decel                                                              3              2           0.5988024            2         100.00000
 Accel                                                              3             12           3.5928144            9          75.00000
-OU                                                                 4             22           6.5868263           16          94.11765
+OU                                                                 4             22           6.5868263           18          90.00000
 OU model with moving optimum (ancestral state at optimum)          4              5           1.4970060            5         100.00000
-OU model with moving optimum                                       5              1           0.2994012            0               NaN
+OU model with moving optimum                                       5              1           0.2994012            0           0.00000
 Stasis-Stasis                                                      4              3           0.8982036            0           0.00000
-Stasis-URW                                                         4             17           5.0898204           10          58.82353
+Stasis-URW                                                         4             17           5.0898204           11          64.70588
 Stasis-GRW                                                         5              7           2.0958084            5          71.42857
-Stasis-OU                                                          6              7           2.0958084            6          85.71429
+Stasis-OU                                                          6              7           2.0958084            7         100.00000
 URW-Stasis                                                         5              0           0.0000000            0               NaN
-URW-URW                                                            4              6           1.7964072            6         100.00000
-URW-GRW                                                            5              3           0.8982036            1          33.33333
-URW-OU                                                             6             20           5.9880240           15          75.00000
-GRW-Stasis                                                         6             11           3.2934132            7          63.63636
-GRW-URW                                                            5             22           6.5868263           15          78.94737
-GRW-GRW                                                            6              8           2.3952096            7          87.50000
-GRW-OU                                                             7             15           4.4910180            9          64.28571
-OU-Stasis                                                          6             12           3.5928144            8          72.72727
-OU-URW                                                             6              1           0.2994012            0           0.00000
-OU-GRW                                                             7              2           0.5988024            0           0.00000
-OU-OU                                                              8              8           2.3952096            1          12.50000
-[1] "Total count     334      244"
-[1] "Time series not explained by stasis, unbiased random walk, or general random walk     55.09      50"
-[1] "Time series from which absolute fit could not be assessed     12"
+URW-URW                                                            4              6           1.7964072            4          66.66667
+URW-GRW                                                            5              3           0.8982036            2          66.66667
+URW-OU                                                             6             20           5.9880240           16          80.00000
+GRW-Stasis                                                         6             11           3.2934132            5          45.45455
+GRW-URW                                                            5             22           6.5868263           12          54.54545
+GRW-GRW                                                            6              8           2.3952096            8         100.00000
+GRW-OU                                                             7             15           4.4910180            8          53.33333
+OU-Stasis                                                          6             12           3.5928144            9          75.00000
+OU-URW                                                             6              1           0.2994012            1         100.00000
+OU-GRW                                                             7              2           0.5988024            1          50.00000
+OU-OU                                                              8              8           2.3952096            7          87.50000
+[1] "Total count     334      252"
+[1] "Time series not explained by stasis, unbiased random walk, or general random walk     55.09      51.59"
+[1] "Time series from which absolute fit could not be assessed     5"

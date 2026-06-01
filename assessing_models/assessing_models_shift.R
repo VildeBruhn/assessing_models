@@ -384,9 +384,8 @@ for (i in 1:length(ln_data_shift)) {
 
 categories <- c("GRW", "URW", "Stasis", "Strict_stasis", "Decel", "Accel", "OU",
                 "OU_mov_opt_anc", "OU_mov_opt", "Stasis_Stasis", 
-                "Stasis_URW", "Stasis_GRW", "Stasis_OU", "URW_URW", "URW_GRW", "URW_OU",
-                "GRW_GRW", "GRW_OU", "OU_OU", "OU_GRW", "OU_URW", "OU_Stasis", "GRW_URW",
-                "GRW_Stasis", "URW_Stasis")
+                "Stasis_URW", "Stasis_GRW", "Stasis_OU", "URW_Stasis", "URW_URW", "URW_GRW", "URW_OU",
+                "GRW_Stasis","GRW_URW","GRW_GRW", "GRW_OU","OU_Stasis","OU_URW","OU_GRW", "OU_OU")
 
 # Create a list to store the results
 result_list <- list()
@@ -910,9 +909,19 @@ adeq_issues_OU_Stasis_subset2 <- which(sapply(OU_Stasis_subset2_adeq, function(x
 OU_Stasis_subset2_adeq <- Filter(function(x) !is.na(x)[1], OU_Stasis_subset2_adeq)
 
 GRW_URW_subset1_adeq <- mclapply(GRW_URW_subset1, fit3adequacy.trend, plot = FALSE)
-GRW_URW_subset2_adeq <- mclapply(GRW_URW_subset2, fit3adequacy.RW, plot = FALSE)
 names(GRW_URW_subset1_adeq) = tsID_GRW_URW
+GRW_URW_subset2_adeq <- mclapply(
+  GRW_URW_subset2,
+  function(x) {
+    tryCatch(
+      fit3adequacy.RW(x, plot = FALSE),
+      error = function(e) NA
+    )
+  }
+)
 names(GRW_URW_subset2_adeq) = tsID_GRW_URW
+adeq_issues_GRW_URW_subset2 <- which(sapply(GRW_URW_subset2_adeq, function(x) is.na(x)[1]))
+GRW_URW_subset2_adeq <- Filter(function(x) !is.na(x)[1], GRW_URW_subset2_adeq)
 
 GRW_Stasis_subset1_adeq <- mclapply(GRW_Stasis_subset1, fit3adequacy.trend, plot = FALSE)
 GRW_Stasis_subset2_adeq <- mclapply(GRW_Stasis_subset2, fit4adequacy.stasis, plot = FALSE)
@@ -926,7 +935,7 @@ names(URW_Stasis_subset2_adeq) = tsID_URW_Stasis
 
 # Loading results of the OU adequacy (the OU models are not working in parallel)
 load("./OU_shift_adeq.RData")
-adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_OU)
+adeq_issues = c(adeq_issues_stasis, adeq_issues_OU_Stasis_subset2, adeq_issues_GRW_URW_subset2, adeq_issues_OU)
 
 # get adequacy results for only adequate time series
 GRW_adeq_passed <- adequate3tests(GRW_adeq)
@@ -1070,9 +1079,9 @@ save(GRW_adeq_passed, URW_adeq_passed, Stasis_adeq_passed,
 file = "adeq_shift_passed.Rdata")
 
 
-#----------------------------------------------------
-# Table of global results for the models with shift
-#----------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------
+# Table S2. Detail results of the models including mode-shift explaining time series best according to relative and absolute fit.
+#---------------------------------------------------------------------------------------------------------------------------------
 
 # get the number of parameters for each model
 K_noshift <- model_noshift_results[[1]]$K
@@ -1208,13 +1217,7 @@ GRW_Stasis_p <- (length(GRW_Stasis_adeq_passed)/length(GRW_Stasis_subset1_adeq))
 URW_Stasis_p <- (length(URW_Stasis_adeq_passed)/length(URW_Stasis_subset1_adeq))*100
 
 # Time series which could not be evaluated in the adequacy tests
-TS_eval_adeq = sum(length(GRW_adeq), length(URW_adeq), length(stasis_adeq), length(strict_stasis_adeq), length(decel_adeq), length(accel_adeq), length(OU_adeq), 
-    length(OU_mov_opt_anc_adeq), length(OU_mov_opt_adeq), length(Stasis_Stasis_subset1_adeq), length(Stasis_URW_subset1_adeq), length(Stasis_GRW_subset1_adeq), 
-    length(Stasis_OU_subset1_adeq), length(URW_URW_subset1_adeq), length(URW_GRW_subset1_adeq), length(URW_OU_subset1_adeq), length(GRW_GRW_subset1_adeq), length(GRW_OU_subset1_adeq), 
-    length(OU_OU_subset1_adeq), length(OU_GRW_subset1_adeq), length(OU_URW_subset1_adeq), length(OU_Stasis_subset1_adeq), length(GRW_URW_subset1_adeq), length(GRW_Stasis_subset1_adeq), 
-    length(URW_Stasis_subset1_adeq))
-
-TS_noneval_adeq = total_rc - TS_eval_adeq
+TS_noneval_adeq = length(adeq_issues)
 
 # make output table
 adeq_table <- data.frame(
@@ -1223,27 +1226,23 @@ adeq_table <- data.frame(
   
   relative_count = c(GRW_rc, URW_rc, stasis_rc, strict_stasis_rc, decel_rc, accel_rc, OU_rc, 
                       OU_mov_opt_anc_rc, OU_mov_opt_rc, Stasis_Stasis_rc, Stasis_URW_rc, Stasis_GRW_rc, 
-                      Stasis_OU_rc, URW_URW_rc, URW_GRW_rc, URW_OU_rc, GRW_GRW_rc, GRW_OU_rc, 
-                      OU_OU_rc, OU_GRW_rc, OU_URW_rc, OU_Stasis_rc, GRW_URW_rc, GRW_Stasis_rc, 
-                      URW_Stasis_rc),
+                      Stasis_OU_rc, URW_Stasis_rc, URW_URW_rc, URW_GRW_rc, URW_OU_rc, GRW_Stasis_rc, 
+                      GRW_URW_rc, GRW_GRW_rc, GRW_OU_rc, OU_Stasis_rc, OU_URW_rc, OU_GRW_rc, OU_OU_rc),
   
   relative_percentage = c(GRW_rp, URW_rp, stasis_rp, strict_stasis_rp, decel_rp, accel_rp, OU_rp, 
                           OU_mov_opt_anc_rp, OU_mov_opt_rp, Stasis_Stasis_rp, Stasis_URW_rp, Stasis_GRW_rp, 
-                          Stasis_OU_rp, URW_URW_rp, URW_GRW_rp, URW_OU_rp, GRW_GRW_rp, GRW_OU_rp, 
-                          OU_OU_rp, OU_GRW_rp, OU_URW_rp, OU_Stasis_rp, GRW_URW_rp, GRW_Stasis_rp, 
-                          URW_Stasis_rp),
+                          Stasis_OU_rp, URW_Stasis_rp, URW_URW_rp, URW_GRW_rp, URW_OU_rp, GRW_Stasis_rp, 
+                          GRW_URW_rp, GRW_GRW_rp, GRW_OU_rp, OU_Stasis_rp, OU_URW_rp, OU_GRW_rp, OU_OU_rp),
   
   count_passed = c(GRW_c, URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, 
                    OU_mov_opt_anc_c, OU_mov_opt_c, Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, 
-                   Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c, GRW_OU_c, 
-                   OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, 
-                   URW_Stasis_c),
+                   Stasis_OU_c, URW_Stasis_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_Stasis_c, 
+                   GRW_URW_c, GRW_GRW_c, GRW_OU_c, OU_Stasis_c, OU_URW_c, OU_GRW_c, OU_OU_c),
   
   percentage_passed = c(GRW_p, URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, 
-                        OU_mov_opt_anc_p, OU_mov_opt_p, Stasis_Stasis_p, Stasis_URW_p, 
-                        Stasis_GRW_p, Stasis_OU_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_GRW_p, 
-                        GRW_OU_p, OU_OU_p, OU_GRW_p, OU_URW_p, OU_Stasis_p, GRW_URW_p, 
-                        GRW_Stasis_p, URW_Stasis_p))
+                        OU_mov_opt_anc_p, OU_mov_opt_p, Stasis_Stasis_p, Stasis_URW_p, Stasis_GRW_p, 
+                        Stasis_OU_p, URW_Stasis_p, URW_URW_p, URW_GRW_p, URW_OU_p, GRW_Stasis_p, 
+                        GRW_URW_p, GRW_GRW_p, GRW_OU_p, OU_Stasis_p, OU_URW_p, OU_GRW_p, OU_OU_p))
 
 
 # write to file
@@ -1256,763 +1255,48 @@ sink()
 
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------
+# Table 3. Results of the types of models including mode-shift explaining time series best according to relative and absolute fit.
+#------------------------------------------------------------------------------------------------------------------------------------
 
+singlemode_trad_rc = sum(GRW_rc, URW_rc, stasis_rc, strict_stasis_rc)
+singlemode_else_rc = sum(decel_rc, accel_rc, OU_rc, OU_mov_opt_anc_rc, OU_mov_opt_rc)
+modeshift_rc = sum(Stasis_Stasis_rc, Stasis_URW_rc, Stasis_GRW_rc, Stasis_OU_rc, URW_URW_rc, 
+                   URW_GRW_rc, URW_OU_rc, GRW_GRW_rc, GRW_OU_rc, OU_OU_rc, OU_GRW_rc, 
+                   OU_URW_rc, OU_Stasis_rc, GRW_URW_rc, GRW_Stasis_rc, URW_Stasis_rc)
+  
+singlemode_trad_rp = sum(GRW_rp, URW_rp, stasis_rp, strict_stasis_rp)
+singlemode_else_rp = sum(decel_rp, accel_rp, OU_rp, OU_mov_opt_anc_rp, OU_mov_opt_rp)
+modeshift_rp = sum(Stasis_Stasis_rp, Stasis_URW_rp, Stasis_GRW_rp, Stasis_OU_rp, URW_URW_rp, 
+                   URW_GRW_rp, URW_OU_rp, GRW_GRW_rp, GRW_OU_rp, OU_OU_rp, OU_GRW_rp, 
+                   OU_URW_rp, OU_Stasis_rp, GRW_URW_rp, GRW_Stasis_rp, URW_Stasis_rp)
+  
+singlemode_trad_c = sum(GRW_c, URW_c, stasis_c, strict_stasis_c)
+singlemode_else_c = sum(decel_c, accel_c, OU_c, OU_mov_opt_anc_c, OU_mov_opt_c)
+modeshift_c = sum(Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, Stasis_OU_c, URW_URW_c, 
+                   URW_GRW_c, URW_OU_c, GRW_GRW_c, GRW_OU_c, OU_OU_c, OU_GRW_c, 
+                   OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, URW_Stasis_c)
 
-#----------------------------------------------------
-# Other stats
-#----------------------------------------------------
-
-
-# compile results for the mirror models (stasis + URW = URW + stasis) for the percentage of time series which passed the adequacy test (over number of time series best described by this model)
-Stasis_URW_p2 = (Stasis_URW_c + URW_Stasis_c)/(Stasis_URW_rc)*100
-Stasis_GRW_p2 = (Stasis_GRW_c + GRW_Stasis_c)/(Stasis_GRW_rc)*100
-Stasis_OU_p2 = (Stasis_OU_c + OU_Stasis_c)/(Stasis_OU_rc)*100
-URW_GRW_p2 = (URW_GRW_c + GRW_URW_c)/(URW_GRW_rc)*100
-URW_OU_p2 = (URW_OU_c + OU_URW_c)/(URW_OU_rc)*100
-GRW_OU_p2 = (GRW_OU_c + OU_GRW_c)/(GRW_OU_rc)*100
-
-# compile results for the mirror models (stasis + URW = URW + stasis) for the count of time series which passed the adequacy test
-Stasis_URW_c2 = Stasis_URW_c + URW_Stasis_c
-Stasis_GRW_c2 = Stasis_GRW_c + GRW_Stasis_c
-Stasis_OU_c2 = Stasis_OU_c + OU_Stasis_c
-URW_GRW_c2 = URW_GRW_c + GRW_URW_c
-URW_OU_c2 = URW_OU_c + OU_URW_c
-GRW_OU_c2 = GRW_OU_c + OU_GRW_c
-
-
-
-
-# get average interval time for each model 
-GRW_it <- list()
-if (length(GRW_adeq_list) > 0) {
-  for (i in 1:length(GRW_adeq_list)) {
-    GRW_it[[i]] <- GRW_adeq_list[[i]]$tt[length(GRW_adeq_list[[i]]$tt)]
-  }
-}
-GRW_it_values <- if (length(GRW_it) > 0) sapply(GRW_it, function(x) x[1]) else numeric(0)
-GRW_it_mean <- if (length(GRW_it_values) > 0) mean(GRW_it_values) else NA
-GRW_it_sd <- if (length(GRW_it_values) > 0) sd(GRW_it_values) else NA
-
-URW_it <- list()
-if (length(URW_adeq_list) > 0) {
-  for (i in 1:length(URW_adeq_list)) {
-    URW_it[[i]] <- URW_adeq_list[[i]]$tt[length(URW_adeq_list[[i]]$tt)]
-  }
-}
-URW_it_values <- if (length(URW_it) > 0) sapply(URW_it, function(x) x[1]) else numeric(0)
-URW_it_mean <- if (length(URW_it_values) > 0) mean(URW_it_values) else NA
-URW_it_sd <- if (length(URW_it_values) > 0) sd(URW_it_values) else NA
-
-Stasis_it <- list()
-if (length(stasis_adeq_list) > 0) {
-  for (i in 1:length(stasis_adeq_list)) {
-    Stasis_it[[i]] <- stasis_adeq_list[[i]]$tt[length(stasis_adeq_list[[i]]$tt)]
-  }
-}
-Stasis_it_values <- if (length(Stasis_it) > 0) sapply(Stasis_it, function(x) x[1]) else numeric(0)
-Stasis_it_mean <- if (length(Stasis_it_values) > 0) mean(Stasis_it_values) else NA
-Stasis_it_sd <- if (length(Stasis_it_values) > 0) sd(Stasis_it_values) else NA
-
-Strict_stasis_it <- list()
-if (length(strict_stasis_adeq_list) > 0) {
-  for (i in 1:length(strict_stasis_adeq_list)) {
-    Strict_stasis_it[[i]] <- strict_stasis_adeq_list[[i]]$tt[length(strict_stasis_adeq_list[[i]]$tt)]
-  }
-}
-Strict_stasis_it_values <- if (length(Strict_stasis_it) > 0) sapply(Strict_stasis_it, function(x) x[1]) else numeric(0)
-Strict_stasis_it_mean <- if (length(Strict_stasis_it_values) > 0) mean(Strict_stasis_it_values) else NA
-Strict_stasis_it_sd <- if (length(Strict_stasis_it_values) > 0) sd(Strict_stasis_it_values) else NA
-
-Decel_it <- list()
-if (length(decel_adeq_list) > 0) {
-  for (i in 1:length(decel_adeq_list)) {
-    Decel_it[[i]] <- decel_adeq_list[[i]]$tt[length(decel_adeq_list[[i]]$tt)]
-  }
-}
-Decel_it_values <- if (length(Decel_it) > 0) sapply(Decel_it, function(x) x[1]) else numeric(0)
-Decel_it_mean <- if (length(Decel_it_values) > 0) mean(Decel_it_values) else NA
-Decel_it_sd <- if (length(Decel_it_values) > 0) sd(Decel_it_values) else NA
-
-Accel_it <- list()
-if (length(accel_adeq_list) > 0) {
-  for (i in 1:length(accel_adeq_list)) {
-    Accel_it[[i]] <- accel_adeq_list[[i]]$tt[length(accel_adeq_list[[i]]$tt)]
-  }
-}
-Accel_it_values <- if (length(Accel_it) > 0) sapply(Accel_it, function(x) x[1]) else numeric(0)
-Accel_it_mean <- if (length(Accel_it_values) > 0) mean(Accel_it_values) else NA
-Accel_it_sd <- if (length(Accel_it_values) > 0) sd(Accel_it_values) else NA
-
-OU_it <- list()
-if (length(OU_adeq_list) > 0) {
-  for (i in 1:length(OU_adeq_list)) {
-    OU_it[[i]] <- OU_adeq_list[[i]]$tt[length(OU_adeq_list[[i]]$tt)]
-  }
-}
-OU_it_values <- if (length(OU_it) > 0) sapply(OU_it, function(x) x[1]) else numeric(0)
-OU_it_mean <- if (length(OU_it_values) > 0) mean(OU_it_values) else NA
-OU_it_sd <- if (length(OU_it_values) > 0) sd(OU_it_values) else NA
-
-OU_mov_opt_anc_it <- list()
-if (length(OU_mov_opt_anc_adeq_list) > 0) {
-  for (i in 1:length(OU_mov_opt_anc_adeq_list)) {
-    OU_mov_opt_anc_it[[i]] <- OU_mov_opt_anc_adeq_list[[i]]$tt[length(OU_mov_opt_anc_adeq_list[[i]]$tt)]
-  }
-}
-OU_mov_opt_anc_it_values <- if (length(OU_mov_opt_anc_it) > 0) sapply(OU_mov_opt_anc_it, function(x) x[1]) else numeric(0)
-OU_mov_opt_anc_it_mean <- if (length(OU_mov_opt_anc_it_values) > 0) mean(OU_mov_opt_anc_it_values) else NA
-OU_mov_opt_anc_it_sd <- if (length(OU_mov_opt_anc_it_values) > 0) sd(OU_mov_opt_anc_it_values) else NA
-
-OU_mov_opt_it <- list()
-if (length(OU_mov_opt_adeq_list) > 0) {
-  for (i in 1:length(OU_mov_opt_adeq_list)) {
-    OU_mov_opt_it[[i]] <- OU_mov_opt_adeq_list[[i]]$tt[length(OU_mov_opt_adeq_list[[i]]$tt)]
-  }
-}
-OU_mov_opt_it_values <- if (length(OU_mov_opt_it) > 0) sapply(OU_mov_opt_it, function(x) x[1]) else numeric(0)
-OU_mov_opt_it_mean <- if (length(OU_mov_opt_it_values) > 0) mean(OU_mov_opt_it_values) else NA
-OU_mov_opt_it_sd <- if (length(OU_mov_opt_it_values) > 0) sd(OU_mov_opt_it_values) else NA
-
-Stasis_Stasis_it <- list()
-if (length(Stasis_Stasis_adeq_list) > 0) {
-  for (i in 1:length(Stasis_Stasis_adeq_list)) {
-    Stasis_Stasis_it[[i]] <- Stasis_Stasis_adeq_list[[i]]$tt[length(Stasis_Stasis_adeq_list[[i]]$tt)]
-  }
-}
-Stasis_Stasis_it_values <- if (length(Stasis_Stasis_it) > 0) sapply(Stasis_Stasis_it, function(x) x[1]) else numeric(0)
-Stasis_Stasis_it_mean <- if (length(Stasis_Stasis_it_values) > 0) mean(Stasis_Stasis_it_values) else NA
-Stasis_Stasis_it_sd <- if (length(Stasis_Stasis_it_values) > 0) sd(Stasis_Stasis_it_values) else NA
-
-Stasis_URW_adeq_list_2 <- c(Stasis_URW_adeq_list, URW_Stasis_adeq_list)
-Stasis_URW_it <- list()
-if (length(Stasis_URW_adeq_list_2) > 0) {
-  for (i in 1:length(Stasis_URW_adeq_list_2)) {
-    Stasis_URW_it[[i]] <- Stasis_URW_adeq_list_2[[i]]$tt[length(Stasis_URW_adeq_list_2[[i]]$tt)]
-  }
-}
-Stasis_URW_it_values <- if (length(Stasis_URW_it) > 0) sapply(Stasis_URW_it, function(x) x[1]) else numeric(0)
-Stasis_URW_it_mean <- if (length(Stasis_URW_it_values) > 0) mean(Stasis_URW_it_values) else NA
-Stasis_URW_it_sd <- if (length(Stasis_URW_it_values) > 0) sd(Stasis_URW_it_values) else NA
-
-Stasis_GRW_adeq_list_2 <- c(Stasis_GRW_adeq_list, GRW_Stasis_adeq_list)
-Stasis_GRW_it <- list()
-if (length(Stasis_GRW_adeq_list_2) > 0) {
-  for (i in 1:length(Stasis_GRW_adeq_list_2)) {
-    Stasis_GRW_it[[i]] <- Stasis_GRW_adeq_list_2[[i]]$tt[length(Stasis_GRW_adeq_list_2[[i]]$tt)]
-  }
-}
-Stasis_GRW_it_values <- if (length(Stasis_GRW_it) > 0) sapply(Stasis_GRW_it, function(x) x[1]) else numeric(0)
-Stasis_GRW_it_mean <- if (length(Stasis_GRW_it_values) > 0) mean(Stasis_GRW_it_values) else NA
-Stasis_GRW_it_sd <- if (length(Stasis_GRW_it_values) > 0) sd(Stasis_GRW_it_values) else NA
-
-Stasis_OU_adeq_list_2 <- c(Stasis_OU_adeq_list, OU_Stasis_adeq_list)
-Stasis_OU_it <- list()
-if (length(Stasis_OU_adeq_list_2) > 0) {
-  for (i in 1:length(Stasis_OU_adeq_list_2)) {
-    Stasis_OU_it[[i]] <- Stasis_OU_adeq_list_2[[i]]$tt[length(Stasis_OU_adeq_list_2[[i]]$tt)]
-  }
-}
-Stasis_OU_it_values <- if (length(Stasis_OU_it) > 0) sapply(Stasis_OU_it, function(x) x[1]) else numeric(0)
-Stasis_OU_it_mean <- if (length(Stasis_OU_it_values) > 0) mean(Stasis_OU_it_values) else NA
-Stasis_OU_it_sd <- if (length(Stasis_OU_it_values) > 0) sd(Stasis_OU_it_values) else NA
-
-URW_URW_it <- list()
-if (length(URW_URW_adeq_list) > 0) {
-  for (i in 1:length(URW_URW_adeq_list)) {
-    URW_URW_it[[i]] <- URW_URW_adeq_list[[i]]$tt[length(URW_URW_adeq_list[[i]]$tt)]
-  }
-}
-URW_URW_it_values <- if (length(URW_URW_it) > 0) sapply(URW_URW_it, function(x) x[1]) else numeric(0)
-URW_URW_it_mean <- if (length(URW_URW_it_values) > 0) mean(URW_URW_it_values) else NA
-URW_URW_it_sd <- if (length(URW_URW_it_values) > 0) sd(URW_URW_it_values) else NA
-
-URW_GRW_adeq_list_2 <- c(URW_GRW_adeq_list, GRW_URW_adeq_list)
-URW_GRW_it <- list()
-if (length(URW_GRW_adeq_list_2) > 0) {
-  for (i in 1:length(URW_GRW_adeq_list_2)) {
-    URW_GRW_it[[i]] <- URW_GRW_adeq_list_2[[i]]$tt[length(URW_GRW_adeq_list_2[[i]]$tt)]
-  }
-}
-URW_GRW_it_values <- if (length(URW_GRW_it) > 0) sapply(URW_GRW_it, function(x) x[1]) else numeric(0)
-URW_GRW_it_mean <- if (length(URW_GRW_it_values) > 0) mean(URW_GRW_it_values) else NA
-URW_GRW_it_sd <- if (length(URW_GRW_it_values) > 0) sd(URW_GRW_it_values) else NA
-
-URW_OU_adeq_list_2 <- c(URW_OU_adeq_list, OU_URW_adeq_list)
-URW_OU_it <- list()
-if (length(URW_OU_adeq_list_2) > 0) {
-  for (i in 1:length(URW_OU_adeq_list_2)) {
-    URW_OU_it[[i]] <- URW_OU_adeq_list_2[[i]]$tt[length(URW_OU_adeq_list_2[[i]]$tt)]
-  }
-}
-URW_OU_it_values <- if (length(URW_OU_it) > 0) sapply(URW_OU_it, function(x) x[1]) else numeric(0)
-URW_OU_it_mean <- if (length(URW_OU_it_values) > 0) mean(URW_OU_it_values) else NA
-URW_OU_it_sd <- if (length(URW_OU_it_values) > 0) sd(URW_OU_it_values) else NA
-
-GRW_GRW_it <- list()
-if (length(GRW_GRW_adeq_list) > 0) {
-  for (i in 1:length(GRW_GRW_adeq_list)) {
-    GRW_GRW_it[[i]] <- GRW_GRW_adeq_list[[i]]$tt[length(GRW_GRW_adeq_list[[i]]$tt)]
-  }
-}
-GRW_GRW_it_values <- if (length(GRW_GRW_it) > 0) sapply(GRW_GRW_it, function(x) x[1]) else numeric(0)
-GRW_GRW_it_mean <- if (length(GRW_GRW_it_values) > 0) mean(GRW_GRW_it_values) else NA
-GRW_GRW_it_sd <- if (length(GRW_GRW_it_values) > 0) sd(GRW_GRW_it_values) else NA
-
-GRW_OU_adeq_list_2 <- c(GRW_OU_adeq_list, OU_GRW_adeq_list)
-GRW_OU_it <- list()
-if (length(GRW_OU_adeq_list_2) > 0) {
-  for (i in 1:length(GRW_OU_adeq_list_2)) {
-    GRW_OU_it[[i]] <- GRW_OU_adeq_list_2[[i]]$tt[length(GRW_OU_adeq_list_2[[i]]$tt)]
-  }
-}
-GRW_OU_it_values <- if (length(GRW_OU_it) > 0) sapply(GRW_OU_it, function(x) x[1]) else numeric(0)
-GRW_OU_it_mean <- if (length(GRW_OU_it_values) > 0) mean(GRW_OU_it_values) else NA
-GRW_OU_it_sd <- if (length(GRW_OU_it_values) > 0) sd(GRW_OU_it_values) else NA
-
-OU_OU_it <- list()
-if (length(OU_OU_adeq_list) > 0) {
-  for (i in 1:length(OU_OU_adeq_list)) {
-    OU_OU_it[[i]] <- OU_OU_adeq_list[[i]]$tt[length(OU_OU_adeq_list[[i]]$tt)]
-  }
-}
-OU_OU_it_values <- if (length(OU_OU_it) > 0) sapply(OU_OU_it, function(x) x[1]) else numeric(0)
-OU_OU_it_mean <- if (length(OU_OU_it_values) > 0) mean(OU_OU_it_values) else NA
-OU_OU_it_sd <- if (length(OU_OU_it_values) > 0) sd(OU_OU_it_values) else NA
-
-# get percentage of traits in the size and shape category for each model
-metadata_trait <- read_delim("./timeseries/metadata_trait.txt", col_names = TRUE, delim = "\t")
-
-metadata_trait_organized <- metadata_trait %>% # remove data with trait category = number
-  filter(!trait_category %in% "number") 
-
-metadata_trait_organized <- metadata_trait_organized %>% # classify trait_category in shape or size 
-  mutate(size_or_shape = case_when(
-    trait_category %in% c("size", "area") ~ "size",    # Assign "size" if ll is "sh"
-    trait_category %in% c("shape", "angle") ~ "shape",))
-
-metadata_trait_organized <- metadata_trait_organized %>% # remove lines without shape or size
-  filter(!is.na(size_or_shape))
-
-save(metadata_trait_organized, file = "./timeseries/metadata_trait_2.RData") # Save the new metadata_trait file with the column shape_or_size
-
-GRW_size_nbr = 0
-GRW_shape_nbr = 0
-if (length(GRW_adeq_list) > 0) {
-for (i in 1:length(GRW_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(GRW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        GRW_adeq_list[[i]]$trait_type <- "size"
-        GRW_size_nbr = GRW_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        GRW_adeq_list[[i]]$trait_type <- "shape"
-        GRW_shape_nbr = GRW_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-URW_size_nbr = 0
-URW_shape_nbr = 0
-if (length(URW_adeq_list) > 0) {
-for (i in 1:length(URW_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(URW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        URW_adeq_list[[i]]$trait_type <- "size"
-        URW_size_nbr = URW_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        URW_adeq_list[[i]]$trait_type <- "shape"
-        URW_shape_nbr = URW_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-stasis_size_nbr = 0
-stasis_shape_nbr = 0
-if (length(stasis_adeq_list) > 0) {
-for (i in 1:length(stasis_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(stasis_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        stasis_adeq_list[[i]]$trait_type <- "size"
-        stasis_size_nbr = stasis_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        stasis_adeq_list[[i]]$trait_type <- "shape"
-        stasis_shape_nbr = stasis_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-strict_stasis_size_nbr = 0
-strict_stasis_shape_nbr = 0
-if (length(strict_stasis_adeq_list) > 0) {
-for (i in 1:length(strict_stasis_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(strict_stasis_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        strict_stasis_adeq_list[[i]]$trait_type <- "size"
-        strict_stasis_size_nbr = strict_stasis_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        strict_stasis_adeq_list[[i]]$trait_type <- "shape"
-        strict_stasis_shape_nbr = strict_stasis_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-decel_size_nbr = 0
-decel_shape_nbr = 0
-if (length(decel_adeq_list) > 0) {
-for (i in 1:length(decel_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(decel_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        decel_adeq_list[[i]]$trait_type <- "size"
-        decel_size_nbr = decel_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        decel_adeq_list[[i]]$trait_type <- "shape"
-        decel_shape_nbr = decel_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-accel_size_nbr = 0
-accel_shape_nbr = 0
-if (length(accel_adeq_list) > 0) {
-for (i in 1:length(accel_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(accel_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        accel_adeq_list[[i]]$trait_type <- "size"
-        accel_size_nbr = accel_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        accel_adeq_list[[i]]$trait_type <- "shape"
-        accel_shape_nbr = accel_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-OU_size_nbr = 0
-OU_shape_nbr = 0
-if (length(OU_adeq_list) > 0) {
-for (i in 1:length(OU_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(OU_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        OU_adeq_list[[i]]$trait_type <- "size"
-        OU_size_nbr = OU_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        OU_adeq_list[[i]]$trait_type <- "shape"
-        OU_shape_nbr = OU_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-OU_mov_opt_anc_size_nbr = 0
-OU_mov_opt_anc_shape_nbr = 0
-if (length(OU_mov_opt_anc_adeq_list) > 0) {
-for (i in 1:length(OU_mov_opt_anc_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(OU_mov_opt_anc_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        OU_mov_opt_anc_adeq_list[[i]]$trait_type <- "size"
-        OU_mov_opt_anc_size_nbr = OU_mov_opt_anc_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        OU_mov_opt_anc_adeq_list[[i]]$trait_type <- "shape"
-        OU_mov_opt_anc_shape_nbr = OU_mov_opt_anc_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-OU_mov_opt_size_nbr = 0
-OU_mov_opt_shape_nbr = 0
-if (length(OU_mov_opt_adeq_list) > 0) {
-for (i in 1:length(OU_mov_opt_adeq_list)) {
-  for (j in 1:nrow(metadata_trait_organized)) {
-    if (names(OU_mov_opt_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-      if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-        OU_mov_opt_adeq_list[[i]]$trait_type <- "size"
-        OU_mov_opt_size_nbr = OU_mov_opt_size_nbr + 1
-      } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-        OU_mov_opt_adeq_list[[i]]$trait_type <- "shape"
-        OU_mov_opt_shape_nbr = OU_mov_opt_shape_nbr + 1
-      }
-    }
-  }
-}
-}
-
-Stasis_Stasis_size_nbr = 0
-Stasis_Stasis_shape_nbr = 0
-if (length(Stasis_Stasis_adeq_list) > 0) {
-  for (i in 1:length(Stasis_Stasis_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(Stasis_Stasis_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          Stasis_Stasis_adeq_list[[i]]$trait_type <- "size"
-          Stasis_Stasis_size_nbr = Stasis_Stasis_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          Stasis_Stasis_adeq_list[[i]]$trait_type <- "shape"
-          Stasis_Stasis_shape_nbr = Stasis_Stasis_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-Stasis_URW_size_nbr = 0
-Stasis_URW_shape_nbr = 0
-if (length(Stasis_URW_adeq_list) > 0) {
-  for (i in 1:length(Stasis_URW_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(Stasis_URW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          Stasis_URW_adeq_list[[i]]$trait_type <- "size"
-          Stasis_URW_size_nbr = Stasis_URW_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          Stasis_URW_adeq_list[[i]]$trait_type <- "shape"
-          Stasis_URW_shape_nbr = Stasis_URW_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-Stasis_GRW_size_nbr = 0
-Stasis_GRW_shape_nbr = 0
-if (length(Stasis_GRW_adeq_list) > 0) {
-  for (i in 1:length(Stasis_GRW_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(Stasis_GRW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          Stasis_GRW_adeq_list[[i]]$trait_type <- "size"
-          Stasis_GRW_size_nbr = Stasis_GRW_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          Stasis_GRW_adeq_list[[i]]$trait_type <- "shape"
-          Stasis_GRW_shape_nbr = Stasis_GRW_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-Stasis_OU_size_nbr = 0
-Stasis_OU_shape_nbr = 0
-if (length(Stasis_OU_adeq_list) > 0) {
-  for (i in 1:length(Stasis_OU_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(Stasis_OU_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          Stasis_OU_adeq_list[[i]]$trait_type <- "size"
-          Stasis_OU_size_nbr = Stasis_OU_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          Stasis_OU_adeq_list[[i]]$trait_type <- "shape"
-          Stasis_OU_shape_nbr = Stasis_OU_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-URW_URW_size_nbr = 0
-URW_URW_shape_nbr = 0
-if (length(URW_URW_adeq_list) > 0) {
-  for (i in 1:length(URW_URW_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(URW_URW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          URW_URW_adeq_list[[i]]$trait_type <- "size"
-          URW_URW_size_nbr = URW_URW_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          URW_URW_adeq_list[[i]]$trait_type <- "shape"
-          URW_URW_shape_nbr = URW_URW_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-URW_GRW_size_nbr = 0
-URW_GRW_shape_nbr = 0
-if (length(URW_GRW_adeq_list) > 0) {
-  for (i in 1:length(URW_GRW_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(URW_GRW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          URW_GRW_adeq_list[[i]]$trait_type <- "size"
-          URW_GRW_size_nbr = URW_GRW_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          URW_GRW_adeq_list[[i]]$trait_type <- "shape"
-          URW_GRW_shape_nbr = URW_GRW_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-URW_OU_size_nbr = 0
-URW_OU_shape_nbr = 0
-if (length(URW_OU_adeq_list) > 0) {
-  for (i in 1:length(URW_OU_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(URW_OU_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          URW_OU_adeq_list[[i]]$trait_type <- "size"
-          URW_OU_size_nbr = URW_OU_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          URW_OU_adeq_list[[i]]$trait_type <- "shape"
-          URW_OU_shape_nbr = URW_OU_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-GRW_GRW_size_nbr = 0
-GRW_GRW_shape_nbr = 0
-if (length(GRW_GRW_adeq_list) > 0) {
-  for (i in 1:length(GRW_GRW_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(GRW_GRW_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          GRW_GRW_adeq_list[[i]]$trait_type <- "size"
-          GRW_GRW_size_nbr = GRW_GRW_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          GRW_GRW_adeq_list[[i]]$trait_type <- "shape"
-          GRW_GRW_shape_nbr = GRW_GRW_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-GRW_OU_size_nbr = 0
-GRW_OU_shape_nbr = 0
-if (length(GRW_OU_adeq_list) > 0) {
-  for (i in 1:length(GRW_OU_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(GRW_OU_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          GRW_OU_adeq_list[[i]]$trait_type <- "size"
-          GRW_OU_size_nbr = GRW_OU_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          GRW_OU_adeq_list[[i]]$trait_type <- "shape"
-          GRW_OU_shape_nbr = GRW_OU_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-OU_OU_size_nbr = 0
-OU_OU_shape_nbr = 0
-if (length(OU_OU_adeq_list) > 0) {
-  for (i in 1:length(OU_OU_adeq_list)) {
-    for (j in 1:nrow(metadata_trait_organized)) {
-      if (names(OU_OU_adeq_list[i]) == metadata_trait_organized$tsID[[j]]) {
-        if (metadata_trait_organized$size_or_shape[[j]] == "size") {
-          OU_OU_adeq_list[[i]]$trait_type <- "size"
-          OU_OU_size_nbr = OU_OU_size_nbr + 1
-        } else if (metadata_trait_organized$size_or_shape[[j]] == "shape") {
-          OU_OU_adeq_list[[i]]$trait_type <- "shape"
-          OU_OU_shape_nbr = OU_OU_shape_nbr + 1
-        }
-      }
-    }
-  }
-}
-
-# percentage of time series being size traits that are best fitted by the model over the total number of time series best fitted by the model
-GRW_size_p = GRW_size_nbr/length(GRW_adeq_list)*100
-URW_size_p = URW_size_nbr/length(URW_adeq_list)*100
-stasis_size_p = stasis_size_nbr/length(stasis_adeq_list)*100
-strict_stasis_size_p = strict_stasis_size_nbr/length(strict_stasis_adeq_list)*100
-decel_size_p = decel_size_nbr/length(decel_adeq_list)*100
-accel_size_p = accel_size_nbr/length(accel_adeq_list)*100
-OU_size_p = OU_size_nbr/length(OU_adeq_list)*100
-OU_mov_opt_anc_size_p = OU_mov_opt_anc_size_nbr/length(OU_mov_opt_anc_adeq_list)*100
-OU_mov_opt_size_p = OU_mov_opt_size_nbr/length(OU_mov_opt_adeq_list)*100
-Stasis_Stasis_size_p = Stasis_Stasis_size_nbr/length(Stasis_Stasis_adeq_list)*100
-Stasis_URW_size_p = Stasis_URW_size_nbr/length(Stasis_URW_adeq_list)*100
-Stasis_GRW_size_p = Stasis_GRW_size_nbr/length(Stasis_GRW_adeq_list)*100
-Stasis_OU_size_p = Stasis_OU_size_nbr/length(Stasis_OU_adeq_list)*100
-URW_URW_size_p = URW_URW_size_nbr/length(URW_URW_adeq_list)*100
-URW_GRW_size_p = URW_GRW_size_nbr/length(URW_GRW_adeq_list)*100
-URW_OU_size_p = URW_OU_size_nbr/length(URW_OU_adeq_list)*100
-GRW_GRW_size_p = GRW_GRW_size_nbr/length(GRW_GRW_adeq_list)*100
-GRW_OU_size_p = GRW_OU_size_nbr/length(GRW_OU_adeq_list)*100
-OU_OU_size_p = OU_OU_size_nbr/length(OU_OU_adeq_list)*100
-
-# percentage of time series being shape traits that are best fitted by the model over the total number of time series best fitted by the model
-GRW_shape_p = GRW_shape_nbr/length(GRW_adeq_list)*100
-URW_shape_p = URW_shape_nbr/length(URW_adeq_list)*100
-stasis_shape_p = stasis_shape_nbr/length(stasis_adeq_list)*100
-strict_stasis_shape_p = strict_stasis_shape_nbr/length(strict_stasis_adeq_list)*100
-decel_shape_p = decel_shape_nbr/length(decel_adeq_list)*100
-accel_shape_p = accel_shape_nbr/length(accel_adeq_list)*100
-OU_shape_p = OU_shape_nbr/length(OU_adeq_list)*100
-OU_mov_opt_anc_shape_p = OU_mov_opt_anc_shape_nbr/length(OU_mov_opt_anc_adeq_list)*100
-OU_mov_opt_shape_p = OU_mov_opt_shape_nbr/length(OU_mov_opt_adeq_list)*100
-Stasis_Stasis_shape_p = Stasis_Stasis_shape_nbr/length(Stasis_Stasis_adeq_list)*100
-Stasis_URW_shape_p = Stasis_URW_shape_nbr/length(Stasis_URW_adeq_list)*100
-Stasis_GRW_shape_p = Stasis_GRW_shape_nbr/length(Stasis_GRW_adeq_list)*100
-Stasis_OU_shape_p = Stasis_OU_shape_nbr/length(Stasis_OU_adeq_list)*100
-URW_URW_shape_p = URW_URW_shape_nbr/length(URW_URW_adeq_list)*100
-URW_GRW_shape_p = URW_GRW_shape_nbr/length(URW_GRW_adeq_list)*100
-URW_OU_shape_p = URW_OU_shape_nbr/length(URW_OU_adeq_list)*100
-GRW_GRW_shape_p = GRW_GRW_shape_nbr/length(GRW_GRW_adeq_list)*100
-GRW_OU_shape_p = GRW_OU_shape_nbr/length(GRW_OU_adeq_list)*100
-OU_OU_shape_p = OU_OU_shape_nbr/length(OU_OU_adeq_list)*100
+singlemode_trad_p = singlemode_trad_c/singlemode_trad_rc*100
+singlemode_else_p = singlemode_else_c/singlemode_else_rc*100
+modeshift_p = modeshift_c/modeshift_rc*100
 
 # make output table
-resultshift_table <- data.frame(
+adeq_table_summary <- data.frame(
   
-  model = c("GRW", "URW", "Stasis", "Strict Stasis", "Decel", "Accel", "OU",
-            "OU Mov. Optm. (Ancestral State)", "OU Mov. Optm.", "Stasis-Stasis", 
-            "Stasis-URW", "Stasis-GRW", "Stasis-OU", "URW-URW", "URW-GRW", "URW-OU",
-            "GRW-GRW", "GRW-OU", "OU-OU"),
+  parameters = c("2-3", "3-5", "4-8"),
   
-  K = c(K_noshift, K_shift),
-    
-  relative_count = c(GRW_rc, URW_rc, stasis_rc, strict_stasis_rc, decel_rc, accel_rc, OU_rc, 
-                       OU_mov_opt_anc_rc, OU_mov_opt_rc, Stasis_Stasis_rc, Stasis_URW_rc, Stasis_GRW_rc, 
-                       Stasis_OU_rc, URW_URW_rc, URW_GRW_rc, URW_OU_rc, GRW_GRW_rc, GRW_OU_rc, 
-                       OU_OU_rc),
+  relative_count = c(singlemode_trad_rc, singlemode_else_rc, modeshift_rc),
   
-  relative_percentage = c(GRW_rp, URW_rp, stasis_rp, strict_stasis_rp, decel_rp, accel_rp, OU_rp, 
-                          OU_mov_opt_anc_rp, OU_mov_opt_rp, Stasis_Stasis_rp, Stasis_URW_rp, Stasis_GRW_rp, 
-                          Stasis_OU_rp, URW_URW_rp, URW_GRW_rp, URW_OU_rp, GRW_GRW_rp, GRW_OU_rp, 
-                          OU_OU_rp),
+  relative_percentage = c(singlemode_trad_rp, singlemode_else_rp, modeshift_rp),
   
-  percentage_passed = c(GRW_p, URW_p, stasis_p, strict_stasis_p, decel_p, accel_p, OU_p, 
-                         OU_mov_opt_anc_p, OU_mov_opt_p, Stasis_Stasis_p, Stasis_URW_p2, Stasis_GRW_p2, 
-                         Stasis_OU_p2, URW_URW_p, URW_GRW_p2, URW_OU_p2, GRW_GRW_p, GRW_OU_p2, 
-                         OU_OU_p),
+  count_passed = c(singlemode_trad_c, singlemode_else_c, modeshift_c),
   
-  absolute_count = c(GRW_c, URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, 
-                    OU_mov_opt_anc_c, OU_mov_opt_c, Stasis_Stasis_c, Stasis_URW_c2, Stasis_GRW_c2, 
-                    Stasis_OU_c2, URW_URW_c, URW_GRW_c2, URW_OU_c2, GRW_GRW_c, GRW_OU_c2, 
-                    OU_OU_c),
-  
-  absolute_percentage = c(GRW_ap, URW_ap, stasis_ap, strict_stasis_ap, decel_ap, accel_ap, OU_ap, 
-                          OU_mov_opt_anc_ap, OU_mov_opt_ap, Stasis_Stasis_ap, Stasis_URW_ap, Stasis_GRW_ap, 
-                          Stasis_OU_ap, URW_URW_ap, URW_GRW_ap, URW_OU_ap, GRW_GRW_ap, GRW_OU_ap, 
-                          OU_OU_ap),
-  
-  interval_time_passed = c(GRW_it_mean, URW_it_mean, Stasis_it_mean, Strict_stasis_it_mean, Decel_it_mean, Accel_it_mean, OU_it_mean, 
-                    OU_mov_opt_anc_it_mean, OU_mov_opt_it_mean, Stasis_Stasis_it_mean, Stasis_URW_it_mean, Stasis_GRW_it_mean, 
-                    Stasis_OU_it_mean, URW_URW_it_mean, URW_GRW_it_mean, URW_OU_it_mean, GRW_GRW_it_mean, GRW_OU_it_mean, 
-                    OU_OU_it_mean),
-  
-  standard_deviation_passed = c(GRW_it_sd, URW_it_sd, Stasis_it_sd, Strict_stasis_it_sd, Decel_it_sd, Accel_it_sd, OU_it_sd, 
-                         OU_mov_opt_anc_it_sd, OU_mov_opt_it_sd, Stasis_Stasis_it_sd, Stasis_URW_it_sd, Stasis_GRW_it_sd, 
-                         Stasis_OU_it_sd, URW_URW_it_sd, URW_GRW_it_sd, URW_OU_it_sd, GRW_GRW_it_sd, GRW_OU_it_sd, 
-                         OU_OU_it_sd),
-  
-  percentage_size_passed = c(GRW_size_p, URW_size_p, stasis_size_p, strict_stasis_size_p, decel_size_p, accel_size_p, OU_size_p, 
-                      OU_mov_opt_anc_size_p, OU_mov_opt_size_p, Stasis_Stasis_size_p, Stasis_URW_size_p, Stasis_GRW_size_p, 
-                      Stasis_OU_size_p, URW_URW_size_p, URW_GRW_size_p, URW_OU_size_p, GRW_GRW_size_p, GRW_OU_size_p, 
-                      OU_OU_size_p),
-  
-  percentage_shape_passed = c(GRW_shape_p, URW_shape_p, stasis_shape_p, strict_stasis_shape_p, decel_shape_p, accel_shape_p, OU_shape_p, 
-                             OU_mov_opt_anc_shape_p, OU_mov_opt_shape_p, Stasis_Stasis_shape_p, Stasis_URW_shape_p, Stasis_GRW_shape_p, 
-                             Stasis_OU_shape_p, URW_URW_shape_p, URW_GRW_shape_p, URW_OU_shape_p, GRW_GRW_shape_p, GRW_OU_shape_p, 
-                             OU_OU_shape_p)
-  
-)
-
-Total_adeq_passed = sum(GRW_c, URW_c, stasis_c, strict_stasis_c, decel_c, accel_c, OU_c, 
-                        OU_mov_opt_anc_c, OU_mov_opt_c, Stasis_Stasis_c, Stasis_URW_c, Stasis_GRW_c, 
-                        Stasis_OU_c, URW_URW_c, URW_GRW_c, URW_OU_c, GRW_GRW_c, GRW_OU_c, 
-                        OU_OU_c, OU_GRW_c, OU_URW_c, OU_Stasis_c, GRW_URW_c, GRW_Stasis_c, 
-                        URW_Stasis_c)
+  percentage_passed = c(singlemode_trad_p, singlemode_else_p, modeshift_p))
 
 # write to file
-sink(file = "./results_paleoTS_v0.6.1/table_result_shift.txt")
-resultshift_table
-paste("Total number of time series investigated:", length(model_noshift_results))
-paste("Total number of time series which passed adequacy tests:", Total_adeq_passed)
-paste("Percentage of time series which passed adequacy tests:", (Total_adeq_passed*100)/length(model_noshift_results))
+sink(file = "./results_paleoTS_v0.6.1/Results_fits_with_shift_summary.txt")
+adeq_table_summary
+paste("Total count    ", total_rc, "    ", total_c)
+paste("Time series from which absolute fit could not be assessed    ", TS_noneval_adeq)
 sink()
-
-#----------------------------------------------------------------
-# Plot of the number of time series best fitted for each models
-#----------------------------------------------------------------
-
-metadatalong_clear$best_model <- aicc_min
-
-metadatalong_clear <- metadatalong_clear %>%
-  mutate(best_model = case_when(
-    aicc_min == 1 ~ 'GRW',
-    aicc_min == 2 ~ 'URW',
-    aicc_min == 3 ~ 'Stasis',
-    aicc_min == 4 ~ 'Strict_stasis',
-    aicc_min == 5 ~ 'Decel',
-    aicc_min == 6 ~ 'Accel',
-    aicc_min == 7 ~ 'OU',
-    aicc_min == 8 ~ 'OU_mov_opt_anc',
-    aicc_min == 9 ~ 'OU_mov_opt',
-    aicc_min == 10 ~ 'Stasis_Stasis',
-    aicc_min == 11 ~ 'Stasis_URW',
-    aicc_min == 12 ~ 'Stasis_GRW',
-    aicc_min == 13 ~ 'Stasis_OU',
-    aicc_min == 14 ~ 'URW_URW',
-    aicc_min == 15 ~ 'URW_GRW',
-    aicc_min == 16 ~ 'URW_OU',
-    aicc_min == 17 ~ 'GRW_GRW',
-    aicc_min == 18 ~ 'GRW_OU',
-    aicc_min == 19 ~ 'OU_OU',
-    aicc_min == 20 ~ 'OU_GRW',
-    aicc_min == 21 ~ 'OU_URW',
-    aicc_min == 22 ~ 'OU_Stasis',
-    aicc_min == 23 ~ 'GRW_URW',
-    aicc_min == 24 ~ 'GRW_Stasis',
-    aicc_min == 25 ~ 'URW_Stasis',
-    TRUE ~ as.character(best_model)
-  ))
-
-# Adequate timeseries
-
-bar_complete <- ggplot(metadatalong_adequate, aes(x = best_model)) +
-  stat_count(geom = "bar", fill = "blue") +
-  labs(title = "Barplot of the best model among adequate time series", x = "Best evolutionary model", y = "Number of time series")
-
-
-# Inadequate timeseries
-
-#remove inadequate time series before performing the analysis
-metadatalong_adequate <- metadatalong_clear %>%
-  filter(adequacy_status != "inadequate")
-
-
-
-bar_adequate <- ggplot(metadatalong_adequate, aes(x = best_model)) +
-  stat_count(geom = "bar", fill = "blue") +
-  labs(title = "Barplot of the best model among adequate time series", x = "Best evolutionary model", y = "Number of time series")
-
-
-# save the graphs
-png("./results_paleoTS_v0.6.1/plot/results_count_bestfit.png", width = 2400, height = 1800)
-grid.arrange(bar_complete, bar_adequate, ncol = 1)
-dev.off()
-
-
-
-
-
