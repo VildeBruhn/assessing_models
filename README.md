@@ -1,4 +1,5 @@
-# ASSESSING MODELS OF EVOLUTION
+# Beyond the traditional three: A comprehensive model-fit assessment of phenotypic evolution in the fossil record
+
 
 __Article:__ Unpublished
 
@@ -13,18 +14,26 @@ __Contact:__ <sup>†</sup>v.b.kinneberg@nhm.uio.no, <sup>‡</sup>marion.thaure
 
 __Journal:__ NA
 
-__Year:__ 2025  
+__Year:__ 2026  
 
-__Abstract:__ Models of phenotypic evolution are tools designed to describe variations in patterns and rates of trait evolution across time. In the fossil record, three models are commonly used to study within-lineage evolution: stasis, random walk, and directional evolution. Previous works have established that random walk and stasis mainly fit empirical time series, but the three canonical models only represent a subset of potential models describing trait evolution in the fossil record. In this study, we assess how often 9 different models best explain phenotypic evolution in 450 fossil time series. Our results largely confirm previous observations, with stasis (36%) and random walk (25%) as the models that most often describe the data best. However, the analyses also show that 30% of the time series are described by one of the other models of evolution. When allowing different segments of a time series to be described by different models, the number of time series not described by the canonical three drastically increases (75%). Overall, our results indicate that it can be worthwhile assessing the fit of a large set of candidate models when exploring trait dynamics in fossil time series.
+__Abstract:__ Models of phenotypic evolution help us interpret patterns and rates of evolution in empirical data. In the fossil record, three models are traditionally used to study within-lineage evolution: stasis, random walk, and directional evolution. Previous studies have established that random walk and stasis models commonly provide the best fit to empirical time series. Still, the traditional three models represent only a small subset of the models available to describe trait evolution in the fossil record. In this study, we fit nine single-mode and sixteen mode-shift models to a compilation of 594 fossil time series to assess how often the different models best describe phenotypic evolution. We find that stasis and the unbiased random walk models describe a substantial proportion of the time series, but about a quarter are better described by evolutionary models other than the traditional three. When also considering   mode-shift models, the proportion of time series best described by models other than the traditional three increases to more than 50%. Our results indicate a rich diversity of trait dynamics within lineages in the fossil record that the traditional three models cannot fully capture.
+
 
 __Info:__ This repository contains scripts and data used for analyses in the publication.
 
-__Responsibility:__ VBK and MT are responsible for writing and analyses of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
+__Responsibility:__ VBK and MT are responsible for analyses of data. KLV has contributed with ideas and comments to the analyses. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
 
 __Files__ 
 
-_folder_name –_ this folder conatins scripts and data used in the ... section of the article. The main script is called .... The script uses the rest of the scripts and data in the folder. ... is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
+_data –_ this folder conatins data loaded in the scripts used for analyses.
 
-_folder_name –_ this folder conatins scripts and data used in the ... section of the article. The main script is called .... The script uses the rest of the scripts and data in the folder. ... is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
-
-_supplementary_material_1 –_ The folder contains ... reffered to as SM1 in the article. The plots are produced in .... The results are stored as ....
+_scripts –_ this folder conatins scripts used to performe analyses. All scripts are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article.
+<ul>
+  <li>single_mode.R runs the analyses for the single-mode models section of the article.</li>
+  <li>stats_single_mode.R runs regression analyses and plotting on the single-mode data generated in single_mode.R.</li>
+  <li>mode_shift.R runs the analyses pluss summary statistics for the mode-shift models section of the article.</li>
+  <li>stats_mode_shift.R runs regression analyses and plotting on the mode-shift data generated in mode_shift.R.</li>
+  <li>shift_OU_adequacy.R is a script run on a HPC cluster for the OU part of adequacy testing in the mode-shift part of the article.</li>
+  <li>delta_aicc_gap.R runs analyses and plotting for the delta AICc gap part of the article.</li>
+  <li>functions.R contains R functions loaded in all the above scripts.</li>
+</ul>

@@ -1,6 +1,0 @@
-  parameters relative_count relative_percentage count_passed percentage_passed
-1        2-3            150            44.91018          122          81.33333
-2        3-5             42            12.57485           34          80.95238
-3        4-8            142            42.51497           96          67.60563
-[1] "Total count     334      252"
-[1] "Time series from which absolute fit could not be assessed     5"

@@ -1,0 +1,222 @@
+####################################################
+##    Assessing models of phenotypic evolution    ##
+##                                                ##
+##                MODE-SHIFT OUs                  ##
+##                                                ##
+##                Marion Thaureau                 ##
+##              Created 01.06.2026                ##
+####################################################
+
+#--------------------------------------
+# This script was run on a HPC cluster
+#--------------------------------------
+
+.libPaths("[PATH_TO_R_LIBRARY]")
+
+# install packages
+#install.packages("evoTS") #version 1.0.3
+#install.packages("devtools")
+#devtools::install_github("klvoje/adePEM") version 1.1.1
+#install.packages("paleoTS") #version 0.6.1
+#install.packages("foreach")
+#install.packages("iterators")
+#install.packages("parallel")
+#install.packages("doParallel")
+
+# load packages
+library(adePEM)
+library(evoTS)
+library(paleoTS)
+library(foreach)
+library(iterators)
+library(parallel)
+library(doParallel)
+
+rm(list = ls())
+
+# set working directory
+PATH = "[PATH_TO_MAIN_FOLDER]"
+setwd(PATH)
+
+# import functions
+source("./scripts/functions.R")
+
+
+# -------------------------
+# Set up for parallel runs
+# -------------------------
+
+
+#number of cores that I want to use (also defined in the batch script)
+registerDoParallel(52)
+
+#To calculate the time needed to process each iteration
+start_time <- Sys.time()
+
+
+#---------------------------------------
+# Testing adequacy of the OU models
+#---------------------------------------
+
+# load data
+load("./data/OU_shift.RData")
+
+# test adequacy
+OU_adeq <- vector("list", length(OU))
+if (length(OU) > 0) { 
+  for (i in seq_along(OU)) {
+    OU_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_adeq) <- names(OU)
+adeq_issues_OU <- setdiff(names(OU), names(OU_adeq))
+OU_adeq <- Filter(function(x) !is.na(x)[1], OU_adeq)
+
+OU_mov_opt_anc_adeq <- vector("list", length(OU_mov_opt_anc))
+if (length(OU_mov_opt_anc) > 0) { 
+  for (i in seq_along(OU_mov_opt_anc)) {
+    OU_mov_opt_anc_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_mov_opt_anc[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_mov_opt_anc_adeq) <- names(OU_mov_opt_anc)
+adeq_issues_OU_mov_opt_anc <- which(sapply(OU_mov_opt_anc_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_mov_opt_anc)
+OU_mov_opt_anc_adeq <- Filter(function(x) !is.na(x)[1], OU_mov_opt_anc_adeq)
+
+OU_mov_opt_adeq <- vector("list", length(OU_mov_opt))
+if (length(OU_mov_opt) > 0) { 
+  for (i in seq_along(OU_mov_opt)) {
+    OU_mov_opt_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_mov_opt[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_mov_opt_adeq) <- names(OU_mov_opt)
+adeq_issues_OU_mov_opt <- which(sapply(OU_mov_opt_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_mov_opt)
+OU_mov_opt_adeq <- Filter(function(x) !is.na(x)[1], OU_mov_opt_adeq)
+
+Stasis_OU_subset2_adeq <- vector("list", length(Stasis_OU_subset2))
+if (length(Stasis_OU_subset2) > 0) { 
+  for (i in seq_along(Stasis_OU_subset2)) {
+    Stasis_OU_subset2_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(Stasis_OU_subset2[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(Stasis_OU_subset2_adeq) <- names(Stasis_OU_subset2)
+adeq_issues_Stasis_OU_subset2 <- which(sapply(Stasis_OU_subset2_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_Stasis_OU_subset2)
+Stasis_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], Stasis_OU_subset2_adeq)
+
+URW_OU_subset2_adeq <- vector("list", length(URW_OU_subset2))
+if (length(URW_OU_subset2) > 0) { 
+  for (i in seq_along(URW_OU_subset2)) {
+    URW_OU_subset2_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(URW_OU_subset2[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(URW_OU_subset2_adeq) <- names(URW_OU_subset2)
+adeq_issues_URW_OU_subset2 <- which(sapply(URW_OU_subset2_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_URW_OU_subset2)
+URW_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], URW_OU_subset2_adeq)
+
+GRW_OU_subset2_adeq <- vector("list", length(GRW_OU_subset2))
+if (length(GRW_OU_subset2) > 0) { 
+  for (i in seq_along(GRW_OU_subset2)) {
+    GRW_OU_subset2_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(GRW_OU_subset2[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(GRW_OU_subset2_adeq) <- names(GRW_OU_subset2)
+adeq_issues_GRW_OU_subset2 <- which(sapply(GRW_OU_subset2_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_GRW_OU_subset2)
+GRW_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], GRW_OU_subset2_adeq)
+
+OU_OU_subset1_adeq <- vector("list", length(OU_OU_subset1))
+if (length(OU_OU_subset1) > 0) { 
+  for (i in seq_along(OU_OU_subset1)) {
+    OU_OU_subset1_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_OU_subset1[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_OU_subset1_adeq) <- names(OU_OU_subset1)
+adeq_issues_OU_OU_subset1 <- which(sapply(OU_OU_subset1_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_OU_subset1)
+OU_OU_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_OU_subset1_adeq)
+
+OU_OU_subset2_adeq <- vector("list", length(OU_OU_subset2))
+if (length(OU_OU_subset2) > 0) { 
+  for (i in seq_along(OU_OU_subset2)) {
+    OU_OU_subset2_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_OU_subset2[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_OU_subset2_adeq) <- names(OU_OU_subset2)
+adeq_issues_OU_OU_subset2 <- which(sapply(OU_OU_subset2_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_OU_subset2)
+OU_OU_subset2_adeq <- Filter(function(x) !is.na(x)[1], OU_OU_subset2_adeq)
+
+OU_GRW_subset1_adeq <- vector("list", length(OU_GRW_subset1))
+if (length(OU_GRW_subset1) > 0) { 
+  for (i in seq_along(OU_GRW_subset1)) {
+    OU_GRW_subset1_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_GRW_subset1[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_GRW_subset1_adeq) <- names(OU_GRW_subset1)
+adeq_issues_OU_GRW_subset1 <- which(sapply(OU_GRW_subset1_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_GRW_subset1)
+OU_GRW_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_GRW_subset1_adeq)
+
+OU_URW_subset1_adeq <- vector("list", length(OU_URW_subset1))
+if (length(OU_URW_subset1) > 0) { 
+  for (i in seq_along(OU_URW_subset1)) {
+    OU_URW_subset1_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_URW_subset1[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_URW_subset1_adeq) <- names(OU_URW_subset1)
+adeq_issues_OU_URW_subset1 <- which(sapply(OU_URW_subset1_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_URW_subset1)
+OU_URW_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_URW_subset1_adeq)
+
+OU_Stasis_subset1_adeq <- vector("list", length(OU_Stasis_subset1))
+if (length(OU_Stasis_subset1) > 0) { 
+  for (i in seq_along(OU_Stasis_subset1)) {
+    OU_Stasis_subset1_adeq[[i]] <- tryCatch(
+      fit3adequacy.OU(OU_Stasis_subset1[[i]], plot = FALSE),
+      error = function(e) NA
+    )
+  }
+}
+names(OU_Stasis_subset1_adeq) <- names(OU_Stasis_subset1)
+adeq_issues_OU_Stasis_subset1 <- which(sapply(OU_Stasis_subset1_adeq, function(x) is.na(x)[1]))
+adeq_issues_OU = c(adeq_issues_OU, adeq_issues_OU_Stasis_subset1)
+OU_Stasis_subset1_adeq <- Filter(function(x) !is.na(x)[1], OU_Stasis_subset1_adeq)
+
+# save files
+#save(adeq_issues_OU, OU_adeq, OU_mov_opt_anc_adeq, OU_mov_opt_adeq, Stasis_OU_subset2_adeq, 
+#     URW_OU_subset2_adeq, GRW_OU_subset2_adeq, OU_OU_subset1_adeq, OU_OU_subset2_adeq, 
+#     OU_GRW_subset1_adeq, OU_URW_subset1_adeq, OU_Stasis_subset1_adeq, 
+#     file="[PATH_TO_OUTPUT_FOLDER]/OU_shift_adeq.RData")
